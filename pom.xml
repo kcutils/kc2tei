@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>Kiel Corpus To TEI Converter</name>
+  <description>A program convert Kiel Corpus annotation files into TEI files based on ISO 24624:2016(E)</description>
+  <inceptionYear>2017</inceptionYear>
+  <organization>
+    <name>AG Kommunikationssysteme, Institut fuer Informatik, CAU Kiel</name>
+    <url>http://comsys.informatik.uni-kiel.de</url>
+  </organization>
+
+  <groupId>de.unikiel.informatik.comsys</groupId>
+  <artifactId>kc2tei</artifactId>
+  <version>0.1</version>
+
+  <developers>
+    <developer>
+      <id>sfis</id>
+      <name>Soenke Fischer</name>
+      <email>sfis@informatik.uni-kiel.de</email>
+      <organization>Institut fuer Informatik, CAU Kiel</organization>
+      <organizationUrl>http://www.inf.uni-kiel.de</organizationUrl>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+        <role>tester</role>
+        <role>student</role>
+      </roles>
+      <timezone>Europe/Berlin</timezone>
+    </developer>
+  </developers>
+
+  <contributors>
+    <contributor>
+      <name>Dr. Jesper Zedlitz</name>
+      <email>j.zedlitz@email.uni-kiel.de</email>
+      <organization>AG Kommunikationssysteme, Institut fuer Informatik, CAU Kiel</organization>
+      <organizationUrl>http://comsys.informatik.uni-kiel.de</organizationUrl>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+        <role>tester</role>
+        <role>supervisor</role>
+      </roles>
+      <timezone>Europe/Berlin</timezone>
+    </contributor>
+  </contributors>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/sablecc-maven-plugin -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>sablecc-maven-plugin</artifactId>
+        <version>2.2</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>
