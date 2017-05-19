@@ -1,13 +1,47 @@
-Package kc2tei;  
+Package kc2tei;
+
+// character sets or regular expressions denoted by identifers
+Helpers
+  all = [0 .. 0xFFFF];
+  cr = 13;
+  lf = 10;
+  eol_chars = [cr + lf];
+  chars = [all - eol_chars];
+  tab = 9;
+  space = ' ';
+  whitespace_chars = [tab + space];
+  string_chars = [chars - whitespace_chars];
+  string = string_chars+;
+
+  digit = ['0' .. '9'];
+
+  time_mark = digit+;
+  punctuation_chars = [ '.' + [',' + [ '!' + [ '?' + ';']]]];
+  word = [string_chars - punctuation_chars]+;
+
+States
+  header, transliteration, canonical_transcription, realised_form, timed_labels;
 
 Tokens
+  {header->transliteration,transliteration,canonical_transcription,realised_form,timed_labels} eol = eol_chars;
+  {transliteration->canonical_transcription} oend_marker = 'oend';
+  {canonical_transcription->realised_form} kend_marker = 'kend';
+  {realised_form->timed_labels} hend_marker = 'hend';
+
+  {header} filename = string '.s1h';
+  {transliteration} word = word;
+  {transliteration} noise = '<' string '>';
+  {transliteration} punctuation = punctuation_chars;
+
+  {timed_labels} time_marker = digit digit+;
+
   accent_position_symbol = ''' ''';
   ampersand = '&';
-  aspiration_symbol = 'h';
   comma = ',';
   comment_symbol = 'p' 'c';
   compound_boundary_prefix = '$' '#'; 
   consonant_symbol = 'p' | 'b' | 't' | 'd' | 'k' | 'g' | 'Q' | 'f' | 'v' | 's' | 'z' | 'S' | 'Z' | 'C' | 'j' | 'x' | 'h' | 'm' | 'n' | 'N' | 'l' | 'r';
+  aspiration_symbol = 'h';
   creak1 = 'q' | 'k' 'q';
   creak2 = 'p' 'q' | 't' 'q';
   diphthong = 'a' 'I' | 'a' 'U' | 'O' 'Y';
@@ -56,11 +90,35 @@ Tokens
   verbal_break = '/';
   vocal_noise1_symbol = 's' ':' | 'w' ':' | 'h' ':' | 'l' ':' | 'q' ':' | 'r' ':' | 'g' ':';
   vocal_noise2_symbol = 'h' ':' | 'l' ':' | 'q' ':' | 'r' ':' | 'g' ':';
+  whitespaces = whitespace_chars+;
   word_boundary_prefix =  '#' '#';
   word_internal_prefix = '$';
   word_interruption_symbol = '_';
 
+
+Ignored Tokens
+  whitespaces, eol;
+
 Productions
+  
+
+  file =  filename transliteration+ oend_marker canonical_transcription+ kend_marker realised_form hend_marker timed_labels+;
+
+  transliteration =   {case1} word
+                    | {case2} noise
+                    | {case3} punctuation;
+
+  canonical_transcription =   {case1} consonant
+                            | {case2} aspiration
+                          ;//  | {case3} vowel  // <- TODO: problem
+                          // | {case4} vocal_noise1
+                          //  | {case5} vocal_noise2
+                          //  | {case6} technical_artefact;
+
+  realised_form = label+;
+
+  timed_labels = time_marker label;
+
   accent_label =   {case1} word_internal_prefix pros_label_marker no_accent
                  | {case2} non_word_prefix pros_label_marker no_accent
                  | {case3} word_internal_prefix pros_label_marker full_accent
