@@ -24,18 +24,21 @@ States
 
 Tokens
   {header->transliteration,transliteration,canonical_transcription,realised_form,timed_labels} eol = eol_chars;
-  {transliteration->canonical_transcription} oend_marker = 'oend';
-  {canonical_transcription->realised_form} kend_marker = 'kend';
-  {realised_form->timed_labels} hend_marker = 'hend';
+  {transliteration->canonical_transcription} oend_marker = eol_chars 'oend' eol_chars;
+  {canonical_transcription->realised_form} kend_marker = eol_chars 'kend' eol_chars;
+  {realised_form->timed_labels} hend_marker = eol_chars 'hend' eol_chars;
 
   {header} filename = string '.s1h';
   {transliteration} word = word;
   {transliteration} noise = '<' string '>';
   {transliteration} punctuation = punctuation_chars;
 
+  {canonical_transcription,realised_form} string = string;
+
   {timed_labels} time_marker = digit digit+;
 
   accent_position_symbol = ''' ''';
+  //accent_position_symbol = ''';
   ampersand = '&';
   comma = ',';
   comment_symbol = 'p' 'c';
@@ -101,21 +104,19 @@ Ignored Tokens
 
 Productions
   
-
-  file =  filename transliteration+ oend_marker canonical_transcription+ kend_marker realised_form hend_marker timed_labels+;
+  file =  filename transliteration+ oend_marker canonical_transcription kend_marker realised_form hend_marker timed_labels+; 
 
   transliteration =   {case1} word
                     | {case2} noise
                     | {case3} punctuation;
 
-  canonical_transcription =   {case1} consonant
-                            | {case2} aspiration
-                          ;//  | {case3} vowel  // <- TODO: problem
-                          // | {case4} vocal_noise1
-                          //  | {case5} vocal_noise2
-                          //  | {case6} technical_artefact;
-
-  realised_form = label+;
+  /*
+   * canonical transcription and realised form can be
+   * imprecise as we have all those informations in
+   * the last section (timed labels)
+   */
+  canonical_transcription = string+;
+  realised_form = string+;
 
   timed_labels = time_marker label;
 
