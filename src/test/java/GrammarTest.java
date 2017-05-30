@@ -11,22 +11,31 @@ import org.junit.*;
 
 public class GrammarTest {
 
+  public class MyLexer extends Lexer {
+    public MyLexer(java.io.PushbackReader in) {
+      super(in);
+    }
+    public int getStateId() {
+      return this.state.id();
+    }
+  }
+
   private Start lexParse(File file) throws Exception {
 
       // create lexer
-      Lexer l = new Lexer(new PushbackReader(new FileReader(file), 1024));
+      MyLexer l = new MyLexer(new PushbackReader(new FileReader(file), 1024));
 
-      // print tokens
+      // print states and tokens
       while (true) {
         Token t = l.next();
         if (t instanceof EOF) {
           break;
         }
-        System.out.println(t.getClass() + " " + t);
+        System.out.println("State: " + l.getStateId() + ", Token type: " + t.getClass() + ", Token: '" + t.getText() + "'");
       }
 
       // create new lexer with new file reader which reads from beginning of the file again
-      l = new Lexer(new PushbackReader(new FileReader(file), 1024));
+      l = new MyLexer(new PushbackReader(new FileReader(file), 1024));
 
       // create parser
       Parser p = new Parser(l);
