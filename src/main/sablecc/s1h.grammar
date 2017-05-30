@@ -10,12 +10,12 @@ Helpers
   tab = 9;
   space = ' ';
   whitespace_chars = [tab + space];
+  whitespaces = whitespace_chars+;
   string_chars = [chars - whitespace_chars];
   string = string_chars+;
 
   digit = ['0' .. '9'];
 
-  time_mark = digit+;
   punctuation_chars = [ '.' + [',' + [ '!' + [ '?' + ';']]]];
   word = [string_chars - punctuation_chars]+;
 
@@ -35,13 +35,14 @@ Tokens
 
   {canonical_transcription,realised_form} string = string;
 
-  {timed_labels} time_marker = digit digit+;
+  {timed_labels} time_marker = whitespaces digit+;
+  {timed_labels} time_marker_two = whitespaces digit+ '.' digit+;
 
   accent_position_symbol = ''' ''';
   //accent_position_symbol = ''';
   ampersand = '&';
   comma = ',';
-  comment_symbol = 'p' 'c';
+  comment_symbol = 'p' 'c' | 'P' 'C';
   compound_boundary_prefix = '$' '#'; 
   consonant_symbol = 'p' | 'b' | 't' | 'd' | 'k' | 'g' | 'Q' | 'f' | 'v' | 's' | 'z' | 'S' | 'Z' | 'C' | 'j' | 'x' | 'h' | 'm' | 'n' | 'N' | 'l' | 'r';
   aspiration_symbol = 'h';
@@ -93,7 +94,7 @@ Tokens
   verbal_break = '/';
   vocal_noise1_symbol = 's' ':' | 'w' ':' | 'h' ':' | 'l' ':' | 'q' ':' | 'r' ':' | 'g' ':';
   vocal_noise2_symbol = 'h' ':' | 'l' ':' | 'q' ':' | 'r' ':' | 'g' ':';
-  whitespaces = whitespace_chars+;
+  whitespaces = whitespaces;
   word_boundary_prefix =  '#' '#';
   word_internal_prefix = '$';
   word_interruption_symbol = '_';
@@ -104,7 +105,7 @@ Ignored Tokens
 
 Productions
   
-  file =  filename transliteration+ oend_marker canonical_transcription kend_marker realised_form hend_marker timed_labels+; 
+  file =  filename transliteration+ oend_marker canonical_transcription kend_marker realised_form hend_marker timed_label+; 
 
   transliteration =   {case1} word
                     | {case2} noise
@@ -118,7 +119,7 @@ Productions
   canonical_transcription = string+;
   realised_form = string+;
 
-  timed_labels = time_marker label;
+  timed_label = time_marker label time_marker_two;
 
   accent_label =   {case1} word_internal_prefix pros_label_marker no_accent
                  | {case2} non_word_prefix pros_label_marker no_accent
