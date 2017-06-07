@@ -18,6 +18,7 @@ Helpers
 
   punctuation_chars = [ '.' + [',' + [ '!' + [ '?' + ';']]]];
   word = [string_chars - punctuation_chars]+;
+  file_extension = '.s1h' | '.s2';
 
 States
   header, transliteration, canonical_transcription, realised_form, timed_labels;
@@ -28,7 +29,7 @@ Tokens
   {canonical_transcription->realised_form} kend_marker = eol_chars 'kend' eol_chars;
   {realised_form->timed_labels} hend_marker = eol_chars 'hend' eol_chars;
 
-  {header} filename = string '.s1h';
+  {header} filename = string file_extension;
   {transliteration} word = word;
   {transliteration} noise = '<' string '>';
   {transliteration} punctuation = punctuation_chars;
@@ -43,9 +44,32 @@ Tokens
   ampersand = '&';
   comma = ',';
   comment_symbol = 'p' 'c' | 'P' 'C';
-  compound_boundary_prefix = '$' '#'; 
-  consonant_symbol = 'p' | 'b' | 't' | 'd' | 'k' | 'g' | 'Q' | 'f' | 'v' | 's' | 'z' | 'S' | 'Z' | 'C' | 'j' | 'x' | 'h' | 'm' | 'n' | 'N' | 'l' | 'r';
-  aspiration_symbol = 'h';
+  compound_boundary_prefix = '$' '#';
+
+  // consonant tokens
+  p = 'p';
+  b = 'b';
+  t = 't';
+  d = 'd';
+  k = 'k';
+  g = 'g';
+  big_q = 'Q';
+  f = 'f';
+  v = 'v';
+  s = 's';
+  z = 'z';
+  big_s = 'S';
+  big_z = 'Z';
+  big_c = 'C';
+  j = 'j';
+  x = 'x';
+  h = 'h'; // is also used to mark aspiration
+  m = 'm';
+  n = 'n'; // is also not specified symbol
+  big_n = 'N';
+  l = 'l';
+  r = 'r';
+
   creak1 = 'q' | 'k' 'q';
   creak2 = 'p' 'q' | 't' 'q';
   diphthong = 'a' 'I' | 'a' 'U' | 'O' 'Y';
@@ -71,7 +95,6 @@ Tokens
   non_vocal_noise = ':' 'k'; 
   non_word_prefix = '#';
   nonearly_valley = '[';
-  not_specified = 'n';
   null = '0';
   one = '1';
   phrase_symbol = 'P' 'G';
@@ -92,8 +115,15 @@ Tokens
   uncertainty = '%';
   upstep = '|';
   verbal_break = '/';
-  vocal_noise1_symbol = 's' ':' | 'w' ':' | 'h' ':' | 'l' ':' | 'q' ':' | 'r' ':' | 'g' ':';
-  vocal_noise2_symbol = 'h' ':' | 'l' ':' | 'q' ':' | 'r' ':' | 'g' ':';
+
+  unspecified_noise = 'g:'; // <Ger\"ausch>
+  cough = 'q:';             // <Husten>
+  laughter = 'l:';          // <Lachen>
+  harrumph = 'r:';          // <R\"auspern>
+  swallow = 'w:';           // <Schlucken>
+  smack = 's:';             // <Schmatzen>
+  vocal_noise_h = 'h:';
+
   whitespaces = whitespaces;
   word_boundary_prefix =  '#' '#';
   word_internal_prefix = '$';
@@ -137,6 +167,13 @@ Productions
   aspiration =   {case1} minus aspiration_symbol
                | {case2} minus aspiration_symbol fwm;
 
+  aspiration_symbol =   {case1} b h
+                      | {case2} d h
+                      | {case3} g h
+                      | {case4} k h
+                      | {case5} p h
+                      | {case6} t h;
+
   boundaryconsonant =   {case1} word_boundary_prefix consonant
                       | {case2} word_boundary_prefix consonant_modification
                       | {case3} word_boundary_prefix consonantcreak1_modification;
@@ -168,6 +205,29 @@ Productions
                            | {case3} consonant_insertion;
 
   consonant_replacement =  uncertainty? [c1]:consonant_symbol minus [c2]:consonant_symbol;
+
+  consonant_symbol =   {p} p
+                     | {b} b
+                     | {t} t
+                     | {d} d
+                     | {k} k
+                     | {g} g
+                     | {big_q} big_q
+                     | {f} f
+                     | {v} v
+                     | {s} s
+                     | {z} z
+                     | {big_s} big_s
+                     | {big_z} big_z
+                     | {big_c} big_c
+                     | {j} j
+                     | {x} x
+                     | {h} h
+                     | {m} m
+                     | {n} n
+                     | {big_n} big_n
+                     | {l} l
+                     | {r} r;
 
   consonantcreak1_insertion = minus creak1;
 
@@ -286,6 +346,8 @@ Productions
                     | {case5} uncertain_stretch_label
                     | {case6} verbal_break_label
                     | {case7} word_interruption_label;
+
+  not_specified = n;
 
   other_accent =   {case1} partial_accent synchronizer
                  | {case2} partial_accent effort_marker
@@ -421,6 +483,20 @@ Productions
 
   verbal_break_label =   {case1} word_internal_prefix truncation
                        | {case2} word_internal_prefix false_start;
+
+  vocal_noise1_symbol =   {case1} smack
+                        | {case2} swallow
+                        | {case3} vocal_noise_h
+                        | {case4} laughter
+                        | {case5} cough
+                        | {case6} harrumph
+                        | {case7} unspecified_noise;
+
+  vocal_noise2_symbol =   {case1} vocal_noise_h
+                        | {case2} laughter
+                        | {case3} cough
+                        | {case4} harrumph
+                        | {case5} unspecified_noise;
 
   vocal_noise1 =   {case1} vocal_noise1_symbol
                  | {case2} uncertainty silence_symbol
