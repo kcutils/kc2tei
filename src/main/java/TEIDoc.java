@@ -51,7 +51,8 @@ public class TEIDoc{
                                                                                             .addText("Kiel");
     ((Element) this.doc.selectSingleNode("/TEI/teiHeader/fileDesc/publicationStmt/address")).addElement("country")
                                                                                             .addText("Germany");
-    ((Element) this.doc.selectSingleNode("/TEI")).addElement("body");
+    ((Element) this.doc.selectSingleNode("/TEI")).addElement("text");
+    ((Element) this.doc.selectSingleNode("/TEI/text")).addElement("body");
     
   }
 
@@ -61,19 +62,17 @@ public class TEIDoc{
     if (nextTimeLineEntry == 0) {
       // create timeline node
       // and absolute reference point
-      ((Element) this.doc.selectSingleNode("/TEI/body")).addElement("timeline")
-                                                        .addAttribute("unit", "s")
-                                                        .addAttribute("origin", "#T0");
-      ((Element) this.doc.selectSingleNode("/TEI/body/timeline")).addElement("when")
-                                                                 .addAttribute("xml:id", "T0")
-                                                                 .addAttribute("absolute", defaultStartTime);
+      ((Element) this.doc.selectSingleNode("/TEI/text")).addElement("timeline")
+                                                        .addAttribute("unit", "s");
+      ((Element) this.doc.selectSingleNode("/TEI/text/timeline")).addElement("when")
+                                                                 .addAttribute("xml:id", "T0");
       nextTimeLineEntry++;
     }
 
     if (! lastInterval.equals(interval)) {
 
       // create time stamp relative to absolute reference point
-      ((Element) this.doc.selectSingleNode("/TEI/body/timeline")).addElement("when")
+      ((Element) this.doc.selectSingleNode("/TEI/text/timeline")).addElement("when")
                                                                  .addAttribute("xml:id", "T" + nextTimeLineEntry)
                                                                  .addAttribute("interval", interval)
                                                                  .addAttribute("since", "#T0");
