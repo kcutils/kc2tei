@@ -9,6 +9,13 @@ public class Translation extends DepthFirstAdapter {
   // XML producing methods
   private TEIDoc doc = new TEIDoc();
 
+  // in case we have found a timed label (no matter which content)
+  // produce some entries in XML document
+  // NOTE: in Kiel Corpus files these labels come before time markers
+  public void caseATlabel (ATlabel node) {
+    doc.addUnspecifiedUtterance(node.toString());
+  }
+
   // in case we have found relevant time marker
   // replace all contained whitespaces and produce
   // timeline entries in XML document

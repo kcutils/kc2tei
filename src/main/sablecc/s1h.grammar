@@ -149,7 +149,9 @@ Productions
   canonical_transcription = string+;
   realised_form = string+;
 
-  timed_label = time_marker label time_marker_two;
+  timed_label = time_marker tlabel time_marker_two;
+
+  tlabel = label;
 
   accent_label =   {case1} word_internal_prefix pros_label_marker no_accent
                  | {case2} non_word_prefix pros_label_marker no_accent
