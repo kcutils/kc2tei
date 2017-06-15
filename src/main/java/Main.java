@@ -1,6 +1,11 @@
 package kc2tei;
 
 import org.apache.commons.cli.*;
+import java.io.*;
+import kc2tei.analysis.*;
+import kc2tei.lexer.*;
+import kc2tei.node.*;
+import kc2tei.parser.*;
 
 public class Main {
 
@@ -15,7 +20,34 @@ public class Main {
 
     processCmdLineArgs(args);
 
-    // TODO
+    try {
+
+      // create filereader
+      FileReader fr = new FileReader(inputFileName);
+
+      // create pushbackreader
+      PushbackReader pbr = new PushbackReader(fr, 1024);
+
+     // create lexer
+     Lexer l = new Lexer(pbr);
+
+     // create parser
+     kc2tei.parser.Parser p = new kc2tei.parser.Parser(l);
+
+     // parse input
+     Start tree = p.parse();
+
+     // apply translations
+     Translation t = new Translation();
+     tree.apply(t);
+
+     t.writeSout();
+
+    } catch (Exception e) {
+      System.out.print("Error: ");
+      System.out.println(e.getMessage());
+      System.exit(1);
+    }
   }
 
   private static void processCmdLineArgs (String[] args) {
