@@ -19,6 +19,9 @@ public class TEIDoc{
   private int nextTimeLineEntry = 0;  // holds timeline entry that can be added next
                                       // (n-1) entries were already added
 
+  private String lastInterval = "-1"; // holds the last given interval in order to
+                                      // be able to avoid duplicate timeline entries
+
   public TEIDoc() {
 
     // create XML document
@@ -67,12 +70,16 @@ public class TEIDoc{
       nextTimeLineEntry++;
     }
 
-    // create time stamp relative to absolute reference point
-    ((Element) this.doc.selectSingleNode("/TEI/body/timeline")).addElement("when")
-                                                               .addAttribute("xml:id", "T" + nextTimeLineEntry)
-                                                               .addAttribute("interval", interval)
-                                                               .addAttribute("since", "#T0");
-    nextTimeLineEntry++;
+    if (! lastInterval.equals(interval)) {
+
+      // create time stamp relative to absolute reference point
+      ((Element) this.doc.selectSingleNode("/TEI/body/timeline")).addElement("when")
+                                                                 .addAttribute("xml:id", "T" + nextTimeLineEntry)
+                                                                 .addAttribute("interval", interval)
+                                                                 .addAttribute("since", "#T0");
+      lastInterval = interval;
+      nextTimeLineEntry++;
+    }
   }
 
   // return XML document
