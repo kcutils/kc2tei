@@ -8,14 +8,14 @@ Some commands used while testing/developing
 -------------------------------------------
 
 Cleaning all built files
-$ mvn clean
+    $ mvn clean
 
 Run tests defined in ./src/test/
-$ mvn test
+    $ mvn test
 
 Build executable JAR-file
-$ mvn package
+    $ mvn package
 
 Run built program
-$ java -jar target/kc2tei-0.1.jar -i src/test/resources/sample_kc_file.s1h
+    $ java -jar target/kc2tei-0.1.jar -i src/test/resources/sample_kc_file.s1h
 
