@@ -30,9 +30,10 @@ Tokens
   {realised_form->timed_labels} hend_marker = eol_chars 'hend' eol_chars;
 
   {header} filename = string file_extension;
-  {transliteration} word = word;
   {transliteration} noise = '<' string '>';
   {transliteration} punctuation = punctuation_chars;
+  {transliteration} speaker = word ':';
+  {transliteration} word = word;
 
   {canonical_transcription,realised_form} string = string;
 
@@ -139,7 +140,8 @@ Productions
 
   transliteration =   {case1} word
                     | {case2} noise
-                    | {case3} punctuation;
+                    | {case3} punctuation
+                    | {case4} speaker;
 
   /*
    * canonical transcription and realised form can be
