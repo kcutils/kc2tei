@@ -1,5 +1,3 @@
-package kc2tei;
-
 import java.util.Iterator;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;

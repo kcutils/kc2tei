@@ -1,5 +1,3 @@
-package kc2tei;
-
 import org.apache.commons.cli.*;
 import java.io.*;
 import kc2tei.analysis.*;

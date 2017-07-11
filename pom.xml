@@ -99,7 +99,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib</classpathPrefix>
-              <mainClass>kc2tei.Main</mainClass>
+              <mainClass>Main</mainClass>
             </manifest>
           </archive>
         </configuration>

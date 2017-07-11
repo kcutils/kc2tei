@@ -1,5 +1,3 @@
-package kc2tei;
-
 import kc2tei.analysis.*;
 import kc2tei.node.*;
 
