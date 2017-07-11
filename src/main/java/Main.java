@@ -1,9 +1,10 @@
 import org.apache.commons.cli.*;
-import java.io.*;
-import kc2tei.analysis.*;
-import kc2tei.lexer.*;
-import kc2tei.node.*;
-import kc2tei.parser.*;
+
+import java.io.FileReader;
+import java.io.PushbackReader;
+
+import kc2tei.lexer.Lexer;
+import kc2tei.node.Start;
 
 public class Main {
 
@@ -14,7 +15,7 @@ public class Main {
   private static String inputFileName;
   private static String outputFileName;
 
-  public static void main (String [] args) {
+  public static void main(String[] args) {
 
     processCmdLineArgs(args);
 
@@ -26,20 +27,20 @@ public class Main {
       // create pushbackreader
       PushbackReader pbr = new PushbackReader(fr, 1024);
 
-     // create lexer
-     Lexer l = new Lexer(pbr);
+      // create lexer
+      Lexer l = new Lexer(pbr);
 
-     // create parser
-     kc2tei.parser.Parser p = new kc2tei.parser.Parser(l);
+      // create parser
+      kc2tei.parser.Parser p = new kc2tei.parser.Parser(l);
 
-     // parse input
-     Start tree = p.parse();
+      // parse input
+      Start tree = p.parse();
 
-     // apply translations
-     Translation t = new Translation();
-     tree.apply(t);
+      // apply translations
+      Translation t = new Translation();
+      tree.apply(t);
 
-     t.writeSout();
+      t.writeSout();
 
     } catch (Exception e) {
       System.out.print("Error: ");
@@ -48,30 +49,30 @@ public class Main {
     }
   }
 
-  private static void processCmdLineArgs (String[] args) {
+  private static void processCmdLineArgs(String[] args) {
 
     // define available options
     Option versionOp = OptionBuilder.withLongOpt("version")
-                                    .withDescription("Print the version of the application")
-                                    .create('v');
+                           .withDescription("Print the version of the application")
+                           .create('v');
     Option helpOp = OptionBuilder.withLongOpt("help")
-                                 .withDescription("Print this output")
-                                 .create('h');
+                        .withDescription("Print this output")
+                        .create('h');
     Option inFileOp = OptionBuilder.withLongOpt("input")
-                                    .withDescription("The file to be processed")
-                                    .hasArg()
-                                    .withArgName("FILE")
-                                    .isRequired()
-                                    .create('i');
+                          .withDescription("The file to be processed")
+                          .hasArg()
+                          .withArgName("FILE")
+                          .isRequired()
+                          .create('i');
     Option outFileOp = OptionBuilder.withLongOpt("output")
-                                     .withDescription("The file to write output to")
-                                     .hasArg()
-                                     .withArgName("FILE")
-                                     .create('o');
+                           .withDescription("The file to write output to")
+                           .hasArg()
+                           .withArgName("FILE")
+                           .create('o');
 
     // we need two sets of options to be able to first check for some options
     // without getting exceptions that required options are not provided
-    Options options  = new Options();
+    Options options = new Options();
     Options options1 = new Options();
 
     // place options in option sets
@@ -92,7 +93,8 @@ public class Main {
       cmd = parser.parse(options1, args);
 
       printUsage(formatter, cmd, options);
-    } catch (Exception e) {}
+    } catch (Exception e) {
+    }
 
     // reset cmd
     cmd = null;
@@ -114,8 +116,8 @@ public class Main {
     inputFileName = cmd.getOptionValue("input");
   }
 
-  private static void printUsage (HelpFormatter formatter, CommandLine cmd, Options options) {
- 
+  private static void printUsage(HelpFormatter formatter, CommandLine cmd, Options options) {
+
     if (cmd == null) {
       formatter.printHelp(progName, header, options, footer, true);
     } else {
