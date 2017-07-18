@@ -2,6 +2,7 @@ import org.apache.commons.cli.*;
 
 import java.io.FileReader;
 import java.io.PushbackReader;
+import java.util.List;
 
 import kc2tei.lexer.Lexer;
 import kc2tei.node.Start;
@@ -15,11 +16,15 @@ public class Main {
   private static String inputFileName;
   private static String outputFileName;
 
-  public static void main(String[] args) {
+  private static AnnotationElementCollection annotationElements = new AnnotationElementCollection();
+
+  private static TEIDoc teiDoc = null;
+
+  public static void main(String[] args) throws Exception {
 
     processCmdLineArgs(args);
 
-    try {
+//    try {
 
       // create filereader
       FileReader fr = new FileReader(inputFileName);
@@ -37,16 +42,44 @@ public class Main {
       Start tree = p.parse();
 
       // apply translations
-      Translation t = new Translation();
+
+      TranslationAdapter t = null;
+
+      t = new UnspecificLabelTranslation(annotationElements);
+      tree.apply(t);
+      ((UnspecificLabelTranslation) t).setEndTimes();
+
+      t = new SpecificLabelTranslation(annotationElements);
       tree.apply(t);
 
-      t.writeSout();
+      // DEBUG
+//      System.out.println(annotationElements + "\n");
 
+
+      // DEBUG
+      /*
+      for (TimedAnnotationElement w : annotationElements.getListOfWords()) {
+        System.out.println("\n" + w );
+        List<TimedAnnotationElement> list = annotationElements.getListOfAnnotationElementsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
+        if (list != null) {
+          for (TimedAnnotationElement a : list) {
+            if (a != null && a != w) {
+              System.out.println(a);
+            }
+          }
+        }
+      }*/
+
+      annotationElements.setTimeMarkerNames();
+      teiDoc = new TEIDoc(annotationElements);
+      teiDoc.writeSout();
+
+/*
     } catch (Exception e) {
       System.out.print("Error: ");
       System.out.println(e.getMessage());
       System.exit(1);
-    }
+    }*/
   }
 
   private static void processCmdLineArgs(String[] args) {

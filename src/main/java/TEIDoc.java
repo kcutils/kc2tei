@@ -1,124 +1,114 @@
-import java.util.Iterator;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.dom4j.Namespace;
-import org.dom4j.Node;
-import org.dom4j.XPath;
+import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.jaxen.SimpleNamespaceContext;
+import org.jaxen.XPath;
+import org.jaxen.dom4j.Dom4jXPath;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class TEIDoc{
 
-  private Document doc;
-  private Document docCopy; // holds a copy that can be modified (namespace)
-                            // without modifying original doc
+  private Document doc = null;
 
   private Namespace xmlns = Namespace.get("http://www.tei-c.org/ns/1.0");
 
-  private int nextTimeLineEntry = 0;  // holds timeline entry that can be added next
-                                      // (n-1) entries were already added
+  private HashMap namespaceMap = new HashMap();
+  private XPath xpath = null;
 
-  private String lastInterval = "-1"; // holds the last given interval in order to
-                                      // be able to avoid duplicate timeline entries
+  private AnnotationElementCollection annotationElements = null;
 
-  public TEIDoc() {
 
-    // create XML document
+  private void createXMLdoc () {
     this.doc = DocumentHelper.createDocument();
+    namespaceMap.put("tei", "http://www.tei-c.org/ns/1.0");
+  }
 
+  private Element addElementFoundByXpath (String xpathExpr) throws Exception {
+    xpath = new Dom4jXPath(xpathExpr);
+    xpath.setNamespaceContext(new SimpleNamespaceContext(namespaceMap));
+    return (Element) xpath.selectSingleNode(doc);
+  }
+
+  private void createXMLHeader () throws Exception {
     // built common header informations
-
-    // if we define namespace at this place then xpathes won't work
-    // this.doc.addElement("TEI", "http://www.tei-c.org/ns/1.0");
-    this.doc.addElement("TEI");
-
-    // find some nodes by xpathes and cast them as elements to add subelements and attributes
-    ((Element) this.doc.selectSingleNode("/TEI")).addElement("teiHeader");
-    ((Element) this.doc.selectSingleNode("/TEI/teiHeader")).addElement("fileDesc");
-    ((Element) this.doc.selectSingleNode("/TEI/teiHeader/fileDesc")).addElement("titleStmt")
-                                                                    .addElement("title")
-                                                                    .addText("TODO");
-    Element pubStmt = DocumentHelper.createElement("publicationStmt");
-    ((Element) this.doc.selectSingleNode("/TEI/teiHeader/fileDesc")).content().add(1, pubStmt);
-    ((Element) this.doc.selectSingleNode("/TEI/teiHeader/fileDesc/publicationStmt")).addElement("authority")
-                                                                                    .addText("ISFAS");
-    ((Element) this.doc.selectSingleNode("/TEI/teiHeader/fileDesc/publicationStmt")).addElement("availability")
-                                                                                    .addElement("p")
-                                                                                    .addText("TODO");
-    ((Element) this.doc.selectSingleNode("/TEI/teiHeader/fileDesc/publicationStmt")).addElement("address")
-                                                                                    .addElement("street")
-                                                                                    .addText("TODO");
-    ((Element) this.doc.selectSingleNode("/TEI/teiHeader/fileDesc/publicationStmt/address")).addElement("postCode")
-                                                                                            .addText("24-TODO");
-    ((Element) this.doc.selectSingleNode("/TEI/teiHeader/fileDesc/publicationStmt/address")).addElement("placeName")
-                                                                                            .addText("Kiel");
-    ((Element) this.doc.selectSingleNode("/TEI/teiHeader/fileDesc/publicationStmt/address")).addElement("country")
-                                                                                            .addText("Germany");
-    Element srcDesc = DocumentHelper.createElement("sourceDesc");
-    ((Element) this.doc.selectSingleNode("/TEI/teiHeader/fileDesc")).content().add(2, srcDesc);
-    ((Element) this.doc.selectSingleNode("/TEI/teiHeader/fileDesc/sourceDesc")).addElement("recordingStmt")
-                                                                               .addElement("recording")
-                                                                               .addAttribute("type", "audio");
-    ((Element) this.doc.selectSingleNode("/TEI")).addElement("text");
-    ((Element) this.doc.selectSingleNode("/TEI/text")).addElement("body");
-    
+    this.doc.addElement(new QName("TEI", xmlns)).addElement("teiHeader").addElement("fileDesc").addElement("titleStmt").addElement("title").addText("TODO");
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").addElement("publicationStmt").addElement("authority").addText("ISFAS");
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt").addElement("availability").addElement("p").addText("TODO");
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt").addElement("address").addElement("street").addText("TODO");
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("postCode").addText("24-TODO");
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("placeName").addText("Kiel");
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("country").addText("Germany");
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").addElement("sourceDesc").addElement("recordingStmt").addElement("recording").addAttribute("type", "audio");
   }
 
-  // get a duration (interval) as String and create a timeline entry
-  // first timeline entry is an absolute reference point
-  public void addTimeLineEntry (String interval) {
-    if (nextTimeLineEntry == 0) {
-      // create timeline node
-      // and absolute reference point
-      Element timeline = DocumentHelper.createElement("timeline");
-      timeline.addAttribute("unit", "s");
-      ((Element) this.doc.selectSingleNode("/TEI/text")).content().add(0, timeline);
-      ((Element) this.doc.selectSingleNode("/TEI/text/timeline")).addElement("when")
-                                                                 .addAttribute("xml:id", "T0");
-      nextTimeLineEntry++;
-    }
+//  public TEIDoc() throws Exception {}
 
-    if (! lastInterval.equals(interval)) {
+  public TEIDoc (AnnotationElementCollection annotationElements) throws Exception {
+    this.annotationElements =  annotationElements;
 
-      // create time stamp relative to absolute reference point
-      ((Element) this.doc.selectSingleNode("/TEI/text/timeline")).addElement("when")
-                                                                 .addAttribute("xml:id", "T" + nextTimeLineEntry)
-                                                                 .addAttribute("interval", interval)
-                                                                 .addAttribute("since", "#T0");
-      lastInterval = interval;
-      nextTimeLineEntry++;
+    createXMLdoc();
+    createXMLHeader();
+
+    // add text tag
+    addElementFoundByXpath("/tei:TEI").addElement("text");
+
+    // add timeline
+    addTimeLineEntries();
+
+    // add body
+    addElementFoundByXpath("/tei:TEI/tei:text").addElement("body").addElement("p").addText("dummy");
+
+    // add content
+    addAnnotationBlocks();
+  }
+
+  private void addTimeLineEntries () throws Exception {
+
+    // set reference point
+    addElementFoundByXpath("/tei:TEI/tei:text").addElement("timeline").addAttribute("unit", "s").addElement("when").addAttribute("xml:id", "T0");
+
+    for (int i = 0; i < annotationElements.getTimeMarkerList().size(); i++) {
+      addElementFoundByXpath("/tei:TEI/tei:text/tei:timeline").addElement("when").addAttribute("xml:id", annotationElements.getTimeMarkerList().get(i).getName()).
+                                                                                                addAttribute("interval", Float.toString(annotationElements.getTimeMarkerList().get(i).getTime())).
+                                                                                                addAttribute("since", "#T0");
     }
   }
 
-  public void addUnspecifiedUtterance (String u) {
-    ((Element) this.doc.selectSingleNode("/TEI/text/body")).addElement("u")
-                                                           .addAttribute("start", "#T" + (nextTimeLineEntry + 1))
-                                                           .addAttribute("end", "#T" + (nextTimeLineEntry + 2))
-                                                           .addText(u);
+  private void addAnnotationBlocks () throws Exception {
+    Integer utteranceCounter = 1;
+    Integer spanCounter = 1;
+    for (TimedAnnotationElement w : annotationElements.getListOfWords()) {
+      Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
+                                                                      addAttribute("start", w.getStartTime().getName()).addAttribute("end", w.getEndTime().getName());
+      annotationBlock.addElement("u").addAttribute("xml:id", "u" + utteranceCounter).addElement("w").addText(w.getContent().toString());
+      Element spanGrp = annotationBlock.addElement("spanGrp"); //.addAttribute("notation", "phonetic");
+
+      List<TimedAnnotationElement> list = annotationElements.getListOfAnnotationElementsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
+      if (list != null) {
+        for (TimedAnnotationElement a : list) {
+          if (a != null && a != w) {
+            spanGrp.addElement("span").addAttribute("from", a.getStartTime().getName()).addAttribute("to", a.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(a.getContent().toString());
+            spanCounter++;
+          }
+        }
+      }
+      utteranceCounter++;
+
+/*      System.out.println("\n" + w);
+      }*/
+    }
+
   }
 
-  // return XML document
-  // enriched by namespace information
-  public Document get () {
-    // ugly hack to avoid problems with xpath when namespace is set
-    this.docCopy = doc;
-//    Element r = this.docCopy.getRootElement();
-//    for ( Iterator i = r.elementIterator(); i.hasNext(); ) {
-//      Element e = (Element) i.next();
-//      e.add(xmlns);
-//    }
-//    r.add(xmlns);
-//    this.docCopy.getRootElement().addNamespace("", xmlns);
-    return docCopy;
-  }
 
   // write XML document to stdout
   public void writeSout () throws Exception {
     // Pretty print the document to System.out
     OutputFormat format = OutputFormat.createPrettyPrint();
     XMLWriter writer = new XMLWriter(System.out, format);
-    writer.write(this.get());
+    writer.write(doc);
   }
 
 }
