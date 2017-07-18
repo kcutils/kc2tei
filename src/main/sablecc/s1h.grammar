@@ -30,7 +30,7 @@ Tokens
   {realised_form->timed_labels} hend_marker = eol_chars 'hend' eol_chars;
 
   {header} filename = string file_extension;
-  {transliteration} noise = '<' string '>';
+  {transliteration} noise = '<#' string '>' | '<:' string '>' | '<A>' | '<Schmatzen>' | '<P>' | '<Z>';
   {transliteration} punctuation = punctuation_chars;
   {transliteration} speaker = word ':';
   {transliteration} word = word;

@@ -147,7 +147,7 @@ public class GrammarTest {
       Assert.assertTrue(sentencePunctuationCounter == sentenceStartCounter); // each starting sentence ends
       Assert.assertTrue(punctuationCounter >= sentencePunctuationCounter); // a sentence punctuation is a punctuation
     }
-    Assert.assertTrue(wordBoundaryCounter >= wordCounter); //TODO: shouldn't they be equal?
+    Assert.assertTrue(wordBoundaryCounter == wordCounter );
 
     System.out.println("\nEnd of processing of " + fileName + " .");
     System.out.println("----------------------------------------------------------------------");
