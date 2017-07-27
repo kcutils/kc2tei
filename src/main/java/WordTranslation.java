@@ -2,7 +2,7 @@ import kc2tei.node.*;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class SpecificLabelTranslation extends TranslationAdapter {
+public class WordTranslation extends TranslationAdapter {
 
   private Word currentWord = null;
   private TimeMark currentTimeMark = null;
@@ -11,11 +11,19 @@ public class SpecificLabelTranslation extends TranslationAdapter {
   private Boolean wasInWord = false;
   private LinkedBlockingQueue<Word> words = new LinkedBlockingQueue<>();
 
-  public SpecificLabelTranslation(AnnotationElementCollection annotationElementCollection) {
+  public WordTranslation(AnnotationElementCollection annotationElementCollection) {
     super(annotationElementCollection);
   }
 
   public void caseTWord (TWord node) {
+    wordFound(node);
+  }
+
+  public void caseTHesistation (THesistation node) {
+    wordFound(node);
+  }
+
+  public void wordFound (Node node) {
     currentWord = new Word(node);
     annotationElementCollection.add(currentWord);
 

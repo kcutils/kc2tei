@@ -17,7 +17,8 @@ Helpers
   digit = ['0' .. '9'];
 
   punctuation_chars = [ '.' + [',' + [ '!' + [ '?' + ';']]]];
-  word = [string_chars - punctuation_chars]+;
+  special_chars = [ '<' + [ '>' +  [ ':' + [ '%' + '#' ]]]];
+  word = [[string_chars - punctuation_chars ] - special_chars ]+;
   file_extension = '.s1h' | '.s2';
 
 States
@@ -30,9 +31,32 @@ Tokens
   {realised_form->timed_labels} hend_marker = eol_chars 'hend' eol_chars;
 
   {header} filename = string file_extension;
-  {transliteration} noise = '<#' string '>' | '<:' string '>' | '<A>' | '<Schmatzen>' | '<P>' | '<Z>';
+  {transliteration} body_noise =   '<Lachen>'
+                                 | '<Husten>'
+                                 | '<R"auspern>'
+                                 | '<Schmatzen>'
+                                 | '<Schlucken>'
+                                 | '<Ger"ausch>';
+  {transliteration} external_noise =   '<#Klicken>'
+                                     | '<#Klingeln>'
+                                     | '<#Klopfen>'
+                                     | '<#Mikrobe>'
+                                     | '<#Mikrowind>'
+                                     | '<#Quietschen>'
+                                     | '<#Rascheln>'
+                                     | '<#>';
+  {transliteration} breathing = '<A>';
+  {transliteration} pause = '<P>';
+  {transliteration} hesistational_lengthning = '<Z>';
+  {transliteration} hesistation =   '<"ahm>'
+                                  | '<hm>'
+                                  | '<"ah>'
+                                  | '<h"as>';
+  {transliteration} unidentified_utterance = '<%>';
+  {transliteration} overlapping_boundary_begin_marker = '<:';
+  {transliteration} overlapping_boundary_end_marker = ':>';
   {transliteration} punctuation = punctuation_chars;
-  {transliteration} speaker = word ':';
+  {transliteration} speaker = word ': ';
   {transliteration} word = word;
 
   {canonical_transcription,realised_form} string = string;
@@ -136,12 +160,22 @@ Ignored Tokens
 
 Productions
   
-  file =  filename transliteration+ oend_marker canonical_transcription kend_marker realised_form hend_marker timed_label+; 
+  file =  filename transliteration+ oend_marker canonical_transcription kend_marker realised_form hend_marker timed_label+;
 
-  transliteration =   {case1} word
-                    | {case2} noise
-                    | {case3} punctuation
-                    | {case4} speaker;
+  transliteration_non_vocal_utterance =   {body_noise} body_noise
+                                        | {external_noise} external_noise
+                                        | {breathing} breathing
+                                        | {pause} pause
+                                        | {hesistational_lengthning} hesistational_lengthning;
+
+  transliteration_content =   {word} word
+                            | {non_vocal_utterance} transliteration_non_vocal_utterance
+                            | {hesistation} hesistation
+                            | {punctuation} punctuation
+                            | {speaker} speaker
+                            | {unidentified_utterance} unidentified_utterance;
+  transliteration =   {non_overlapping_content} transliteration_content
+                    | {overlapping_content} overlapping_boundary_begin_marker transliteration_content+ overlapping_boundary_end_marker;
 
   /*
    * canonical transcription and realised form can be

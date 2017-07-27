@@ -55,7 +55,8 @@ public class GrammarTest {
     if (c == kc2tei.node.TFilename.class) {
       filenameCounter++;
     }
-    if (c == kc2tei.node.TNoise.class) {
+    // OK, not all of these things are noises ...
+    if (c == kc2tei.node.TBodyNoise.class || c == kc2tei.node.TExternalNoise.class || c == kc2tei.node.TBreathing.class || c == kc2tei.node.TPause.class || c == kc2tei.node.THesistationalLengthning.class) {
       noiseCounter++;
     }
     if (c == kc2tei.node.TVocalNoiseH.class) {
@@ -167,6 +168,10 @@ public class GrammarTest {
   public class testTranslator extends DepthFirstAdapter {
 
     public void caseTWord(TWord node) {
+      wordCounter++;
+    }
+
+    public void caseTHesistation(THesistation node) {
       wordCounter++;
     }
 

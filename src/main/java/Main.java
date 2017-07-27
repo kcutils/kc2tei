@@ -2,7 +2,6 @@ import org.apache.commons.cli.*;
 
 import java.io.FileReader;
 import java.io.PushbackReader;
-import java.util.List;
 
 import kc2tei.lexer.Lexer;
 import kc2tei.node.Start;
@@ -48,7 +47,7 @@ public class Main {
       t = new UnspecificLabelTranslation(annotationElements);
       tree.apply(t);
 
-      t = new SpecificLabelTranslation(annotationElements);
+      t = new WordTranslation(annotationElements);
       tree.apply(t);
 
       // DEBUG

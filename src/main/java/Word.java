@@ -1,8 +1,8 @@
-import kc2tei.node.TWord;
+import kc2tei.node.Node;
 
-public class Word extends TimedAnnotationElement<TWord> {
+public class Word extends TimedAnnotationElement<Node> {
 
-  public Word (TWord word) {
+  public Word (Node word) {
     super(word);
   }
 }
