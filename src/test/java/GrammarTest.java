@@ -175,13 +175,16 @@ public class GrammarTest {
       wordCounter++;
     }
 
-    public void caseACase1SentencePunctuation(ACase1SentencePunctuation node) {
+    public void caseAFullStopSentencePunctuation (AFullStopSentencePunctuation node) {
+      sentencePunctuationCounter++;
+    }
+    public void caseAQuestionMarkSentencePunctuation (AQuestionMarkSentencePunctuation node) {
+      sentencePunctuationCounter++;
+    }
+    public void caseAExclamationMarkSentencePunctuation (AExclamationMarkSentencePunctuation node) {
       sentencePunctuationCounter++;
     }
 
-    public void caseACase2SentencePunctuation(ACase2SentencePunctuation node) {
-      sentencePunctuationCounter++;
-    }
   }
 }
 
