@@ -49,7 +49,11 @@ public class AnnotationElementCollection {
     if (t1 != null && t2 != null) {
     rval = new ArrayList<>();
     for (TimedAnnotationElement e : annotationElements) {
-      if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
+      // TODO: gehoeren events vor einem Wort zu dem Wort oder zu dem vorigen?
+      // kommt wahrscheinlich drauf an, was das fuer ein event ist ...
+      //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t1) && e.getEndTime().equals(t1))) {
+      if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t2) && e.getEndTime().equals(t2))) {
+      //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
         rval.add(e);
       }
     }}

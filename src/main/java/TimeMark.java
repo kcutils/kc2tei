@@ -60,7 +60,7 @@ public class TimeMark {
   }
 
   public boolean isSmaller (TimeMark t) {
-    return ! isGreater(t);
+    return (! equals(t)) && (! isGreater(t));
   }
 
   public boolean isGreaterOrEqual (TimeMark t) {

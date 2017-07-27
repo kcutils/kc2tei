@@ -47,7 +47,6 @@ public class Main {
 
       t = new UnspecificLabelTranslation(annotationElements);
       tree.apply(t);
-      ((UnspecificLabelTranslation) t).setEndTimes();
 
       t = new SpecificLabelTranslation(annotationElements);
       tree.apply(t);
