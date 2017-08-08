@@ -1,5 +1,6 @@
 Package kc2tei;
 
+
 // character sets or regular expressions denoted by identifers
 Helpers
   all = [0 .. 0xFFFF];
@@ -68,8 +69,8 @@ Tokens
   //accent_position_symbol = ''';
   ampersand = '&';
   comma = ',';
-  comment_symbol = 'p' 'c' | 'P' 'C';
-  compound_boundary_prefix = '$' '#';
+  comment_symbol = 'pc' | 'PC';
+  compound_boundary_prefix = '$#';
 
   // consonant tokens
   p = 'p';
@@ -95,48 +96,60 @@ Tokens
   l = 'l';
   r = 'r';
 
-  creak1 = 'q' | 'k' 'q';
-  creak2 = 'p' 'q' | 't' 'q';
-  diphthong = 'a' 'I' | 'a' 'U' | 'O' 'Y';
+  // vowel tokens
+  a = 'a';
+  e = 'e';
+  i = 'i';
+  big_i = 'I';
+  o = 'o';
+  big_o = 'O';
+  u = 'u';
+  big_u = 'U';
+  y = 'y';
+  big_y = 'Y';
+  big_e = 'E';
+  two = '2'; // also used for lexical and prosodic informations
+  nine = '9';
+  at = '@';
+  six = '6';
+
+  creak1 = 'q' | 'kq';
+  creak2 = 'pq' | 'tq';
   early_peak = ')';
   early_valley = ']';
   effort_marker = '>';
   equals = '=';
   exclamation_mark = '!';
   full_stop = '.';
-  hesitation_symbol = 'v' ':';
-  highregister = 'H' 'R';
-  kp_symbol = 'k' 'p';
+  hesitation_symbol = 'v:';
+  highregister = 'HR';
+  kp_symbol = 'kp';
   late_peak = '(';
-  lengthening_symbol = 'z' ':';
+  lengthening_symbol = 'z:';
   lexical_stress = ''' | '"';
-  lowregister = 'L' 'R';
-  ma_symbol = 'M' 'A';
+  lowregister = 'LR';
+  ma_symbol = 'MA';
   medial_peak = '^';
   minus = '-';
-  monophthong = 'i' ':' | 'I' | 'y' ':' | 'Y' | 'e' ':' | 'E' ':' | 'E' | '2' ':' | '9' | 'a' ':' | 'a' | 'o' ':' | 'O' | 'u' ':' | 'U';
-  nasal_vowel = 'a' '~' | 'E' '~' | 'O' '~' | '9' '~';
-  neologism_symbol = 'n' ':';
-  non_vocal_noise = ':' 'k'; 
+  neologism_symbol = 'n:';
+  non_vocal_noise = ':k';
   non_word_prefix = '#';
   nonearly_valley = '[';
   null = '0';
   one = '1';
-  phrase_symbol = 'P' 'G';
+  phrase_symbol = 'PG';
   plus = '+';
-  prehead_symbol = 'H' 'P';
+  prehead_symbol = 'HP';
   question_mark = '?';
-  rateminus = 'R' 'M';
-  rateplus = 'R' 'P';
-  schwa = '@';
-  schwar = '6';
+  rateminus = 'RM';
+  rateplus = 'RP';
+  colon = ':';
   semicolon = ';';
-  sentence_start_symbol = 'c' ':';
-  silence_symbol = 'p' ':';
+  sentence_start_symbol = 'c:';
+  silence_symbol = 'p:';
   technical_break = ';'; 
   tilde = '~';
   three = '3';
-  two = '2';
   uncertainty = '%';
   upstep = '|';
   verbal_break = '/';
@@ -150,7 +163,7 @@ Tokens
   vocal_noise_h = 'h:';
 
   whitespaces = whitespaces;
-  word_boundary_prefix =  '#' '#';
+  word_boundary_prefix =  '##';
   word_internal_prefix = '$';
   word_interruption_symbol = '_';
 
@@ -204,12 +217,7 @@ Productions
 
   aspiration = minus aspiration_symbol fwm?;
 
-  aspiration_symbol =   {b} b h
-                      | {d} d h
-                      | {g} g h
-                      | {k} k h
-                      | {p} p h
-                      | {t} t h;
+  aspiration_symbol = non_glottal_plosive h;
 
   boundaryconsonant =   {unmodified} word_boundary_prefix consonant
                       | {modified} word_boundary_prefix consonant_modification
@@ -241,28 +249,36 @@ Productions
 
   consonant_replacement =  uncertainty? [c1]:consonant_symbol minus [c2]:consonant_symbol;
 
-  consonant_symbol =   {p} p
-                     | {b} b
-                     | {t} t
-                     | {d} d
-                     | {k} k
-                     | {g} g
-                     | {big_q} big_q
-                     | {f} f
-                     | {v} v
-                     | {s} s
-                     | {z} z
-                     | {big_s} big_s
-                     | {big_z} big_z
-                     | {big_c} big_c
-                     | {j} j
-                     | {x} x
-                     | {h} h
-                     | {m} m
-                     | {n} n
-                     | {big_n} big_n
-                     | {l} l
-                     | {r} r;
+  plosive =   {non_glottal} non_glottal_plosive
+            | {glottal} big_q;
+
+  non_glottal_plosive =   {voiceless_bilabial} p
+                        | {voiced_bilabial} b
+                        | {voiceless_alveolar} t
+                        | {voiced_alveolar} d
+                        | {voiceless_velar} k
+                        | {voiced_velar} g;
+
+  fricative =   {voiceless_labiodental} f
+              | {voiced_labiodental} v
+              | {voiceless_alveolar} s
+              | {voiced_alveloar} z
+              | {voiceless_postalveolar} big_s
+              | {voiced_postalveolar} big_z
+              | {voiceless_palatal} big_c
+              | {voiced_palatal} j
+              | {voiceless_velar} x
+              | {voiceless_glottal} h;
+
+  nasal =   {bilabial} m
+          | {alveolar} n
+          | {velar} big_n;
+
+  consonant_symbol =   {plosive} plosive
+                     | {fricative} fricative
+                     | {nasal} nasal
+                     | {alveolar_lateral_approximant} l
+                     | {alveolar_trill} r;
 
   consonantcreak1_insertion = minus creak1;
 
@@ -426,8 +442,6 @@ Productions
   punctuation_label =   {sentence_punctuation} non_word_prefix sentence_punctuation
                       | {comma} non_word_prefix comma;
 
-  r_diphthong = monophthong schwar;
-
   read_error_label =   {word_boundary} word_boundary_prefix minus neologism_symbol
                      | {non_word} non_word_prefix minus neologism_symbol;
 
@@ -448,11 +462,6 @@ Productions
                          | {question_mark} uncertainty? question_mark
                          | {exclamation_mark} exclamation_mark
                          | {sentence_start} sentence_start_symbol;
-
-  stressable_vowel =   {monophthong} monophthong
-                     | {nasal} nasal_vowel
-                     | {diphthong} diphthong
-                     | {r_diphthong} r_diphthong;
 
   synchronizer =   {peak} peak
                  | {valley} valley;
@@ -559,11 +568,11 @@ Productions
   vocal_noise_label =   {case1} vocal_noise1_label
                       | {case2} vocal_noise2_label;
 
-  vowel =   {unstressable} uncertainty? vowel_symbol fwm?
-          | {stressable} uncertainty? lexical_stress stressable_vowel;
+  vowel =   {unstressed} uncertainty? vowel_symbol fwm?
+          | {stressed} uncertainty? lexical_stress stressable_vowel;
 
-  vowel_deletion =   {unstressable} vowel_symbol minus fwm?
-                   | {stressable} lexical_stress stressable_vowel minus;
+  vowel_deletion =   {unstressed} vowel_symbol minus fwm?
+                   | {stressed} lexical_stress stressable_vowel minus;
 
   vowel_insertion =  uncertainty? minus vowel_symbol fwm?;
 
@@ -576,17 +585,66 @@ Productions
 
   vowel_replacement =  uncertainty? vowel_replacement2;
 
-  vowel_replacement2 =   {unstressable_by_unstressable} [v1]:vowel_symbol minus [v2]:vowel_symbol fwm?
-                       | {stressable_by_stressable} [l1]:lexical_stress [s1]:stressable_vowel minus [l2]:lexical_stress [s2]:stressable_vowel
-                       | {stressable_by_unstressable} lexical_stress stressable_vowel minus vowel_symbol
-                       | {unstressable_by_stressable} vowel_symbol minus lexical_stress stressable_vowel;
+  vowel_replacement2 =   {unstressed_by_unstressed} [v1]:vowel_symbol minus [v2]:vowel_symbol fwm?
+                       | {stressed_by_stressed} [l1]:lexical_stress [s1]:stressable_vowel minus [l2]:lexical_stress [s2]:stressable_vowel
+                       | {stressed_by_unstressed} lexical_stress stressable_vowel minus vowel_symbol
+                       | {unstressed_by_stressed} vowel_symbol minus lexical_stress stressable_vowel;
 
-  vowel_symbol =   {monophthong} monophthong
-                 | {nasal} nasal_vowel
-                 | {diphthong} diphthong
-                 | {r_diphthong} r_diphthong
-                 | {schwa} schwa
-                 | {schwar} schwar;
+  front_vowel =   {close_unrounded_long} i colon
+                | {close_rounded_long} y colon
+                | {close_unrounded_less} big_i
+                | {close_rounded_less} big_y
+                | {close_mid_unrounded_long} e colon
+                | {close_mid_rounded_long} two colon
+                | {open_mid_unrounded} big_e
+                | {open_mid_unrounded_long} big_e colon
+                | {open_mid_rounded} nine
+                | {open_unrounded} a
+                | {open_unrounded_long} a colon;
+
+  schwa = at;
+  schwar = six;
+
+  central_vowel =   {mid} schwa
+                  | {less_open} schwar;
+
+  back_vowel =   {open_mid_rounded} big_o
+               | {close_mid_rounded_long} o colon
+               | {close_rounded_long} u colon
+               | {close_less} big_u;
+
+  monophthong =   {front} front_vowel
+                | {back} back_vowel;
+
+  nasal_vowel =   {front_open_unrounded} a tilde
+                | {front_open_mid_unrounded} big_e tilde
+                | {front_open_mid_rounded} nine tilde
+                | {back_open_mid_rounded} big_o tilde;
+
+  diphthong =   {front_open_unrounded_to_less_front_close_unrounded} a big_i
+              | {front_open_unrounded_to_less_back_close} a big_u
+              | {back_open_mid_rounded_to_less_front_close_rounded} big_o big_y;
+
+  r_diphthong = monophthong six;
+
+// TODO
+//  vowel_symbol =   {monophthong} monophthong
+//                 | {nasal} nasal_vowel
+//                 | {diphthong} diphthong
+//                 | {r_diphthong} r_diphthong
+//                 | {schwa} schwa
+//                 | {schwar} schwar;
+
+  vowel_symbol =   {stressable} stressable_vowel
+                 | {unstressable} central_vowel;
+
+  stressable_vowel =   {monophthong} monophthong
+                     | {nasal} nasal_vowel
+                     | {diphthong} diphthong
+                     | {r_diphthong} r_diphthong;
+
+//  unstressable_vowel =   {central_mid} schwa
+//                       | {central_less_open} schwar;
 
   word_interruption_label =   {word_boundary} word_boundary_prefix word_interruption_symbol
                             | {word_internal} word_internal_prefix word_interruption_symbol;
