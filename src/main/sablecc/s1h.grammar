@@ -215,7 +215,7 @@ Productions
   accent_position_label =   {word_boundary} word_boundary_prefix accent_position_symbol
                           | {word_internal} word_internal_prefix accent_position_symbol;
 
-  aspiration = minus aspiration_symbol fwm?;
+  aspiration = minus aspiration_symbol fwm?; // marks plosive release phase
 
   aspiration_symbol = non_glottal_plosive h;
 
@@ -266,7 +266,6 @@ Productions
               | {voiceless_postalveolar} big_s
               | {voiced_postalveolar} big_z
               | {voiceless_palatal} big_c
-              | {voiced_palatal} j
               | {voiceless_velar} x
               | {voiceless_glottal} h;
 
@@ -277,6 +276,7 @@ Productions
   consonant_symbol =   {plosive} plosive
                      | {fricative} fricative
                      | {nasal} nasal
+                     | {palatal_approximant} j
                      | {alveolar_lateral_approximant} l
                      | {alveolar_trill} r;
 
