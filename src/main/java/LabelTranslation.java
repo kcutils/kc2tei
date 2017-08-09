@@ -2,13 +2,13 @@ import kc2tei.node.ATimedLabel;
 import kc2tei.node.PTlabel;
 
 
-public class UnspecificLabelTranslation extends TranslationAdapter {
+public class LabelTranslation extends TranslationAdapter {
 
   private TimedAnnotationElement<PTlabel> lastAnnotationElement = null;
   private TimeMark lastTimeMark = null;
 
 
-  public UnspecificLabelTranslation(AnnotationElementCollection annotationElementCollection) {
+  public LabelTranslation(AnnotationElementCollection annotationElementCollection) {
     super(annotationElementCollection);
   }
 
@@ -24,7 +24,7 @@ public class UnspecificLabelTranslation extends TranslationAdapter {
     TimeMark currentTimeMark = annotationElementCollection.addTimeMarkAndReturn(new TimeMark(node.getTimeMarkerTwo().toString()));
 
     // create new timed element with start time and content
-    TimedAnnotationElement<PTlabel> currentAnnotationElement = new UnspecificLabel(currentTimeMark, node.getTlabel());
+    TimedAnnotationElement<PTlabel> currentAnnotationElement = new Label(currentTimeMark, node.getTlabel());
 
     // assume each timed element is an event (until we know more details, i.e. what's the following time mark)
     currentAnnotationElement.setEndTime(currentTimeMark);

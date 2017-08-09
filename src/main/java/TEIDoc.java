@@ -83,21 +83,29 @@ public class TEIDoc{
       Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
                                                                       addAttribute("start", w.getStartTime().getName()).addAttribute("end", w.getEndTime().getName());
       annotationBlock.addElement("u").addAttribute("xml:id", "u" + utteranceCounter).addElement("w").addText(w.getContent().toString());
+
+      // add realized phones to word
       Element spanGrp = annotationBlock.addElement("spanGrp"); //.addAttribute("notation", "phonetic");
 
-      List<TimedAnnotationElement> list = annotationElements.getListOfAnnotationElementsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
+      //List<TimedAnnotationElement> list = annotationElements.getListOfAnnotationElementsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
+
+      List<TimedAnnotationElement> list = annotationElements.getListOfRealizedPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
       if (list != null) {
         for (TimedAnnotationElement a : list) {
           if (a != null && a != w) {
-            spanGrp.addElement("span").addAttribute("from", a.getStartTime().getName()).addAttribute("to", a.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(a.getContent().toString());
+            String content = a.getContent().toString();
+            if (a.getClass() == Label.class) {
+              if (((Label) a).getRealizedPhon() != null) {
+                content = ((Label) a).getRealizedPhon();
+              }
+            }
+            spanGrp.addElement("span").addAttribute("from", a.getStartTime().getName()).addAttribute("to", a.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(content);
             spanCounter++;
           }
         }
       }
       utteranceCounter++;
 
-/*      System.out.println("\n" + w);
-      }*/
     }
 
   }

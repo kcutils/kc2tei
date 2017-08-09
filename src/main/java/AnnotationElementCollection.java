@@ -1,3 +1,6 @@
+import kc2tei.node.AConsonantReplacement;
+import kc2tei.node.Node;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,18 +31,14 @@ public class AnnotationElementCollection {
 
     for (TimedAnnotationElement t : annotationElements) {
       rval = rval + "\n" + t.toString();
-    }
-
-    return rval;
-  }
-
-  public List<TimedAnnotationElement> getListOfAnnotationElementsWithSameStart (TimeMark t) {
-    List<TimedAnnotationElement> rval = new ArrayList<>();
-    for (TimedAnnotationElement e : annotationElements) {
-      if (t == e.getStartTime()) {
-        rval.add(e);
+      Node n = (Node) t.getContent();
+      if (n.getClass() == kc2tei.node.ATlabel.class) {
+        NodeChildClassInfoGetter nInfo = new NodeChildClassInfoGetter(this);
+        n.apply(nInfo);
+        rval = rval + nInfo.toString();
       }
     }
+
     return rval;
   }
 
@@ -59,6 +58,32 @@ public class AnnotationElementCollection {
     }}
 
 
+    return rval;
+  }
+
+  public List<TimedAnnotationElement> getListOfRealizedPhonesStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
+    Boolean firstWordBeginFound = false;
+    Boolean secondWordBeginFound = false;
+    List<TimedAnnotationElement> rval = null;
+
+    if (t1 != null && t2 != null) {
+      rval = new ArrayList<>();
+      for (TimedAnnotationElement e : getListOfAnnotationElementsStartingWithAndNotEndingBefore(t1, t2)) {
+        if (e.getClass() == Label.class) {
+          if (((Label) e).getIsPhon()) {
+            if (((Label) e).getIsWordBegin() && firstWordBeginFound) {
+              secondWordBeginFound = true;
+            }
+            if (((Label) e).getIsWordBegin() && ! firstWordBeginFound) {
+              firstWordBeginFound = true;
+            }
+            if (firstWordBeginFound && ! secondWordBeginFound && ! ((Label) e).getPhonIsDeleted()) {
+              rval.add(e);
+            }
+          }
+        }
+      }
+    }
     return rval;
   }
 
@@ -82,6 +107,89 @@ public class AnnotationElementCollection {
       nameSuffix = i + 1;
       getTimeMarkerList().get(i).setName("T" + nameSuffix);
     }
+  }
+
+  public void refineTimedLabels () {
+    for (TimedAnnotationElement t : annotationElements) {
+      Node node = (Node) t.getContent();
+      if (node.getClass() == kc2tei.node.ATlabel.class) {
+        NodeChildClassInfoGetter nInfo = new NodeChildClassInfoGetter(this, true, (Label) t);
+        node.apply(nInfo);
+      }
+    }
+  }
+
+}
+
+// helper class with two modes
+// in normal/read-only mode it can be used to gather some debug informations
+// in refinement/read-write mode it modifies labels according to their contending nodes
+
+class NodeChildClassInfoGetter extends TranslationAdapter {
+
+  private String details = "";
+  private Boolean refineMode = false;
+  private Label label = null;
+
+  public NodeChildClassInfoGetter (AnnotationElementCollection annotationElementCollection) {
+    super(annotationElementCollection);
+  }
+
+  public NodeChildClassInfoGetter (AnnotationElementCollection annotationElementCollection, Boolean refineMode, Label label) {
+    super(annotationElementCollection);
+    setRefineMode(refineMode);
+    setLabel(label);
+  }
+
+  public void setRefineMode(Boolean refineMode) {
+    this.refineMode = refineMode;
+  }
+
+  public void setLabel(Label label) {
+    this.label = label;
+  }
+
+  public void defaultIn(Node node) {
+    details = details + "\n---  " + node.getClass().toString();
+
+    if (refineMode) {
+
+      if (node.getClass() == kc2tei.node.ASegmentLabel.class) {
+        label.setIsPhon(true);
+      }
+
+      if (label.getIsPhon() && node.getClass().toString().contains("Deletion")) {
+        label.setPhonIsDeleted(true);
+      }
+
+      if (node.getClass() == kc2tei.node.ABoundaryConsonantLabel.class) {
+        label.setIsWordBegin(true);
+      }
+
+      if (node.getClass().toString().contains("ConsonantSymbol") || node.getClass().toString().contains("StressableVowel") || node.getClass().toString().contains("UnstressableVowel") || node.getClass() == kc2tei.node.AAspirationSymbol.class) {
+        if (label.getPhonIsDeleted()) {
+          label.setModifiedPhon(stripWhiteSpaces(node.toString()));
+        } else {
+          label.setRealizedPhon(stripWhiteSpaces(node.toString()));
+        }
+      }
+
+      if (node.getClass() == kc2tei.node.AConsonantReplacement.class) {
+        label.setModifiedPhon(stripWhiteSpaces(((AConsonantReplacement) node).getC1().toString()));
+        label.setRealizedPhon(stripWhiteSpaces(((AConsonantReplacement) node).getC2().toString()));
+      }
+
+    }
+  }
+
+  public String toString () {
+    return details;
+  }
+
+  private String stripWhiteSpaces (String i) {
+    String rval = i;
+    rval = rval.replaceAll("\\s", "");
+    return rval;
   }
 
 }

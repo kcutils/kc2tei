@@ -44,31 +44,19 @@ public class Main {
 
       TranslationAdapter t = null;
 
-      t = new UnspecificLabelTranslation(annotationElements);
+      t = new LabelTranslation(annotationElements);
       tree.apply(t);
 
       t = new WordTranslation(annotationElements);
       tree.apply(t);
 
-      // DEBUG
-//      System.out.println(annotationElements + "\n");
-
-
-      // DEBUG
-      /*
-      for (TimedAnnotationElement w : annotationElements.getListOfWords()) {
-        System.out.println("\n" + w );
-        List<TimedAnnotationElement> list = annotationElements.getListOfAnnotationElementsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
-        if (list != null) {
-          for (TimedAnnotationElement a : list) {
-            if (a != null && a != w) {
-              System.out.println(a);
-            }
-          }
-        }
-      }*/
-
       annotationElements.setTimeMarkerNames();
+
+      annotationElements.refineTimedLabels();
+
+      // DEBUG
+      //System.out.println(annotationElements + "\n");
+
       teiDoc = new TEIDoc(annotationElements);
       teiDoc.writeSout();
 
