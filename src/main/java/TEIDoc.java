@@ -8,7 +8,7 @@ import org.jaxen.dom4j.Dom4jXPath;
 import java.util.HashMap;
 import java.util.List;
 
-public class TEIDoc{
+public class TEIDoc {
 
   private Document doc = null;
 
@@ -46,7 +46,7 @@ public class TEIDoc{
 //  public TEIDoc() throws Exception {}
 
   public TEIDoc (AnnotationElementCollection annotationElements) throws Exception {
-    this.annotationElements =  annotationElements;
+    this.annotationElements = annotationElements;
 
     createXMLdoc();
     createXMLHeader();
@@ -71,17 +71,18 @@ public class TEIDoc{
 
     for (int i = 0; i < annotationElements.getTimeMarkerList().size(); i++) {
       addElementFoundByXpath("/tei:TEI/tei:text/tei:timeline").addElement("when").addAttribute("xml:id", annotationElements.getTimeMarkerList().get(i).getName()).
-                                                                                                addAttribute("interval", Float.toString(annotationElements.getTimeMarkerList().get(i).getTime())).
-                                                                                                addAttribute("since", "#T0");
+                                                                                                                                                                     addAttribute("interval", Float.toString(annotationElements.getTimeMarkerList().get(i).getTime())).
+                                                                                                                                                                                                                                                                          addAttribute("since", "#T0");
     }
   }
 
   private void addAnnotationBlocks () throws Exception {
     Integer utteranceCounter = 1;
     Integer spanCounter = 1;
+    KCSampaToIPAConverter uconv = new KCSampaToIPAConverter();
     for (TimedAnnotationElement w : annotationElements.getListOfWords()) {
       Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
-                                                                      addAttribute("start", w.getStartTime().getName()).addAttribute("end", w.getEndTime().getName());
+                                                                                                                      addAttribute("start", w.getStartTime().getName()).addAttribute("end", w.getEndTime().getName());
       annotationBlock.addElement("u").addAttribute("xml:id", "u" + utteranceCounter).addElement("w").addText(w.getContent().toString());
 
       // add realized phones to word
@@ -96,7 +97,7 @@ public class TEIDoc{
             String content = a.getContent().toString();
             if (a.getClass() == Label.class) {
               if (((Label) a).getRealizedPhon() != null) {
-                content = ((Label) a).getRealizedPhon();
+                content = uconv.getUnicodeByASCII(((Label) a).getRealizedPhon());
               }
             }
             spanGrp.addElement("span").addAttribute("from", a.getStartTime().getName()).addAttribute("to", a.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(content);
