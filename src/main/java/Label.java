@@ -63,6 +63,7 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
     rval = super.toString();
 
+    rval = addStringAndDescrToString(isWordBegin.toString(), "isWordBegin", rval);
     rval = addStringAndDescrToString(isPhon.toString(), "isPhon", rval);
     rval = addStringAndDescrToString(phonIsDeleted.toString(), "phonIsDeleted", rval);
     rval = addStringAndDescrToString(realizedPhon, "realizedPhon", rval);

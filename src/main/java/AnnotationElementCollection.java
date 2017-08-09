@@ -51,8 +51,8 @@ public class AnnotationElementCollection {
       // TODO: gehoeren events vor einem Wort zu dem Wort oder zu dem vorigen?
       // kommt wahrscheinlich drauf an, was das fuer ein event ist ...
       //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t1) && e.getEndTime().equals(t1))) {
-      if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t2) && e.getEndTime().equals(t2))) {
-      //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
+      //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t2) && e.getEndTime().equals(t2))) {
+      if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
         rval.add(e);
       }
     }}
@@ -70,16 +70,14 @@ public class AnnotationElementCollection {
       rval = new ArrayList<>();
       for (TimedAnnotationElement e : getListOfAnnotationElementsStartingWithAndNotEndingBefore(t1, t2)) {
         if (e.getClass() == Label.class) {
-          if (((Label) e).getIsPhon()) {
-            if (((Label) e).getIsWordBegin() && firstWordBeginFound) {
-              secondWordBeginFound = true;
-            }
-            if (((Label) e).getIsWordBegin() && ! firstWordBeginFound) {
-              firstWordBeginFound = true;
-            }
-            if (firstWordBeginFound && ! secondWordBeginFound && ! ((Label) e).getPhonIsDeleted()) {
+          if (((Label) e).getIsWordBegin() && firstWordBeginFound) {
+            secondWordBeginFound = true;
+          }
+          if (((Label) e).getIsWordBegin() && ! firstWordBeginFound) {
+            firstWordBeginFound = true;
+          }
+          if (firstWordBeginFound && ! secondWordBeginFound && ((Label) e).getIsPhon() && ! ((Label) e).getPhonIsDeleted()) {
               rval.add(e);
-            }
           }
         }
       }
@@ -162,7 +160,7 @@ class NodeChildClassInfoGetter extends TranslationAdapter {
         label.setPhonIsDeleted(true);
       }
 
-      if (node.getClass() == kc2tei.node.ABoundaryConsonantLabel.class) {
+      if (node.getClass() == kc2tei.node.ABoundaryConsonantLabel.class || node.getClass().toString().contains("WordBoundary")) {
         label.setIsWordBegin(true);
       }
 
