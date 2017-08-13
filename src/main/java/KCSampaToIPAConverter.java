@@ -1,13 +1,10 @@
 import java.util.HashMap;
-import java.util.Map;
 
 public class KCSampaToIPAConverter {
-  HashMap<String,String> convertTable = new HashMap<>();
+ 
+  private HashMap<String,String> convertTable = new HashMap<>();
 
-
-  String test = "\u263A";
-
-  public KCSampaToIPAConverter() {
+  public KCSampaToIPAConverter () {
 
     // init hashmap
 
@@ -27,13 +24,16 @@ public class KCSampaToIPAConverter {
     convertTable.put("E:", "\u025B\u02D0");
     convertTable.put("2:", "\u00F8\u02D0");
     convertTable.put("9", "\u0153");
+    // nasal vowels
     convertTable.put("a~", "\u0061\u0303");
     convertTable.put("E~", "\u025B\u0303");
     convertTable.put("O~", "\u0254\u0303");
     convertTable.put("9~", "\u0153\u0303");
+    // diphthongs
     convertTable.put("aI", "\u0061\u026A");
     convertTable.put("aU", "\u0061\u028A");
     convertTable.put("OY", "\u0254\u028F");
+    // schwa/r
     convertTable.put("@", "\u0259");
     convertTable.put("6", "\u0250");
 
@@ -74,17 +74,18 @@ public class KCSampaToIPAConverter {
     convertTable.put("a:6", "\u0061\u02D0\u0250");
     convertTable.put("e:6", "\u0065\u02D0\u0250");
     convertTable.put("E6", "\u025B\u0250");
+    convertTable.put("E:6", "\u025B\u02D0\u0250");
     convertTable.put("i:6", "\u0069\u02D0\u0250");
+    convertTable.put("I6", "\u026A\u0250");
     convertTable.put("Y6", "\u028F\u0250");
     convertTable.put("o:6", "\u006F\u02D0\u0250");
+    convertTable.put("O6", "\u0254\u0250");
+    convertTable.put("96", "\u0153\u0250");
+    convertTable.put("U6", "\u028A\u0250");
+    convertTable.put("y:6", "\u0079\u02D0\u0250");
+    convertTable.put("u:6", "\u0075\u02D0\u0250");
+    convertTable.put("2:6", "\u00F8\u02D0\u0250");
 
-
-
-
-
-//    for (Map.Entry<String,String> e : convertTable.entrySet()) {
-//      System.out.println(e.getKey() + " -> " + e.getValue());
-//    }
   }
 
   public String getUnicodeByASCII (String in) {
