@@ -17,10 +17,10 @@ Helpers
 
   digit = ['0' .. '9'];
 
-  punctuation_chars = [ '.' + [',' + [ '!' + [ '?' + ';']]]];
+  punctuation_chars = [ '.' + [',' + [ '!' + [ '?' + [ ':' + ';' ]]]]];
   special_chars = [ '<' + [ '>' +  [ ':' + [ '%' + '#' ]]]];
   word = [[string_chars - punctuation_chars ] - special_chars ]+;
-  file_extension = '.s1h' | '.s2';
+  file_extension = '.s1h' | '.s1' | '.s2';
 
 States
   header, transliteration, canonical_transcription, realised_form, timed_labels;
@@ -41,11 +41,13 @@ Tokens
   {transliteration} external_noise =   '<#Klicken>'
                                      | '<#Klingeln>'
                                      | '<#Klopfen>'
+                                     | '<#Kopfh>'
                                      | '<#Mikrobe>'
                                      | '<#Mikrowind>'
                                      | '<#Quietschen>'
                                      | '<#Rascheln>'
                                      | '<#>';
+  {transliteration} tech_break = '<;T>';
   {transliteration} breathing = '<A>';
   {transliteration} pause = '<P>';
   {transliteration} hesistational_lengthning = '<Z>';
@@ -147,7 +149,6 @@ Tokens
   semicolon = ';';
   sentence_start_symbol = 'c:';
   silence_symbol = 'p:';
-  technical_break = ';'; 
   tilde = '~';
   three = '3';
   uncertainty = '%';
@@ -186,7 +187,9 @@ Productions
                             | {hesistation} hesistation
                             | {punctuation} punctuation
                             | {speaker} speaker
-                            | {unidentified_utterance} unidentified_utterance;
+                            | {unidentified_utterance} unidentified_utterance
+                            | {uncertainty} uncertainty
+                            | {technical_break} tech_break;
   transliteration =   {non_overlapping_content} transliteration_content
                     | {overlapping_content} overlapping_boundary_begin_marker transliteration_content+ overlapping_boundary_end_marker;
 
@@ -247,7 +250,8 @@ Productions
                            | {deletion} consonant_deletion
                            | {insertion} consonant_insertion;
 
-  consonant_replacement =  uncertainty? [c1]:consonant_symbol minus [c2]:consonant_symbol;
+  consonant_replacement =   {normal} uncertainty? [c1]:consonant_symbol minus [c2]:consonant_symbol
+                          | {palatal_approximant_by_close_unrounded_long} uncertainty? j minus i colon;
 
   plosive =   {non_glottal} non_glottal_plosive
             | {glottal} big_q;
@@ -419,7 +423,7 @@ Productions
 
   phrase_modifier = equals;
 
-  phrase_technical_break = phrase_symbol technical_break;
+  phrase_technical_break = phrase_symbol semicolon;
 
   prehead_label = non_word_prefix pros_label_marker prehead_symbol prehead_level;
 
@@ -467,7 +471,7 @@ Productions
                  | {valley} valley;
 
   technical_artefact =   {non_vocal_noise} non_vocal_noise
-                       | {technical_break} technical_break;
+                       | {technical_break} semicolon;
 
   technical_artefact_deletion = technical_artefact minus;
 
@@ -588,7 +592,8 @@ Productions
   vowel_replacement2 =   {unstressed_by_unstressed} [v1]:vowel_symbol minus [v2]:vowel_symbol fwm?
                        | {stressed_by_stressed} [l1]:lexical_stress [s1]:stressable_vowel minus [l2]:lexical_stress [s2]:stressable_vowel
                        | {stressed_by_unstressed} lexical_stress stressable_vowel minus vowel_symbol
-                       | {unstressed_by_stressed} vowel_symbol minus lexical_stress stressable_vowel;
+                       | {unstressed_by_stressed} vowel_symbol minus lexical_stress stressable_vowel
+                       | {close_unrounded_less_by_alveolar_lateral_approximant} big_i minus l;
 
   front_vowel =   {close_unrounded_long} i colon
                 | {close_rounded_long} y colon

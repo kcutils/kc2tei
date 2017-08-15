@@ -1,4 +1,4 @@
-import kc2tei.node.AConsonantReplacement;
+import kc2tei.node.ANormalConsonantReplacement;
 import kc2tei.node.Node;
 
 import java.util.ArrayList;
@@ -46,18 +46,19 @@ public class AnnotationElementCollection {
     List<TimedAnnotationElement> rval = null;
 
     if (t1 != null && t2 != null) {
-    rval = new ArrayList<>();
-    for (TimedAnnotationElement e : annotationElements) {
-      // TODO: gehoeren events vor einem Wort zu dem Wort oder zu dem vorigen?
-      // kommt wahrscheinlich drauf an, was das fuer ein event ist ...
-      //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t1) && e.getEndTime().equals(t1))) {
-      //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t2) && e.getEndTime().equals(t2))) {
-      if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
-        rval.add(e);
+      rval = new ArrayList<>();
+      for (TimedAnnotationElement e : annotationElements) {
+        if (e.getStartTime() != null && e.getEndTime() != null) {
+          // TODO: gehoeren events vor einem Wort zu dem Wort oder zu dem vorigen?
+          // kommt wahrscheinlich drauf an, was das fuer ein event ist ...
+          //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t1) && e.getEndTime().equals(t1))) {
+          if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t2) && e.getEndTime().equals(t2))) {
+            //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
+            rval.add(e);
+          }
+        }
       }
-    }}
-
-
+    }
     return rval;
   }
 
@@ -172,10 +173,13 @@ class NodeChildClassInfoGetter extends TranslationAdapter {
         }
       }
 
-      if (node.getClass() == kc2tei.node.AConsonantReplacement.class) {
-        label.setModifiedPhon(stripWhiteSpaces(((AConsonantReplacement) node).getC1().toString()));
-        label.setRealizedPhon(stripWhiteSpaces(((AConsonantReplacement) node).getC2().toString()));
+      if (node.getClass() == kc2tei.node.ANormalConsonantReplacement.class) {
+        label.setModifiedPhon(stripWhiteSpaces(((ANormalConsonantReplacement) node).getC1().toString()));
+        label.setRealizedPhon(stripWhiteSpaces(((ANormalConsonantReplacement) node).getC2().toString()));
       }
+      // TODO: j by i: replacement
+
+      // TODO: vowel replacements
 
     }
   }
