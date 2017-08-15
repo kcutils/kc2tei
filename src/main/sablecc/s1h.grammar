@@ -646,7 +646,8 @@ Productions
   stressable_vowel =   {monophthong} monophthong
                      | {nasal} nasal_vowel
                      | {diphthong} diphthong
-                     | {r_diphthong} r_diphthong;
+                     | {r_diphthong} r_diphthong
+                     | {syllabic_schwar} equals schwar;  // wie bei "naeher" (vs. "der") TODO: das geht irgendwie besser
 
 //  unstressable_vowel =   {central_mid} schwa
 //                       | {central_less_open} schwar;

@@ -69,6 +69,9 @@ public class KCSampaToIPAConverter {
     convertTable.put("dh", "\u0064\u02B0");
     convertTable.put("gh", "\u0261\u02B0");
 
+    // syllabic schwar
+    convertTable.put("=6", "\u0250\u0329");
+
     // schwar reductions
     convertTable.put("a6", "\u0061\u0250");
     convertTable.put("a:6", "\u0061\u02D0\u0250");
