@@ -1,4 +1,6 @@
 import kc2tei.node.ANormalConsonantReplacement;
+import kc2tei.node.APalatalApproximantByCloseUnroundedLongConsonantReplacement;
+import kc2tei.node.AUnstressedByUnstressedVowelReplacement2;
 import kc2tei.node.Node;
 
 import java.util.ArrayList;
@@ -173,11 +175,23 @@ class NodeChildClassInfoGetter extends TranslationAdapter {
         }
       }
 
+      // normal consonant replacement
       if (node.getClass() == kc2tei.node.ANormalConsonantReplacement.class) {
         label.setModifiedPhon(stripWhiteSpaces(((ANormalConsonantReplacement) node).getC1().toString()));
         label.setRealizedPhon(stripWhiteSpaces(((ANormalConsonantReplacement) node).getC2().toString()));
       }
-      // TODO: j by i: replacement
+
+      // j by i consonant replacement
+      if (node.getClass() == kc2tei.node.APalatalApproximantByCloseUnroundedLongConsonantReplacement.class) {
+        label.setModifiedPhon(stripWhiteSpaces(((APalatalApproximantByCloseUnroundedLongConsonantReplacement) node).getJ().toString()));
+        label.setRealizedPhon(stripWhiteSpaces(((APalatalApproximantByCloseUnroundedLongConsonantReplacement) node).getI().toString()));
+      }
+
+      // vowel replacements
+      if (node.getClass() == kc2tei.node.AUnstressedByUnstressedVowelReplacement2.class) {
+        label.setModifiedPhon(stripWhiteSpaces(((AUnstressedByUnstressedVowelReplacement2) node).getV1().toString()));
+        label.setModifiedPhon(stripWhiteSpaces(((AUnstressedByUnstressedVowelReplacement2) node).getV2().toString()));
+      }
 
       // TODO: vowel replacements
 
