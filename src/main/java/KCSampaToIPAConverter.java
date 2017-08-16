@@ -4,6 +4,10 @@ public class KCSampaToIPAConverter {
  
   private HashMap<String,String> convertTable = new HashMap<>();
 
+  // for checks/debug
+  private Integer noHits = 0;
+  private Boolean debugMode = false;
+
   public KCSampaToIPAConverter () {
 
     // init hashmap
@@ -92,16 +96,27 @@ public class KCSampaToIPAConverter {
   }
 
   public String getUnicodeByASCII (String in) {
-    String out = "";
+    String rval = "";
 
     if (convertTable.get(in) != null) {
-      out = convertTable.get(in);
+      rval = convertTable.get(in);
     } else {
-      // DEBUG
-      //out = "XSAMPA: " + in;
-      out = in;
+      noHits++;
+      if (debugMode) {
+        rval = "XSAMPA: " + in;
+      } else {
+        rval = in;
+      }
     }
 
-    return out;
+    return rval;
+  }
+
+  public Integer getNoHits () {
+    return noHits;
+  }
+
+  public void setDebugMode (Boolean b) {
+    this.debugMode = b;
   }
 }

@@ -19,6 +19,7 @@ public class TEIDoc {
 
   private AnnotationElementCollection annotationElements = null;
 
+  private KCSampaToIPAConverter charConverter = null;
 
   private void createXMLdoc () {
     this.doc = DocumentHelper.createDocument();
@@ -43,10 +44,18 @@ public class TEIDoc {
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").addElement("sourceDesc").addElement("recordingStmt").addElement("recording").addAttribute("type", "audio");
   }
 
-//  public TEIDoc() throws Exception {}
-
   public TEIDoc (AnnotationElementCollection annotationElements) throws Exception {
     this.annotationElements = annotationElements;
+    init();
+  }
+
+  public TEIDoc (AnnotationElementCollection annotationElements, KCSampaToIPAConverter charConverter) throws Exception {
+    this.annotationElements = annotationElements;
+    this.charConverter = charConverter;
+    init();
+  }
+
+  private void init () throws Exception {
 
     createXMLdoc();
     createXMLHeader();
@@ -79,7 +88,9 @@ public class TEIDoc {
   private void addAnnotationBlocks () throws Exception {
     Integer utteranceCounter = 1;
     Integer spanCounter = 1;
-    KCSampaToIPAConverter uconv = new KCSampaToIPAConverter();
+    if (charConverter == null) {
+      charConverter = new KCSampaToIPAConverter();
+    }
     for (TimedAnnotationElement w : annotationElements.getListOfWords()) {
       Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
                                                                                                                       addAttribute("start", w.getStartTime().getName()).addAttribute("end", w.getEndTime().getName());
@@ -97,7 +108,7 @@ public class TEIDoc {
             String content = a.getContent().toString();
             if (a.getClass() == Label.class) {
               if (((Label) a).getRealizedPhon() != null) {
-                content = uconv.getUnicodeByASCII(((Label) a).getRealizedPhon());
+                content = charConverter.getUnicodeByASCII(((Label) a).getRealizedPhon());
               }
             }
             spanGrp.addElement("span").addAttribute("from", a.getStartTime().getName()).addAttribute("to", a.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(content);
