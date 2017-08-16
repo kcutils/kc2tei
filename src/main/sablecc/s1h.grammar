@@ -23,13 +23,12 @@ Helpers
   file_extension = '.s1h' | '.s1' | '.s2';
 
 States
-  header, transliteration, canonical_transcription, realised_form, timed_labels;
+  header, transliteration, rest, timed_labels;
 
 Tokens
-  {header->transliteration,transliteration,canonical_transcription,realised_form,timed_labels} eol = eol_chars;
-  {transliteration->canonical_transcription} oend_marker = eol_chars 'oend' eol_chars;
-  {canonical_transcription->realised_form} kend_marker = eol_chars 'kend' eol_chars;
-  {realised_form->timed_labels} hend_marker = eol_chars 'hend' eol_chars;
+  {header->transliteration,transliteration,rest,timed_labels} eol = eol_chars;
+  {transliteration->rest} oend_marker = eol_chars 'oend' eol_chars;
+  {rest->timed_labels} hend_marker = eol_chars 'hend' eol_chars;
 
   {header} filename = string file_extension;
   {transliteration} body_noise =   '<Lachen>'
@@ -62,7 +61,7 @@ Tokens
   {transliteration} speaker = word ': ';
   {transliteration} word = word;
 
-  {canonical_transcription,realised_form} string = string;
+  {rest} string = string;
 
   {timed_labels} time_marker = whitespaces digit+;
   {timed_labels} time_marker_two = whitespaces digit+ '.' digit+;
@@ -174,7 +173,7 @@ Ignored Tokens
 
 Productions
   
-  file =  filename transliteration+ oend_marker canonical_transcription kend_marker realised_form hend_marker timed_label+;
+  file =  filename transliteration+ oend_marker rest hend_marker timed_label+;
 
   transliteration_non_vocal_utterance =   {body_noise} body_noise
                                         | {external_noise} external_noise
@@ -198,8 +197,7 @@ Productions
    * imprecise as we have all those informations in
    * the last section (timed labels)
    */
-  canonical_transcription = string+;
-  realised_form = string+;
+  rest = string+;
 
   timed_label = time_marker tlabel time_marker_two;
 
@@ -251,7 +249,8 @@ Productions
                            | {insertion} consonant_insertion;
 
   consonant_replacement =   {normal} uncertainty? [c1]:consonant_symbol minus [c2]:consonant_symbol
-                          | {palatal_approximant_by_close_unrounded_long} uncertainty? j minus i colon;
+                          | {palatal_approximant_by_close_unrounded_long} uncertainty? j minus i colon
+                          | {palatal_approximant_by_close_unrounded_less} uncertainty? j minus big_i;
 
   plosive =   {non_glottal} non_glottal_plosive
             | {glottal} big_q;
@@ -593,7 +592,10 @@ Productions
                        | {stressed_by_stressed} [l1]:lexical_stress [s1]:stressable_vowel minus [l2]:lexical_stress [s2]:stressable_vowel
                        | {stressed_by_unstressed} lexical_stress stressable_vowel minus vowel_symbol
                        | {unstressed_by_stressed} vowel_symbol minus lexical_stress stressable_vowel
-                       | {close_unrounded_less_by_alveolar_lateral_approximant} big_i minus l;
+                       | {close_unrounded_less_by_alveolar_lateral_approximant} big_i minus l
+                       | {close_unrounded_less_by_voiceless_palatal_consonant} big_i minus big_c
+                       | {schwar_by_alveolar_lateral_approximant} schwar minus l
+;//                       | {close_less_by_bilabial} big_u minus m; // TODO: code too large error
 
   front_vowel =   {close_unrounded_long} i colon
                 | {close_rounded_long} y colon

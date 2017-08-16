@@ -4,11 +4,12 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
   private Boolean isPhon = false;
   private Boolean phonIsDeleted = false;
+  private Boolean phonIsModified = false;
+
   private Boolean isWordBegin = false;
 
   private String realizedPhon = null;
   private String modifiedPhon = null;
-
 
   public Label(PTlabel pTlabel) {
     super(pTlabel);
@@ -58,6 +59,13 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.modifiedPhon = modifiedPhon;
   }
 
+  public Boolean getPhonIsModified () {
+    return phonIsModified;
+  }
+  public void setPhonIsModified (Boolean phonIsModified) {
+    this.phonIsModified = phonIsModified;
+  }
+
   public String toString () {
     String rval = "";
 
@@ -66,8 +74,9 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     rval = addStringAndDescrToString(isWordBegin.toString(), "isWordBegin", rval);
     rval = addStringAndDescrToString(isPhon.toString(), "isPhon", rval);
     rval = addStringAndDescrToString(phonIsDeleted.toString(), "phonIsDeleted", rval);
-    rval = addStringAndDescrToString(realizedPhon, "realizedPhon", rval);
+    rval = addStringAndDescrToString(phonIsModified.toString(), "phonIsModified", rval);
     rval = addStringAndDescrToString(modifiedPhon, "modifiedPhon", rval);
+    rval = addStringAndDescrToString(realizedPhon, "realizedPhon", rval);
 
     return rval;
   }
