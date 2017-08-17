@@ -3,8 +3,7 @@ import kc2tei.node.Token;
 import kc2tei.parser.Parser;
 import org.apache.commons.cli.*;
 
-import java.io.FileReader;
-import java.io.PushbackReader;
+import java.io.*;
 
 import kc2tei.lexer.Lexer;
 import kc2tei.node.Start;
@@ -22,6 +21,9 @@ public class Main {
   private static Boolean forceMode = false;
 
   private static AnnotationElementCollection annotationElements = new AnnotationElementCollection();
+
+  // TODO: schema file as a resource file in package
+  private static File rngSchemaFile = new File("TEIschema.rng");
 
   private static TEIDoc teiDoc = null;
 
@@ -92,14 +94,28 @@ public class Main {
 
       check.setEntriesNotInUnicodeTable(charConverter.getNoHits());
 
-      if (! forceMode) {
-        if (! check.noErrorsFound()) {
-          System.out.print(check);
+      if (! check.noErrorsFound()) {
+        System.err.print(check);
+        if (! forceMode) {
           System.exit(1);
         }
       }
 
-      teiDoc.writeSout();
+      if (!rngSchemaFile.exists()) {
+        System.err.println("WARNING: TEI Schema file " + rngSchemaFile.toString() + " does not exist. The produced TEI output can not be validated!");
+      } else {
+        XMLVerificator xVer = new XMLVerificator(teiDoc, rngSchemaFile);
+
+        // sadly validate() creates lots of output that cannot be silenced
+        if (!xVer.validate()) {
+          System.err.println("Invalid TEI output produced!");
+          if (!forceMode) {
+            System.exit(1);
+          }
+        }
+      }
+
+      System.out.print(teiDoc.toStringEx());
 
 /*
     } catch (Exception e) {
@@ -202,4 +218,5 @@ public class Main {
       }
     }
   }
+
 }

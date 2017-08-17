@@ -5,6 +5,8 @@ import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.XPath;
 import org.jaxen.dom4j.Dom4jXPath;
 
+import java.io.BufferedWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 
@@ -122,13 +124,24 @@ public class TEIDoc {
 
   }
 
-
-  // write XML document to stdout
-  public void writeSout () throws Exception {
+  // write XML doc to String and return String
+  public String toStringEx () throws Exception {
+    String rval = "";
     // Pretty print the document to System.out
     OutputFormat format = OutputFormat.createPrettyPrint();
-    XMLWriter writer = new XMLWriter(System.out, format);
+    StringWriter str = new StringWriter();
+    XMLWriter writer = new XMLWriter(str, format);
     writer.write(doc);
+    rval = str.toString();
+    return rval;
+  }
+
+  public String toString () {
+    try {
+      return toStringEx();
+    } catch (Exception e) {
+    }
+    return "";
   }
 
 }

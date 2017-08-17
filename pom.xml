@@ -140,6 +140,14 @@
       <version>1.1.1</version>
     </dependency>
 
+   <!-- needed for verification of XML output -->
+   <!-- https://mvnrepository.com/artifact/com.thaiopensource/jing -->
+   <dependency>
+     <groupId>com.thaiopensource</groupId>
+     <artifactId>jing</artifactId>
+     <version>20091111</version>
+   </dependency>
+
   </dependencies>
 
 </project>
