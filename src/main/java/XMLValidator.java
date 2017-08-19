@@ -5,7 +5,7 @@ import org.xml.sax.InputSource;
 
 import java.io.*;
 
-public class XMLVerificator {
+public class XMLValidator {
 
   private TEIDoc doc = null;
   private File rngSchemaFile = null;
@@ -15,7 +15,7 @@ public class XMLVerificator {
   private InputSource inRng = null;
   private InputSource inDoc = null;
 
-  public XMLVerificator (TEIDoc doc, File rngSchemaFile) throws Exception {
+  public XMLValidator (TEIDoc doc, File rngSchemaFile) throws Exception {
     this.doc = doc;
     this.rngSchemaFile = rngSchemaFile;
 

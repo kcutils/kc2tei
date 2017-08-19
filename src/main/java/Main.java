@@ -22,14 +22,15 @@ public class Main {
 
   private static AnnotationElementCollection annotationElements = new AnnotationElementCollection();
 
-  // TODO: schema file as a resource file in package
-  private static File rngSchemaFile = new File("TEIschema.rng");
+  private static File rngSchemaFile;
 
   private static TEIDoc teiDoc = null;
 
   public static void main(String[] args) throws Exception {
 
     processCmdLineArgs(args);
+
+    rngSchemaFile = getResourceAsFile("TEIschema.rng");
 
 //    try {
 
@@ -101,13 +102,13 @@ public class Main {
         }
       }
 
-      if (!rngSchemaFile.exists()) {
-        System.err.println("WARNING: TEI Schema file " + rngSchemaFile.toString() + " does not exist. The produced TEI output can not be validated!");
+      if (rngSchemaFile == null || !rngSchemaFile.exists()) {
+        System.err.println("WARNING: TEI Schema file does not exist. The produced TEI output can not be validated!");
       } else {
-        XMLVerificator xVer = new XMLVerificator(teiDoc, rngSchemaFile);
+        XMLValidator xVal = new XMLValidator(teiDoc, rngSchemaFile);
 
         // sadly validate() creates lots of output that cannot be silenced
-        if (!xVer.validate()) {
+        if (!xVal.validate()) {
           System.err.println("Invalid TEI output produced!");
           if (!forceMode) {
             System.exit(1);
@@ -219,4 +220,29 @@ public class Main {
     }
   }
 
+  // we need a resource file as File object not as stream object
+  // because methods we use can only deal with Files not with Streams
+  // files within jar packages can not be accessed directly as a File
+  public static File getResourceAsFile(String resourcePath) throws Exception {
+    File rval = null;
+    InputStream in = new Main().getClass().getResourceAsStream(resourcePath);
+    if (in == null) {
+      return rval;
+    }
+
+    rval = File.createTempFile(String.valueOf(in.hashCode()), ".tmp");
+    rval.deleteOnExit();
+
+    FileOutputStream out = new FileOutputStream(rval);
+
+    //copy stream
+    byte[] buffer = new byte[1024];
+    int len = in.read(buffer);
+    while (len != -1) {
+      out.write(buffer, 0, len);
+      len = in.read(buffer);
+    }
+
+    return rval;
+  }
 }
