@@ -109,8 +109,15 @@ public class TEIDoc {
           if (a != null && a != w) {
             String content = a.getContent().toString();
             if (a.getClass() == Label.class) {
-              if (((Label) a).getRealizedPhon() != null) {
-                content = charConverter.getUnicodeByASCII(((Label) a).getRealizedPhon());
+              if (((Label) a).getIgnorePhon()) {
+                continue;
+              } else {
+                if (((Label) a).getRealizedPhon() != null) {
+                  content = charConverter.getUnicodeByASCII(((Label) a).getRealizedPhon());
+                  if (((Label) a).getIsCreaked()) {
+                    content = content + charConverter.getUnicodeByASCII("creaked");
+                  }
+                }
               }
             }
             spanGrp.addElement("span").addAttribute("from", a.getStartTime().getName()).addAttribute("to", a.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(content);

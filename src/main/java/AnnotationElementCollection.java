@@ -8,6 +8,8 @@ public class AnnotationElementCollection {
   private TimeMarkSet timeMarkers = new TimeMarkSet();
   private List<TimedAnnotationElement> annotationElements = new ArrayList<>();
 
+  private Boolean nextPhonIsCreaked = false;
+
   public void add (TimedAnnotationElement t) {
 
     if (t != null) {
@@ -112,7 +114,9 @@ public class AnnotationElementCollection {
       Node node = (Node) t.getContent();
       if (node.getClass() == kc2tei.node.ATlabel.class) {
         NodeChildClassInfoGetter nInfo = new NodeChildClassInfoGetter(this, true, (Label) t);
+        nInfo.setNextPhonIsCreaked(nextPhonIsCreaked);
         node.apply(nInfo);
+        nextPhonIsCreaked = nInfo.getNextPhonIsCreaked();
       }
     }
   }
@@ -130,6 +134,8 @@ class NodeChildClassInfoGetter extends TranslationAdapter {
   private String details = "";
   private Boolean refineMode = false;
   private Label label = null;
+
+  private Boolean nextPhonIsCreaked = false;
 
   public NodeChildClassInfoGetter (AnnotationElementCollection annotationElementCollection) {
     super(annotationElementCollection);
@@ -160,10 +166,19 @@ class NodeChildClassInfoGetter extends TranslationAdapter {
 
       if (node.getClass() == kc2tei.node.ASegmentLabel.class) {
         label.setIsPhon(true);
+        if (nextPhonIsCreaked) {
+          label.setIsCreaked(true);
+          nextPhonIsCreaked = false;
+        }
       }
 
       if (label.getIsPhon() && node.getClass().toString().contains("Deletion")) {
         label.setPhonIsDeleted(true);
+      }
+
+      if (label.getIsPhon() && ! label.getPhonIsDeleted() && node.getClass().toString().contains("Creak")) {
+        this.nextPhonIsCreaked = true;
+        label.setIgnorePhon(true);
       }
 
       if (label.getIsPhon() && node.getClass().toString().contains("Unmodified")) {
@@ -196,6 +211,14 @@ class NodeChildClassInfoGetter extends TranslationAdapter {
     String rval = i;
     rval = rval.replaceAll("\\s", "");
     return rval;
+  }
+
+  public void setNextPhonIsCreaked (Boolean nextPhonIsCreaked) {
+    this.nextPhonIsCreaked = nextPhonIsCreaked;
+  }
+
+  public Boolean getNextPhonIsCreaked () {
+    return this.nextPhonIsCreaked;
   }
 
 }

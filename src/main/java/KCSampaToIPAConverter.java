@@ -93,6 +93,9 @@ public class KCSampaToIPAConverter {
     convertTable.put("u:6", "\u0075\u02D0\u0250");
     convertTable.put("2:6", "\u00F8\u02D0\u0250");
 
+    // diacritica
+    convertTable.put("creaked", "\u0330");
+
   }
 
   public String getUnicodeByASCII (String in) {
