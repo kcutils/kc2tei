@@ -556,8 +556,8 @@ Productions
 
   vocal_noise2_insertion = minus vocal_noise2_symbol;
 
-  vocal_noise2_label =   {unmodified} word_boundary_prefix vocal_noise2
-                       | {modified} word_boundary_prefix vocal_noise2_modification;
+  vocal_noise2_label =   {unmodified_word_boundary} word_boundary_prefix vocal_noise2
+                       | {modified_word_boundary} word_boundary_prefix vocal_noise2_modification;
 
   vocal_noise2_modification =   {replacement} vocal_noise2_replacement
                               | {deletion} vocal_noise2_deletion
