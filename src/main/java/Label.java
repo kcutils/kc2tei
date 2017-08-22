@@ -4,12 +4,14 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
   private Boolean isPhon = false;
   private Boolean phonIsDeleted = false;
-  private Boolean phonIsModified = false;
+  private Boolean phonIsReplaced = false;
 
   private Boolean ignorePhon = false;
 
   private Boolean isWordBegin = false;
   private Boolean isCreaked = false;
+  private Boolean isNasalized= false;
+  private Boolean isNasal = false;
 
   private String realizedPhon = null;
   private String modifiedPhon = null;
@@ -62,11 +64,11 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.modifiedPhon = modifiedPhon;
   }
 
-  public Boolean getPhonIsModified () {
-    return phonIsModified;
+  public Boolean getPhonIsReplaced () {
+    return phonIsReplaced;
   }
-  public void setPhonIsModified (Boolean phonIsModified) {
-    this.phonIsModified = phonIsModified;
+  public void setPhonIsReplaced (Boolean phonIsReplaced) {
+    this.phonIsReplaced = phonIsReplaced;
   }
 
   public void setIsCreaked (Boolean isCreaked) {
@@ -85,6 +87,22 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     return this.ignorePhon;
   }
 
+  public Boolean getIsNasalized () {
+    return isNasalized;
+  }
+
+  public void setIsNasalized (Boolean isNasalized) {
+    this.isNasalized = isNasalized;
+  }
+
+  public Boolean getIsNasal () {
+    return isNasal;
+  }
+
+  public void setIsNasal (Boolean isNasal) {
+    this.isNasal = isNasal;
+  }
+
   public String toString () {
     String rval = "";
 
@@ -94,8 +112,10 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     rval = addStringAndDescrToString(isPhon.toString(), "isPhon", rval);
     rval = addStringAndDescrToString(ignorePhon.toString(), "ignorePhon", rval);
     rval = addStringAndDescrToString(phonIsDeleted.toString(), "phonIsDeleted", rval);
-    rval = addStringAndDescrToString(phonIsModified.toString(), "phonIsModified", rval);
+    rval = addStringAndDescrToString(phonIsReplaced.toString(), "phonIsReplaced", rval);
     rval = addStringAndDescrToString(isCreaked.toString(), "isCreaked", rval);
+    rval = addStringAndDescrToString(isNasal.toString(), "isNasal", rval);
+    rval = addStringAndDescrToString(isNasalized.toString(), "isNasalized", rval);
     rval = addStringAndDescrToString(modifiedPhon, "modifiedPhon", rval);
     rval = addStringAndDescrToString(realizedPhon, "realizedPhon", rval);
 

@@ -95,20 +95,23 @@ public class KCSampaToIPAConverter {
 
     // diacritica
     convertTable.put("creaked", "\u0330");
+    convertTable.put("nasalized", "\u0303");
 
   }
 
   public String getUnicodeByASCII (String in) {
-    String rval = "";
+    String rval = null;
 
-    if (convertTable.get(in) != null) {
-      rval = convertTable.get(in);
-    } else {
-      noHits++;
-      if (debugMode) {
-        rval = "XSAMPA: " + in;
+    if (in != null) {
+      if (convertTable.get(in) != null) {
+        rval = convertTable.get(in);
       } else {
-        rval = in;
+        noHits++;
+        if (debugMode) {
+          rval = "XSAMPA: " + in;
+        } else {
+          rval = in;
+        }
       }
     }
 

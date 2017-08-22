@@ -10,6 +10,10 @@ public class AnnotationElementCollection {
 
   private Boolean nextPhonIsCreaked = false;
 
+  private Boolean nasalizationModifierFound = false;
+
+  private Label lastPhon = null;
+
   public void add (TimedAnnotationElement t) {
 
     if (t != null) {
@@ -53,8 +57,8 @@ public class AnnotationElementCollection {
           // TODO: gehoeren events vor einem Wort zu dem Wort oder zu dem vorigen?
           // kommt wahrscheinlich drauf an, was das fuer ein event ist ...
           //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t1) && e.getEndTime().equals(t1))) {
-          if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t2) && e.getEndTime().equals(t2))) {
-            //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
+          //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t2) && e.getEndTime().equals(t2))) {
+          if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
             rval.add(e);
           }
         }
@@ -63,7 +67,7 @@ public class AnnotationElementCollection {
     return rval;
   }
 
-  public List<TimedAnnotationElement> getListOfRealizedPhonesStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
+  public List<TimedAnnotationElement> getListOfPhonesStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
     Boolean firstWordBeginFound = false;
     Boolean secondWordBeginFound = false;
     List<TimedAnnotationElement> rval = null;
@@ -78,7 +82,7 @@ public class AnnotationElementCollection {
           if (((Label) e).getIsWordBegin() && ! firstWordBeginFound) {
             firstWordBeginFound = true;
           }
-          if (firstWordBeginFound && ! secondWordBeginFound && ((Label) e).getIsPhon() && ! ((Label) e).getPhonIsDeleted()) {
+          if (firstWordBeginFound && ! secondWordBeginFound && ((Label) e).getIsPhon() && ! ((Label) e).getIgnorePhon()) {
               rval.add(e);
           }
         }
@@ -116,7 +120,30 @@ public class AnnotationElementCollection {
         NodeChildClassInfoGetter nInfo = new NodeChildClassInfoGetter(this, true, (Label) t);
         nInfo.setNextPhonIsCreaked(nextPhonIsCreaked);
         node.apply(nInfo);
+
+        // nasalization modifiers modify previous labels if they occure before deleted nasal
+        // and they modify next labels if the occure after deleted nasal
+        if (((Label) t).getIsPhon() && nasalizationModifierFound) {
+
+          if (((Label) t).getIsNasal() && ((Label) t).getPhonIsDeleted()) {
+            // modify previous phon
+            lastPhon.setIsNasalized(true);
+          }
+
+          // modify current phon
+          if (lastPhon != null && lastPhon.getIsNasal() && lastPhon.getPhonIsDeleted()) {
+            ((Label) t).setIsNasalized(true);
+          }
+
+        }
+
         nextPhonIsCreaked = nInfo.getNextPhonIsCreaked();
+        if (((Label) t).getIsPhon()) {
+          nasalizationModifierFound = nInfo.getIsNasalizationModifier();
+        }
+        if (((Label) t).getIsPhon() && ! ((Label) t).getIgnorePhon()) {
+          lastPhon = (Label) t;
+        }
       }
     }
   }
@@ -136,6 +163,8 @@ class NodeChildClassInfoGetter extends TranslationAdapter {
   private Label label = null;
 
   private Boolean nextPhonIsCreaked = false;
+
+  private Boolean isNasalizationModifier = false;
 
   public NodeChildClassInfoGetter (AnnotationElementCollection annotationElementCollection) {
     super(annotationElementCollection);
@@ -173,6 +202,9 @@ class NodeChildClassInfoGetter extends TranslationAdapter {
       }
 
       if (label.getIsPhon() && node.getClass().toString().contains("Deletion")) {
+        if (label.getPhonIsReplaced()) {
+          label.setPhonIsReplaced(false);
+        }
         label.setPhonIsDeleted(true);
       }
 
@@ -181,17 +213,28 @@ class NodeChildClassInfoGetter extends TranslationAdapter {
         label.setIgnorePhon(true);
       }
 
+      if (label.getIsPhon() && node.getClass().toString().contains("NasalConsonant")) {
+        label.setIsNasal(true);
+      }
+
+      if (label.getIsPhon() && node.getClass().toString().contains("Nasalization")) {
+        this.isNasalizationModifier = true;
+        label.setIgnorePhon(true);
+      }
+
       if (label.getIsPhon() && node.getClass().toString().contains("Unmodified")) {
-        label.setPhonIsModified(false);
+        label.setPhonIsReplaced(false);
       }
 
-      if (label.getIsPhon() && node.getClass().toString().contains("Modified")) {
-        label.setPhonIsModified(true);
-        PhonReplacementDetailsGetter prdg = new PhonReplacementDetailsGetter(annotationElementCollection,label);
-        node.apply(prdg);
+      if (label.getIsPhon() && node.getClass().toString().contains("Modified") && ! node.getClass().toString().contains("Lengthening")) {
+        if (!label.getPhonIsDeleted()) {
+          label.setPhonIsReplaced(true);
+          PhonReplacementDetailsGetter prdg = new PhonReplacementDetailsGetter(annotationElementCollection,label);
+          node.apply(prdg);
+        }
       }
 
-      if (! label.getPhonIsModified() && (node.getClass().toString().contains("ConsonantSymbol") || node.getClass().toString().contains("StressableVowel") || node.getClass().toString().contains("UnstressableVowel") || node.getClass() == kc2tei.node.AAspirationSymbol.class)) {
+      if ( (! label.getPhonIsReplaced()) && (node.getClass().toString().contains("ConsonantSymbol") || node.getClass().toString().contains("StressableVowel") || node.getClass().toString().contains("UnstressableVowel") || node.getClass() == kc2tei.node.AAspirationSymbol.class)) {
         if (label.getPhonIsDeleted()) {
           label.setModifiedPhon(stripWhiteSpaces(node.toString()));
         } else {
@@ -219,6 +262,10 @@ class NodeChildClassInfoGetter extends TranslationAdapter {
 
   public Boolean getNextPhonIsCreaked () {
     return this.nextPhonIsCreaked;
+  }
+
+  public Boolean getIsNasalizationModifier () {
+    return isNasalizationModifier;
   }
 
 }
