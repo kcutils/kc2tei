@@ -55,7 +55,8 @@ public class GrammarTest {
     if (c == kc2tei.node.TFilename.class) {
       filenameCounter++;
     }
-    if (c == kc2tei.node.TNoise.class) {
+    // OK, not all of these things are noises ...
+    if (c == kc2tei.node.TBodyNoise.class || c == kc2tei.node.TExternalNoise.class || c == kc2tei.node.TBreathing.class || c == kc2tei.node.TPause.class || c == kc2tei.node.THesistationalLengthning.class) {
       noiseCounter++;
     }
     if (c == kc2tei.node.TVocalNoiseH.class) {
@@ -147,7 +148,7 @@ public class GrammarTest {
       Assert.assertTrue(sentencePunctuationCounter == sentenceStartCounter); // each starting sentence ends
       Assert.assertTrue(punctuationCounter >= sentencePunctuationCounter); // a sentence punctuation is a punctuation
     }
-    Assert.assertTrue(wordBoundaryCounter >= wordCounter); //TODO: shouldn't they be equal?
+    Assert.assertTrue(wordBoundaryCounter == wordCounter );
 
     System.out.println("\nEnd of processing of " + fileName + " .");
     System.out.println("----------------------------------------------------------------------");
@@ -170,13 +171,20 @@ public class GrammarTest {
       wordCounter++;
     }
 
-    public void caseACase1SentencePunctuation(ACase1SentencePunctuation node) {
+    public void caseTHesistation(THesistation node) {
+      wordCounter++;
+    }
+
+    public void caseAFullStopSentencePunctuation (AFullStopSentencePunctuation node) {
+      sentencePunctuationCounter++;
+    }
+    public void caseAQuestionMarkSentencePunctuation (AQuestionMarkSentencePunctuation node) {
+      sentencePunctuationCounter++;
+    }
+    public void caseAExclamationMarkSentencePunctuation (AExclamationMarkSentencePunctuation node) {
       sentencePunctuationCounter++;
     }
 
-    public void caseACase2SentencePunctuation(ACase2SentencePunctuation node) {
-      sentencePunctuationCounter++;
-    }
   }
 }
 
