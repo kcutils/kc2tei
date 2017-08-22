@@ -1,5 +1,6 @@
 Package kc2tei;
 
+
 // character sets or regular expressions denoted by identifers
 Helpers
   all = [0 .. 0xFFFF];
@@ -16,26 +17,51 @@ Helpers
 
   digit = ['0' .. '9'];
 
-  punctuation_chars = [ '.' + [',' + [ '!' + [ '?' + ';']]]];
-  word = [string_chars - punctuation_chars]+;
-  file_extension = '.s1h' | '.s2';
+  punctuation_chars = [ '.' + [',' + [ '!' + [ '?' + [ ':' + ';' ]]]]];
+  special_chars = [ '<' + [ '>' +  [ ':' + [ '%' + '#' ]]]];
+  word = [[string_chars - punctuation_chars ] - special_chars ]+;
+  file_extension = '.s1h' | '.s1' | '.s2';
 
 States
-  header, transliteration, canonical_transcription, realised_form, timed_labels;
+  header, transliteration, rest, timed_labels;
 
 Tokens
-  {header->transliteration,transliteration,canonical_transcription,realised_form,timed_labels} eol = eol_chars;
-  {transliteration->canonical_transcription} oend_marker = eol_chars 'oend' eol_chars;
-  {canonical_transcription->realised_form} kend_marker = eol_chars 'kend' eol_chars;
-  {realised_form->timed_labels} hend_marker = eol_chars 'hend' eol_chars;
+  {header->transliteration,transliteration,rest,timed_labels} eol = eol_chars;
+  {transliteration->rest} oend_marker = eol_chars 'oend' eol_chars;
+  {rest->timed_labels} hend_marker = eol_chars 'hend' eol_chars;
 
   {header} filename = string file_extension;
-  {transliteration} noise = '<' string '>';
+  {transliteration} body_noise =   '<Lachen>'
+                                 | '<Husten>'
+                                 | '<R"auspern>'
+                                 | '<Schmatzen>'
+                                 | '<Schlucken>'
+                                 | '<Ger"ausch>';
+  {transliteration} external_noise =   '<#Klicken>'
+                                     | '<#Klingeln>'
+                                     | '<#Klopfen>'
+                                     | '<#Kopfh>'
+                                     | '<#Mikrobe>'
+                                     | '<#Mikrowind>'
+                                     | '<#Quietschen>'
+                                     | '<#Rascheln>'
+                                     | '<#>';
+  {transliteration} tech_break = '<;T>';
+  {transliteration} breathing = '<A>';
+  {transliteration} pause = '<P>';
+  {transliteration} hesistational_lengthning = '<Z>';
+  {transliteration} hesistation =   '<"ahm>'
+                                  | '<hm>'
+                                  | '<"ah>'
+                                  | '<h"as>';
+  {transliteration} unidentified_utterance = '<%>';
+  {transliteration} overlapping_boundary_begin_marker = '<:';
+  {transliteration} overlapping_boundary_end_marker = ':>';
   {transliteration} punctuation = punctuation_chars;
-  {transliteration} speaker = word ':';
+  {transliteration} speaker = word ': ';
   {transliteration} word = word;
 
-  {canonical_transcription,realised_form} string = string;
+  {rest} string = string;
 
   {timed_labels} time_marker = whitespaces digit+;
   {timed_labels} time_marker_two = whitespaces digit+ '.' digit+;
@@ -44,8 +70,8 @@ Tokens
   //accent_position_symbol = ''';
   ampersand = '&';
   comma = ',';
-  comment_symbol = 'p' 'c' | 'P' 'C';
-  compound_boundary_prefix = '$' '#';
+  comment_symbol = 'pc' | 'PC';
+  compound_boundary_prefix = '$#';
 
   // consonant tokens
   p = 'p';
@@ -71,48 +97,59 @@ Tokens
   l = 'l';
   r = 'r';
 
-  creak1 = 'q' | 'k' 'q';
-  creak2 = 'p' 'q' | 't' 'q';
-  diphthong = 'a' 'I' | 'a' 'U' | 'O' 'Y';
+  // vowel tokens
+  a = 'a';
+  e = 'e';
+  i = 'i';
+  big_i = 'I';
+  o = 'o';
+  big_o = 'O';
+  u = 'u';
+  big_u = 'U';
+  y = 'y';
+  big_y = 'Y';
+  big_e = 'E';
+  two = '2'; // also used for lexical and prosodic informations
+  nine = '9';
+  at = '@';
+  six = '6';
+
+  creak1 = 'q' | 'kq';
+  creak2 = 'pq' | 'tq';
   early_peak = ')';
   early_valley = ']';
   effort_marker = '>';
   equals = '=';
   exclamation_mark = '!';
   full_stop = '.';
-  hesitation_symbol = 'v' ':';
-  highregister = 'H' 'R';
-  kp_symbol = 'k' 'p';
+  hesitation_symbol = 'v:';
+  highregister = 'HR';
+  kp_symbol = 'kp';
   late_peak = '(';
-  lengthening_symbol = 'z' ':';
+  lengthening_symbol = 'z:';
   lexical_stress = ''' | '"';
-  lowregister = 'L' 'R';
-  ma_symbol = 'M' 'A';
+  lowregister = 'LR';
+  ma_symbol = 'MA';
   medial_peak = '^';
   minus = '-';
-  monophthong = 'i' ':' | 'I' | 'y' ':' | 'Y' | 'e' ':' | 'E' ':' | 'E' | '2' ':' | '9' | 'a' ':' | 'a' | 'o' ':' | 'O' | 'u' ':' | 'U';
-  nasal_vowel = 'a' '~' | 'E' '~' | 'O' '~' | '9' '~';
-  neologism_symbol = 'n' ':';
-  non_vocal_noise = ':' 'k'; 
+  neologism_symbol = 'n:';
+  non_vocal_noise = ':k';
   non_word_prefix = '#';
   nonearly_valley = '[';
   null = '0';
   one = '1';
-  phrase_symbol = 'P' 'G';
+  phrase_symbol = 'PG';
   plus = '+';
-  prehead_symbol = 'H' 'P';
+  prehead_symbol = 'HP';
   question_mark = '?';
-  rateminus = 'R' 'M';
-  rateplus = 'R' 'P';
-  schwa = '@';
-  schwar = '6';
+  rateminus = 'RM';
+  rateplus = 'RP';
+  colon = ':';
   semicolon = ';';
-  sentence_start_symbol = 'c' ':';
-  silence_symbol = 'p' ':';
-  technical_break = ';'; 
+  sentence_start_symbol = 'c:';
+  silence_symbol = 'p:';
   tilde = '~';
   three = '3';
-  two = '2';
   uncertainty = '%';
   upstep = '|';
   verbal_break = '/';
@@ -126,7 +163,7 @@ Tokens
   vocal_noise_h = 'h:';
 
   whitespaces = whitespaces;
-  word_boundary_prefix =  '#' '#';
+  word_boundary_prefix =  '##';
   word_internal_prefix = '$';
   word_interruption_symbol = '_';
 
@@ -136,141 +173,153 @@ Ignored Tokens
 
 Productions
   
-  file =  filename transliteration+ oend_marker canonical_transcription kend_marker realised_form hend_marker timed_label+; 
+  file =  filename transliteration+ oend_marker rest hend_marker timed_label+;
 
-  transliteration =   {case1} word
-                    | {case2} noise
-                    | {case3} punctuation
-                    | {case4} speaker;
+  transliteration_non_vocal_utterance =   {body_noise} body_noise
+                                        | {external_noise} external_noise
+                                        | {breathing} breathing
+                                        | {pause} pause
+                                        | {hesistational_lengthning} hesistational_lengthning;
+
+  transliteration_content =   {word} word
+                            | {non_vocal_utterance} transliteration_non_vocal_utterance
+                            | {hesistation} hesistation
+                            | {punctuation} punctuation
+                            | {speaker} speaker
+                            | {unidentified_utterance} unidentified_utterance
+                            | {uncertainty} uncertainty
+                            | {technical_break} tech_break;
+  transliteration =   {non_overlapping_content} transliteration_content
+                    | {overlapping_content} overlapping_boundary_begin_marker transliteration_content+ overlapping_boundary_end_marker;
 
   /*
    * canonical transcription and realised form can be
    * imprecise as we have all those informations in
    * the last section (timed labels)
    */
-  canonical_transcription = string+;
-  realised_form = string+;
+  rest = string+;
 
   timed_label = time_marker tlabel time_marker_two;
 
   tlabel = label;
 
-  accent_label =   {case1} word_internal_prefix pros_label_marker no_accent
-                 | {case2} non_word_prefix pros_label_marker no_accent
-                 | {case3} word_internal_prefix pros_label_marker full_accent
-                 | {case4} non_word_prefix pros_label_marker full_accent
-                 | {case5} word_internal_prefix pros_label_marker other_accent
-                 | {case6} non_word_prefix pros_label_marker other_accent;
+  accent_label =   {no_word_internal} word_internal_prefix pros_label_marker no_accent
+                 | {no_non_word} non_word_prefix pros_label_marker no_accent
+                 | {full_word_internal} word_internal_prefix pros_label_marker full_accent
+                 | {full_non_word} non_word_prefix pros_label_marker full_accent
+                 | {other_word_internal} word_internal_prefix pros_label_marker other_accent
+                 | {other_non_word} non_word_prefix pros_label_marker other_accent;
 
   accent_modifier =   {reset} reset
                     | {upstep} upstep;
 
-  accent_position_label =   {case1} word_boundary_prefix accent_position_symbol
-                          | {case2} word_internal_prefix accent_position_symbol;
+  accent_position_label =   {word_boundary} word_boundary_prefix accent_position_symbol
+                          | {word_internal} word_internal_prefix accent_position_symbol;
 
-  aspiration =   {case1} minus aspiration_symbol
-               | {case2} minus aspiration_symbol fwm;
+  aspiration = minus aspiration_symbol fwm?; // marks plosive release phase
 
-  aspiration_symbol =   {case1} b h
-                      | {case2} d h
-                      | {case3} g h
-                      | {case4} k h
-                      | {case5} p h
-                      | {case6} t h;
+  aspiration_symbol = non_glottal_plosive h;
 
-  boundaryconsonant =   {case1} word_boundary_prefix consonant
-                      | {case2} word_boundary_prefix consonant_modification
-                      | {case3} word_boundary_prefix consonantcreak1_modification;
+  boundaryconsonant =   {unmodified} word_boundary_prefix consonant
+                      | {modified} word_boundary_prefix consonant_modification
+                      | {creak} word_boundary_prefix consonantcreak1_modification;
 
   comment_label = non_word_prefix pros_label_marker comment_symbol;
 
-  compoundconsonant =   {case1} compound_boundary_prefix consonant
-                      | {case2} compound_boundary_prefix consonant_modification
-                      | {case3} compound_boundary_prefix consonantcreak_modification;
+  compoundconsonant =   {unmodified} compound_boundary_prefix consonant
+                      | {modified} compound_boundary_prefix consonant_modification
+                      | {creak} compound_boundary_prefix consonantcreak_modification;
 
-  consonant =   {case1} uncertainty consonant_symbol
-              | {case2} consonant_symbol;
+  consonant = uncertainty? consonant_symbol;
 
   consonant_deletion = consonant_symbol minus;
 
-  consonant_insertion =   {case1} uncertainty minus consonant_symbol
-                        | {case2} minus consonant_symbol;
+  consonant_insertion = uncertainty? minus consonant_symbol;
 
-  consonant_label =   {case1} boundaryconsonant
-                    | {case2} compoundconsonant
-                    | {case3} nonboundaryconsonant
-                    | {case4} nasalization_label
-                    | {case5} ma_label
-                    | {case6} lengthening_label
-                    | {case7} kp_label;
+  consonant_label =   {boundary} boundaryconsonant
+                    | {compound} compoundconsonant
+                    | {nonboundary} nonboundaryconsonant
+                    | {nasalization} nasalization_label
+                    | {ma} ma_label
+                    | {lengthening} lengthening_label
+                    | {kp} kp_label;
 
-  consonant_modification =   {case1} consonant_replacement
-                           | {case2} consonant_deletion
-                           | {case3} consonant_insertion;
+  consonant_modification =   {replacement} consonant_replacement
+                           | {deletion} consonant_deletion
+                           | {insertion} consonant_insertion;
 
-  consonant_replacement =  uncertainty? [c1]:consonant_symbol minus [c2]:consonant_symbol;
+  consonant_replacement =   {normal} uncertainty? [c1]:consonant_symbol minus [c2]:consonant_symbol
+                          | {palatal_approximant_by_close_unrounded_long} uncertainty? j minus i colon
+                          | {palatal_approximant_by_close_unrounded_less} uncertainty? j minus big_i;
 
-  consonant_symbol =   {p} p
-                     | {b} b
-                     | {t} t
-                     | {d} d
-                     | {k} k
-                     | {g} g
-                     | {big_q} big_q
-                     | {f} f
-                     | {v} v
-                     | {s} s
-                     | {z} z
-                     | {big_s} big_s
-                     | {big_z} big_z
-                     | {big_c} big_c
-                     | {j} j
-                     | {x} x
-                     | {h} h
-                     | {m} m
-                     | {n} n
-                     | {big_n} big_n
-                     | {l} l
-                     | {r} r;
+  plosive =   {non_glottal} non_glottal_plosive
+            | {glottal} big_q;
+
+  non_glottal_plosive =   {voiceless_bilabial} p
+                        | {voiced_bilabial} b
+                        | {voiceless_alveolar} t
+                        | {voiced_alveolar} d
+                        | {voiceless_velar} k
+                        | {voiced_velar} g;
+
+  fricative =   {voiceless_labiodental} f
+              | {voiced_labiodental} v
+              | {voiceless_alveolar} s
+              | {voiced_alveloar} z
+              | {voiceless_postalveolar} big_s
+              | {voiced_postalveolar} big_z
+              | {voiceless_palatal} big_c
+              | {voiceless_velar} x
+              | {voiceless_glottal} h;
+
+  nasal =   {bilabial} m
+          | {alveolar} n
+          | {velar} big_n;
+
+  consonant_symbol =   {plosive} plosive
+                     | {fricative} fricative
+                     | {nasal} nasal
+                     | {palatal_approximant} j
+                     | {alveolar_lateral_approximant} l
+                     | {alveolar_trill} r;
 
   consonantcreak1_insertion = minus creak1;
 
-  consonantcreak1_modification =   {case1} consonantcreak1_replacement
-                                 | {case2} consonantcreak1_insertion;
+  consonantcreak1_modification =   {replacement} consonantcreak1_replacement
+                                 | {insertion} consonantcreak1_insertion;
 
   consonantcreak1_replacement = consonant_symbol minus creak1;
 
-  consonantcreak_modification =   {case1} consonantcreak_replacement
-                                | {case2} consonantcreak1_insertion;
+  consonantcreak_modification =   {replacement} consonantcreak_replacement
+                                | {insertion} consonantcreak1_insertion;
 
   consonantcreak_replacement = consonant_symbol minus creak;
 
-  contour_label =   {case1} word_internal_prefix pros_label_marker fall
-                  | {case2} non_word_prefix pros_label_marker fall
-                  | {case3} word_internal_prefix pros_label_marker rise
-                  | {case4} non_word_prefix pros_label_marker rise
-                  | {case5} word_internal_prefix pros_label_marker fall_rise
-                  | {case6} non_word_prefix pros_label_marker fall_rise
-                  | {case7} word_internal_prefix pros_label_marker fall_flat
-                  | {case8} non_word_prefix pros_label_marker fall_flat;
+  contour_label =   {fall_word_internal} word_internal_prefix pros_label_marker fall
+                  | {fall_non_word} non_word_prefix pros_label_marker fall
+                  | {rise_word_internal} word_internal_prefix pros_label_marker rise
+                  | {rise_non_word} non_word_prefix pros_label_marker rise
+                  | {fall_rise_word_internal} word_internal_prefix pros_label_marker fall_rise
+                  | {fall_rise_non_word} non_word_prefix pros_label_marker fall_rise
+                  | {fall_flat_word_internal} word_internal_prefix pros_label_marker fall_flat
+                  | {fall_flat_non_word} non_word_prefix pros_label_marker fall_flat;
 
   creak =   {case1} creak1
           | {case2} creak2;
 
   fwm = plus;
 
-  fall =   {case1} level_fall full_stop
-         | {case2} mid_fall full_stop
-         | {case3} terminal_fall full_stop;
+  fall =   {level_fall} level_fall full_stop
+         | {mid_fall} mid_fall full_stop
+         | {terminal_fall} terminal_fall full_stop;
 
-  fall_flat =   {case1} level_fall semicolon
-              | {case2} mid_fall semicolon
-              | {case3} terminal_fall semicolon;
+  fall_flat =   {level} level_fall semicolon
+              | {mid} mid_fall semicolon
+              | {terminal} terminal_fall semicolon;
 
   fall_rise = fall rise;
 
-  false_start =   {case1} equals verbal_break plus
-                | {case2} verbal_break plus;
+  false_start = equals? verbal_break plus;
 
   full_accent =   {case1} accent_modifier full_accent_symbol effort_marker synchronizer
                 | {case2} accent_modifier full_accent_symbol synchronizer
@@ -282,74 +331,67 @@ Productions
 
   full_accent_symbol = two;
 
-  hesitation =   {case1} uncertainty hesitation_symbol
-               | {case2} hesitation_symbol;
+  hesitation = uncertainty? hesitation_symbol;
 
   hesitation_deletion = hesitation_symbol minus;
 
-  hesitation_insertion =   {case1} uncertainty minus hesitation_symbol
-                         | {case2} minus hesitation_symbol;
+  hesitation_insertion = uncertainty? minus hesitation_symbol;
 
-  hesitation_label =   {case1} word_boundary_prefix hesitation
-                     | {case2} word_internal_prefix hesitation
-                     | {case3} word_boundary_prefix hesitation_modification
-                     | {case4} word_internal_prefix hesitation_modification;
+  hesitation_label =   {unmodified_word_boundary} word_boundary_prefix hesitation
+                     | {unmodified_word_internal} word_internal_prefix hesitation
+                     | {modified_word_boundary} word_boundary_prefix hesitation_modification
+                     | {modified_word_internal} word_internal_prefix hesitation_modification;
 
-  hesitation_modification =   {case1} hesitation_deletion
-                            | {case2} hesitation_insertion;
+  hesitation_modification =   {deletion} hesitation_deletion
+                            | {insertion} hesitation_insertion;
 
-  kp_label =   {case1} word_boundary_prefix minus kp_symbol
-             | {case2} word_internal_prefix minus kp_symbol;
+  kp_label =   {word_boundary} word_boundary_prefix minus kp_symbol
+             | {word_internal} word_internal_prefix minus kp_symbol;
 
-  label =   {case1} vowel_label
-          | {case2} consonant_label
-          | {case3} nonverbal_label
-          | {case4} technical_artefact_label
-          | {case5} punctuation_label
-          | {case6} prosodic_label;
+  label =   {segment} segment
+          | {nonverbal} nonverbal_label
+          | {tech_artefact} technical_artefact_label
+          | {punctuation} punctuation_label
+          | {prosodic_label} prosodic_label;
 
   lengthening_deletion = lengthening_symbol minus;
 
   lengthening_insertion = minus lengthening_symbol;
 
-  lengthening_label =   {case1} word_internal_prefix lengthening_symbol
-                      | {case2} word_internal_prefix lengthening_modification;
+  lengthening_label =   {unmodified} word_internal_prefix lengthening_symbol
+                      | {modified} word_internal_prefix lengthening_modification;
 
-  lengthening_modification =   {case1} lengthening_deletion
-                             | {case2} lengthening_insertion;
+  lengthening_modification =   {deletion} lengthening_deletion
+                             | {insertion} lengthening_insertion;
 
   level_fall = null;
 
-  ma_label =   {case1} word_boundary_prefix minus ma_symbol
-             | {case2} word_internal_prefix minus ma_symbol;
+  ma_label =   {word_boundary} word_boundary_prefix minus ma_symbol
+             | {word_internal} word_internal_prefix minus ma_symbol;
 
   mid_fall = one;
 
-  nasalization_label =   {case1} word_internal_prefix minus tilde fwm
-                       | {case2} word_internal_prefix minus tilde;
+  nasalization_label = word_internal_prefix minus tilde fwm?;
 
-  neologism_label =   {case1} word_internal_prefix neologism_symbol
-                    | {case2} word_boundary_prefix neologism_symbol;
+  neologism_label =   {word_internal} word_internal_prefix neologism_symbol
+                    | {word_boundary} word_boundary_prefix neologism_symbol;
 
   no_accent = null;
 
   no_peak = minus;
 
-  nonboundaryconsonant =   {case1} word_internal_prefix consonant fwm
-                         | {case2} word_internal_prefix consonant
-                         | {case3} word_internal_prefix consonant_modification fwm
-                         | {case4} word_internal_prefix consonant_modification
-                         | {case5} word_internal_prefix consonantcreak_modification fwm
-                         | {case6} word_internal_prefix consonantcreak_modification
-                         | {case7} word_internal_prefix aspiration;
+  nonboundaryconsonant =   {unmodified} word_internal_prefix consonant fwm?
+                         | {modified} word_internal_prefix consonant_modification fwm?
+                         | {creak} word_internal_prefix consonantcreak_modification fwm?
+                         | {aspiration} word_internal_prefix aspiration;
 
-  nonverbal_label =   {case1} vocal_noise_label
-                    | {case2} hesitation_label
-                    | {case3} read_error_label
-                    | {case4} neologism_label
-                    | {case5} uncertain_stretch_label
-                    | {case6} verbal_break_label
-                    | {case7} word_interruption_label;
+  nonverbal_label =   {vocal_noise} vocal_noise_label
+                    | {hesitation} hesitation_label
+                    | {read_error} read_error_label
+                    | {neologism} neologism_label
+                    | {uncertain_stretch} uncertain_stretch_label
+                    | {verbal_break} verbal_break_label
+                    | {word_interruption} word_interruption_label;
 
   not_specified = n;
 
@@ -362,20 +404,17 @@ Productions
                  | {case7} reinforcement synchronizer
                  | {case8} reinforcement effort_marker;
 
-  partial_accent =    {case1} upstep partial_accent_symbol
-                    | {case2} partial_accent_symbol;
+  partial_accent = upstep? partial_accent_symbol;
 
   partial_accent_symbol = one;
 
-  peak =   {case1} early_peak
-         | {case2} medial_peak
-         | {case3} late_peak
-         | {case4} no_peak;
+  peak =   {early} early_peak
+         | {medial} medial_peak
+         | {late} late_peak
+         | {no_peak} no_peak;
 
-  phrase =   {case1} phrase_modifier phrase_symbol not_specified
-           | {case2} phrase_symbol not_specified
-           | {case3} phrase_modifier phrase_symbol verbal_break
-           | {case4} phrase_symbol verbal_break;
+  phrase =   {not_specified} phrase_modifier? phrase_symbol not_specified
+           | {verbal_break} phrase_modifier? phrase_symbol verbal_break;
 
   phrase_label =   {case1} non_word_prefix pros_label_marker phrase
                  | {case2} word_internal_prefix pros_label_marker phrase
@@ -383,88 +422,78 @@ Productions
 
   phrase_modifier = equals;
 
-  phrase_technical_break = phrase_symbol technical_break;
+  phrase_technical_break = phrase_symbol semicolon;
 
   prehead_label = non_word_prefix pros_label_marker prehead_symbol prehead_level;
 
   prehead_level =   {case1} one
                   | {case2} two;
 
-  pros_label =   {case1} phrase_label
-               | {case2} contour_label
-               | {case3} accent_label
-               | {case4} accent_position_label
-               | {case5} prehead_label
-               | {case6} comment_label
-               | {case7} tempo_label
-               | {case8} register_label;
+  pros_label =   {phrase} phrase_label
+               | {contour} contour_label
+               | {accent} accent_label
+               | {accent_position} accent_position_label
+               | {prehead} prehead_label
+               | {comment} comment_label
+               | {tempo} tempo_label
+               | {register} register_label;
 
-  pros_label_marker =   {case1} ampersand
-                      | {case2} ampersand uncertainty;
+  pros_label_marker = ampersand uncertainty?;
 
-  prosodic_label =   {case1} pros_label uncertainty
-                   | {case2} pros_label;
+  prosodic_label = pros_label uncertainty?;
 
-  punctuation_label =   {case1} non_word_prefix sentence_punctuation
-                      | {case2} non_word_prefix comma;
+  punctuation_label =   {sentence_punctuation} non_word_prefix sentence_punctuation
+                      | {comma} non_word_prefix comma;
 
-  r_diphthong = monophthong schwar;
+  read_error_label =   {word_boundary} word_boundary_prefix minus neologism_symbol
+                     | {non_word} non_word_prefix minus neologism_symbol;
 
-  read_error_label =   {case1} word_boundary_prefix minus neologism_symbol
-                     | {case2} non_word_prefix minus neologism_symbol;
-
-  register =    {case1} highregister
-              | {case2} lowregister;
+  register =    {high} highregister
+              | {low} lowregister;
 
   register_label = non_word_prefix pros_label_marker register;
   reinforcement = three;
   reset = plus;
-  rise =   {case1} comma
-         | {case2} question_mark;
+  rise =   {comma} comma
+         | {question_mark} question_mark;
 
-  sentence_punctuation =   {case1} uncertainty full_stop
-                         | {case2} full_stop
-                         | {case3} uncertainty question_mark
-                         | {case4} question_mark
-                         | {case5} exclamation_mark
-                         | {case6} sentence_start_symbol;
+  segment = seg;
+  seg =   {case1} consonant_label
+        | {case2} vowel_label;
 
-  stressable_vowel =   {case1} monophthong
-                     | {case2} nasal_vowel
-                     | {case3} diphthong
-                     | {case4} r_diphthong;
+  sentence_punctuation =   {full_stop} uncertainty? full_stop
+                         | {question_mark} uncertainty? question_mark
+                         | {exclamation_mark} exclamation_mark
+                         | {sentence_start} sentence_start_symbol;
 
-  synchronizer =   {case1} peak
-                 | {case2} valley;
+  synchronizer =   {peak} peak
+                 | {valley} valley;
 
-  technical_artefact =   {case1} non_vocal_noise
-                       | {case2} technical_break;
+  technical_artefact =   {non_vocal_noise} non_vocal_noise
+                       | {technical_break} semicolon;
 
   technical_artefact_deletion = technical_artefact minus;
 
   technical_artefact_insertion = minus technical_artefact;
 
-  technical_artefact_label =   {case1} non_word_prefix technical_artefact
-                             | {case2} word_internal_prefix technical_artefact
-                             | {case3} word_boundary_prefix technical_artefact
-                             | {case4} non_word_prefix technical_artefact_modification
-                             | {case5} word_internal_prefix technical_artefact_modification
-                             | {case6} word_boundary_prefix technical_artefact_modification;
+  technical_artefact_label =   {unmodified_non_word} non_word_prefix technical_artefact
+                             | {unmodified_word_internal} word_internal_prefix technical_artefact
+                             | {unmodified_word_boundary} word_boundary_prefix technical_artefact
+                             | {modified_non_word} non_word_prefix technical_artefact_modification
+                             | {modified_word_internal} word_internal_prefix technical_artefact_modification
+                             | {modified_word_boundary} word_boundary_prefix technical_artefact_modification;
 
-  technical_artefact_modification =   {case1} technical_artefact_deletion
-                                    | {case2} technical_artefact_insertion;
+  technical_artefact_modification =   {deletion} technical_artefact_deletion
+                                    | {insertion} technical_artefact_insertion;
 
-  tempo =   {case1} rateplus
-          | {case2} rateminus;
+  tempo =   {faster} rateplus
+          | {slower} rateminus;
 
   tempo_label = non_word_prefix pros_label_marker tempo;
 
   terminal_fall = two;
 
-  truncation =   {case1} uncertainty equals verbal_break minus
-               | {case2} equals verbal_break minus
-               | {case3} uncertainty verbal_break minus
-               | {case4} verbal_break minus;
+  truncation = uncertainty? equals? verbal_break minus;
 
   uncertain_stretch = uncertainty;
 
@@ -472,57 +501,54 @@ Productions
 
   uncertain_stretch_insertion = minus uncertainty;
 
-  uncertain_stretch_label =   {case1} word_boundary_prefix uncertain_stretch
-                            | {case2} word_internal_prefix uncertain_stretch
-                            | {case3} non_word_prefix uncertain_stretch
-                            | {case4} word_boundary_prefix uncertain_stretch_modification
-                            | {case5} word_internal_prefix uncertain_stretch_modification
-                            | {case6} non_word_prefix uncertain_stretch_modification;
+  uncertain_stretch_label =   {unmodified_word_boundary} word_boundary_prefix uncertain_stretch
+                            | {unmodified_word_internal} word_internal_prefix uncertain_stretch
+                            | {unmodified_non_word} non_word_prefix uncertain_stretch
+                            | {modified_word_boundary} word_boundary_prefix uncertain_stretch_modification
+                            | {modified_word_internal} word_internal_prefix uncertain_stretch_modification
+                            | {modified_non_word} non_word_prefix uncertain_stretch_modification;
 
-  uncertain_stretch_modification =   {case1} uncertain_stretch_deletion
-                                   | {case2} uncertain_stretch_insertion;
+  uncertain_stretch_modification =   {deletion} uncertain_stretch_deletion
+                                   | {insertion} uncertain_stretch_insertion;
 
-  valley =   {case1} early_valley
-           | {case2} nonearly_valley;
+  valley =   {early} early_valley
+           | {nonearly} nonearly_valley;
 
-  verbal_break_label =   {case1} word_internal_prefix truncation
-                       | {case2} word_internal_prefix false_start;
+  verbal_break_label =   {truncation} word_internal_prefix truncation
+                       | {false_start} word_internal_prefix false_start;
 
-  vocal_noise1_symbol =   {case1} smack
-                        | {case2} swallow
-                        | {case3} vocal_noise_h
-                        | {case4} laughter
-                        | {case5} cough
-                        | {case6} harrumph
-                        | {case7} unspecified_noise;
+  vocal_noise1_symbol =   {smack} smack
+                        | {swallow} swallow
+                        | {h} vocal_noise_h
+                        | {laughter} laughter
+                        | {cough} cough
+                        | {harrumpg} harrumph
+                        | {unspecific} unspecified_noise;
 
-  vocal_noise2_symbol =   {case1} vocal_noise_h
-                        | {case2} laughter
-                        | {case3} cough
-                        | {case4} harrumph
-                        | {case5} unspecified_noise;
+  vocal_noise2_symbol =   {h} vocal_noise_h
+                        | {laughter} laughter
+                        | {cough} cough
+                        | {harrumph} harrumph
+                        | {unspecific} unspecified_noise;
 
-  vocal_noise1 =   {case1} vocal_noise1_symbol
-                 | {case2} uncertainty silence_symbol
-                 | {case3} silence_symbol;
+  vocal_noise1 =   {noise} vocal_noise1_symbol
+                 | {silence} uncertainty? silence_symbol;
 
-  vocal_noise1_insertion =   {case1} minus vocal_noise1_symbol
-                           | {case2} uncertainty minus silence_symbol
-                           | {case3} minus silence_symbol;
+  vocal_noise1_insertion =   {noise} minus vocal_noise1_symbol
+                           | {silence} uncertainty? minus silence_symbol;
 
-  vocal_noise1_label =   {case1} word_internal_prefix vocal_noise1
-                       | {case2} non_word_prefix vocal_noise1
-                       | {case3} word_internal_prefix vocal_noise1_modification
-                       | {case4} non_word_prefix vocal_noise1_modification;
+  vocal_noise1_label =   {unmodified_word_internal} word_internal_prefix vocal_noise1
+                       | {unmodified_non_word} non_word_prefix vocal_noise1
+                       | {modified_word_internal} word_internal_prefix vocal_noise1_modification
+                       | {modified_non_word} non_word_prefix vocal_noise1_modification;
 
-  vocal_noise1_modification =   {case1} vocal_noise1_replacement
-                              | {case2} vocal_noise1_deletion
-                              | {case3} vocal_noise1_insertion;
+  vocal_noise1_modification =   {replacement} vocal_noise1_replacement
+                              | {deletion} vocal_noise1_deletion
+                              | {insertion} vocal_noise1_insertion;
 
-  vocal_noise1_replacement =   {case1} [v1]:vocal_noise1_symbol minus [v2]:vocal_noise1_symbol
-                             | {case2} silence_symbol minus vocal_noise1_symbol
-                             | {case3} uncertainty vocal_noise1_symbol minus silence_symbol
-                             | {case4} vocal_noise1_symbol minus silence_symbol;
+  vocal_noise1_replacement =   {noise_by_noise} [v1]:vocal_noise1_symbol minus [v2]:vocal_noise1_symbol
+                             | {silence_by_noise} silence_symbol minus vocal_noise1_symbol
+                             | {noise_by_silence} uncertainty? vocal_noise1_symbol minus silence_symbol;
 
   vocal_noise2 = vocal_noise2_symbol;
 
@@ -530,59 +556,103 @@ Productions
 
   vocal_noise2_insertion = minus vocal_noise2_symbol;
 
-  vocal_noise2_label =   {case1} word_boundary_prefix vocal_noise2
-                       | {case2} word_boundary_prefix vocal_noise2_modification;
+  vocal_noise2_label =   {unmodified_word_boundary} word_boundary_prefix vocal_noise2
+                       | {modified_word_boundary} word_boundary_prefix vocal_noise2_modification;
 
-  vocal_noise2_modification =   {case1} vocal_noise2_replacement
-                              | {case2} vocal_noise2_deletion
-                              | {case3} vocal_noise2_insertion;
+  vocal_noise2_modification =   {replacement} vocal_noise2_replacement
+                              | {deletion} vocal_noise2_deletion
+                              | {insertion} vocal_noise2_insertion;
 
   vocal_noise2_replacement = [v1]:vocal_noise2_symbol minus [v2]:vocal_noise2_symbol;
 
-  vocal_noise1_deletion =   {case1} vocal_noise1_symbol minus
-                          | {case2} silence_symbol minus;
+  vocal_noise1_deletion =   {noise} vocal_noise1_symbol minus
+                          | {silence} silence_symbol minus;
 
   vocal_noise_label =   {case1} vocal_noise1_label
                       | {case2} vocal_noise2_label;
 
-  vowel =   {case1} vowel_symbol
-          | {case2} uncertainty vowel_symbol fwm
-          | {case3} vowel_symbol fwm
-          | {case4} uncertainty vowel_symbol
-          | {case5} uncertainty lexical_stress stressable_vowel
-          | {case6} lexical_stress stressable_vowel;
+  vowel =   {unstressed} uncertainty? vowel_symbol fwm?
+          | {stressed} uncertainty? lexical_stress stressable_vowel;
 
-  vowel_deletion =   {case1} vowel_symbol minus fwm
-                   | {case2} vowel_symbol minus
-                   | {case3} lexical_stress stressable_vowel minus;
+  vowel_deletion =   {unstressed} vowel_symbol minus fwm?
+                   | {stressed} lexical_stress stressable_vowel minus;
 
-  vowel_insertion =   {case1} uncertainty minus vowel_symbol fwm
-                    | {case2} minus vowel_symbol fwm
-                    | {case3} uncertainty minus vowel_symbol
-                    | {case4} minus vowel_symbol;
+  vowel_insertion =  uncertainty? minus vowel_symbol fwm?;
 
-  vowel_label =   {case1} word_internal_prefix vowel
-                | {case2} word_internal_prefix vowel_modification;
+  vowel_label =   {unmodified} word_internal_prefix vowel
+                | {modified} word_internal_prefix vowel_modification;
 
-  vowel_modification =   {case1} vowel_replacement
-                       | {case2} vowel_deletion
-                       | {case3} vowel_insertion;
+  vowel_modification =   {replacement} vowel_replacement
+                       | {deletion} vowel_deletion
+                       | {insertion} vowel_insertion;
 
-  vowel_replacement =   {case1} uncertainty vowel_replacement2
-                      | {case2} vowel_replacement2;
+  vowel_replacement =  uncertainty? vowel_replacement2;
 
-  vowel_replacement2 =   {case1} [v1]:vowel_symbol minus [v2]:vowel_symbol fwm
-                       | {case2} [v1]:vowel_symbol minus [v2]:vowel_symbol
-                       | {case3} [l1]:lexical_stress [s1]:stressable_vowel minus [l2]:lexical_stress [s2]:stressable_vowel
-                       | {case4} lexical_stress stressable_vowel minus vowel_symbol
-                       | {case5} vowel_symbol minus lexical_stress stressable_vowel;
+  vowel_replacement2 =   {unstressed_by_unstressed} [v1]:vowel_symbol minus [v2]:vowel_symbol fwm?
+                       | {stressed_by_stressed} [l1]:lexical_stress [s1]:stressable_vowel minus [l2]:lexical_stress [s2]:stressable_vowel
+                       | {stressed_by_unstressed} lexical_stress stressable_vowel minus vowel_symbol
+                       | {unstressed_by_stressed} vowel_symbol minus lexical_stress stressable_vowel
+                       | {close_unrounded_less_by_alveolar_lateral_approximant} big_i minus l
+                       | {close_unrounded_less_by_voiceless_palatal_consonant} big_i minus big_c
+                       | {schwar_by_alveolar_lateral_approximant} schwar minus l
+;//                       | {close_less_by_bilabial} big_u minus m; // TODO: code too large error
 
-  vowel_symbol =   {case1} monophthong
-                 | {case2} nasal_vowel
-                 | {case3} diphthong
-                 | {case4} r_diphthong
-                 | {case5} schwa
-                 | {case6} schwar;
+  front_vowel =   {close_unrounded_long} i colon
+                | {close_rounded_long} y colon
+                | {close_unrounded_less} big_i
+                | {close_rounded_less} big_y
+                | {close_mid_unrounded_long} e colon
+                | {close_mid_rounded_long} two colon
+                | {open_mid_unrounded} big_e
+                | {open_mid_unrounded_long} big_e colon
+                | {open_mid_rounded} nine
+                | {open_unrounded} a
+                | {open_unrounded_long} a colon;
 
-  word_interruption_label =   {case1} word_boundary_prefix word_interruption_symbol
-                            | {case2} word_internal_prefix word_interruption_symbol;
+  schwa = at;
+  schwar = six;
+
+  central_vowel =   {mid} schwa
+                  | {less_open} schwar;
+
+  back_vowel =   {open_mid_rounded} big_o
+               | {close_mid_rounded_long} o colon
+               | {close_rounded_long} u colon
+               | {close_less} big_u;
+
+  monophthong =   {front} front_vowel
+                | {back} back_vowel;
+
+  nasal_vowel =   {front_open_unrounded} a tilde
+                | {front_open_mid_unrounded} big_e tilde
+                | {front_open_mid_rounded} nine tilde
+                | {back_open_mid_rounded} big_o tilde;
+
+  diphthong =   {front_open_unrounded_to_less_front_close_unrounded} a big_i
+              | {front_open_unrounded_to_less_back_close} a big_u
+              | {back_open_mid_rounded_to_less_front_close_rounded} big_o big_y;
+
+  r_diphthong = monophthong six;
+
+// TODO
+//  vowel_symbol =   {monophthong} monophthong
+//                 | {nasal} nasal_vowel
+//                 | {diphthong} diphthong
+//                 | {r_diphthong} r_diphthong
+//                 | {schwa} schwa
+//                 | {schwar} schwar;
+
+  vowel_symbol =   {stressable} stressable_vowel
+                 | {unstressable} central_vowel;
+
+  stressable_vowel =   {monophthong} monophthong
+                     | {nasal} nasal_vowel
+                     | {diphthong} diphthong
+                     | {r_diphthong} r_diphthong
+                     | {syllabic_schwar} equals schwar;  // wie bei "naeher" (vs. "der") TODO: das geht irgendwie besser
+
+//  unstressable_vowel =   {central_mid} schwa
+//                       | {central_less_open} schwar;
+
+  word_interruption_label =   {word_boundary} word_boundary_prefix word_interruption_symbol
+                            | {word_internal} word_internal_prefix word_interruption_symbol;
