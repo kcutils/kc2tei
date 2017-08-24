@@ -5,7 +5,6 @@ import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.XPath;
 import org.jaxen.dom4j.Dom4jXPath;
 
-import java.io.BufferedWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
