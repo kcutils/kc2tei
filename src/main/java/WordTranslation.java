@@ -1,15 +1,18 @@
-import kc2tei.node.Node;
-import kc2tei.node.THesistation;
-import kc2tei.node.TWord;
+import transliteration.analysis.DepthFirstAdapter;
+import transliteration.node.Node;
+import transliteration.node.THesistation;
+import transliteration.node.TWord;
 
 /*
  * class to collect words from transliteration section
  */
 
-public class WordTranslation extends TranslationAdapter {
+public class WordTranslation extends DepthFirstAdapter {
+
+  private AnnotationElementCollection annotationElementCollection = null;
 
   public WordTranslation(AnnotationElementCollection annotationElementCollection) {
-    super(annotationElementCollection);
+    this.annotationElementCollection = annotationElementCollection;
   }
 
   public void caseTWord (TWord node) {

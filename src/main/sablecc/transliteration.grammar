@@ -1,0 +1,98 @@
+Package transliteration;
+
+
+// character sets or regular expressions denoted by identifers
+Helpers
+  all = [0 .. 0xFFFF];
+  cr = 13;
+  lf = 10;
+  eol_chars = [cr + lf];
+  chars = [all - eol_chars];
+  tab = 9;
+  space = ' ';
+  whitespace_chars = [tab + space];
+  whitespaces = whitespace_chars+;
+  string_chars = [chars - whitespace_chars];
+  string = string_chars+;
+
+  digit = ['0' .. '9'];
+
+  punctuation_chars = [ '.' + [',' + [ '!' + [ '?' + [ ':' + ';' ]]]]];
+  special_chars = [ '<' + [ '>' +  [ ':' + [ '%' + '#' ]]]];
+  word = [[string_chars - punctuation_chars ] - special_chars ]+;
+  file_extension = '.s1h' | '.s1' | '.s2';
+
+States
+  header, transliteration, rest, timed_labels;
+
+Tokens
+  {header->transliteration,transliteration,rest} eol = eol_chars;
+  {transliteration->rest} oend_marker = eol_chars 'oend' eol_chars;
+
+  {header} filename = string file_extension;
+  {transliteration} body_noise =   '<Lachen>'
+                                 | '<Husten>'
+                                 | '<R"auspern>'
+                                 | '<Schmatzen>'
+                                 | '<Schlucken>'
+                                 | '<Ger"ausch>';
+  {transliteration} external_noise =   '<#Klicken>'
+                                     | '<#Klingeln>'
+                                     | '<#Klopfen>'
+                                     | '<#Kopfh>'
+                                     | '<#Mikrobe>'
+                                     | '<#Mikrowind>'
+                                     | '<#Quietschen>'
+                                     | '<#Rascheln>'
+                                     | '<#>';
+  {transliteration} tech_break = '<;T>';
+  {transliteration} breathing = '<A>';
+  {transliteration} pause = '<P>';
+  {transliteration} hesistational_lengthning = '<Z>';
+  {transliteration} hesistation =   '<"ahm>'
+                                  | '<hm>'
+                                  | '<"ah>'
+                                  | '<h"as>';
+  {transliteration} unidentified_utterance = '<%>';
+  {transliteration} overlapping_boundary_begin_marker = '<:';
+  {transliteration} overlapping_boundary_end_marker = ':>';
+  {transliteration} punctuation = punctuation_chars;
+  {transliteration} speaker = word ': ';
+  {transliteration} word = word;
+
+  {rest} string = string;
+
+  uncertainty = '%';
+
+  whitespaces = whitespaces;
+
+Ignored Tokens
+  whitespaces, eol;
+
+Productions
+  
+  file =  filename transliteration+ oend_marker rest;
+
+  transliteration_non_vocal_utterance =   {body_noise} body_noise
+                                        | {external_noise} external_noise
+                                        | {breathing} breathing
+                                        | {pause} pause
+                                        | {hesistational_lengthning} hesistational_lengthning;
+
+  transliteration_content =   {word} word
+                            | {non_vocal_utterance} transliteration_non_vocal_utterance
+                            | {hesistation} hesistation
+                            | {punctuation} punctuation
+                            | {speaker} speaker
+                            | {unidentified_utterance} unidentified_utterance
+                            | {uncertainty} uncertainty
+                            | {technical_break} tech_break;
+  transliteration =   {non_overlapping_content} transliteration_content
+                    | {overlapping_content} overlapping_boundary_begin_marker transliteration_content+ overlapping_boundary_end_marker;
+
+  /*
+   * canonical transcription and realised form can be
+   * imprecise as we have all those informations in
+   * the last section (timed labels)
+   */
+  rest = string+;

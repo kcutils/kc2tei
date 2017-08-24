@@ -1,4 +1,4 @@
-Package kc2tei;
+Package labels;
 
 
 // character sets or regular expressions denoted by identifers
@@ -23,43 +23,11 @@ Helpers
   file_extension = '.s1h' | '.s1' | '.s2';
 
 States
-  header, transliteration, rest, timed_labels;
+  rest, timed_labels;
 
 Tokens
-  {header->transliteration,transliteration,rest,timed_labels} eol = eol_chars;
-  {transliteration->rest} oend_marker = eol_chars 'oend' eol_chars;
+  {rest,timed_labels} eol = eol_chars;
   {rest->timed_labels} hend_marker = eol_chars 'hend' eol_chars;
-
-  {header} filename = string file_extension;
-  {transliteration} body_noise =   '<Lachen>'
-                                 | '<Husten>'
-                                 | '<R"auspern>'
-                                 | '<Schmatzen>'
-                                 | '<Schlucken>'
-                                 | '<Ger"ausch>';
-  {transliteration} external_noise =   '<#Klicken>'
-                                     | '<#Klingeln>'
-                                     | '<#Klopfen>'
-                                     | '<#Kopfh>'
-                                     | '<#Mikrobe>'
-                                     | '<#Mikrowind>'
-                                     | '<#Quietschen>'
-                                     | '<#Rascheln>'
-                                     | '<#>';
-  {transliteration} tech_break = '<;T>';
-  {transliteration} breathing = '<A>';
-  {transliteration} pause = '<P>';
-  {transliteration} hesistational_lengthning = '<Z>';
-  {transliteration} hesistation =   '<"ahm>'
-                                  | '<hm>'
-                                  | '<"ah>'
-                                  | '<h"as>';
-  {transliteration} unidentified_utterance = '<%>';
-  {transliteration} overlapping_boundary_begin_marker = '<:';
-  {transliteration} overlapping_boundary_end_marker = ':>';
-  {transliteration} punctuation = punctuation_chars;
-  {transliteration} speaker = word ': ';
-  {transliteration} word = word;
 
   {rest} string = string;
 
@@ -173,24 +141,7 @@ Ignored Tokens
 
 Productions
   
-  file =  filename transliteration+ oend_marker rest hend_marker timed_label+;
-
-  transliteration_non_vocal_utterance =   {body_noise} body_noise
-                                        | {external_noise} external_noise
-                                        | {breathing} breathing
-                                        | {pause} pause
-                                        | {hesistational_lengthning} hesistational_lengthning;
-
-  transliteration_content =   {word} word
-                            | {non_vocal_utterance} transliteration_non_vocal_utterance
-                            | {hesistation} hesistation
-                            | {punctuation} punctuation
-                            | {speaker} speaker
-                            | {unidentified_utterance} unidentified_utterance
-                            | {uncertainty} uncertainty
-                            | {technical_break} tech_break;
-  transliteration =   {non_overlapping_content} transliteration_content
-                    | {overlapping_content} overlapping_boundary_begin_marker transliteration_content+ overlapping_boundary_end_marker;
+  file = rest hend_marker timed_label+;
 
   /*
    * canonical transcription and realised form can be

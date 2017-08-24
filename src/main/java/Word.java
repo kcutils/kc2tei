@@ -1,4 +1,4 @@
-import kc2tei.node.Node;
+import transliteration.node.Node;
 
 public class Word extends TimedAnnotationElement<Node> {
 

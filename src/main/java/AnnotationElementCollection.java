@@ -1,4 +1,4 @@
-import kc2tei.node.*;
+import labels.node.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,10 +45,10 @@ public class AnnotationElementCollection {
 
     for (TimedAnnotationElement t : annotationElements) {
       rval = rval + "\n" + t.toString();
-      Node n = (Node) t.getContent();
-      if (n.getClass() == kc2tei.node.ATlabel.class) {
+      Object n = t.getContent();
+      if (n.getClass() == labels.node.ATlabel.class) {
         LabelInfoGetter lInfo = new LabelInfoGetter(this);
-        n.apply(lInfo);
+        ((labels.node.Node) n).apply(lInfo);
         rval = rval + lInfo.toString();
       }
     }
@@ -158,7 +158,7 @@ public class AnnotationElementCollection {
   private void refineTimedLabels () {
     if (!labelsRefined) {
       for (Label l : getListOfLabels()) {
-        Node node = (Node) l.getContent();
+        labels.node.Node node = l.getContent();
         LabelInfoGetter lInfo = new LabelInfoGetter(this, true, l);
         lInfo.setNextPhonIsCreaked(nextPhonIsCreaked);
         node.apply(lInfo);
@@ -217,7 +217,9 @@ public class AnnotationElementCollection {
 // in normal/read-only mode it can be used to gather some debug informations
 // in refinement/read-write mode it modifies labels according to their contending nodes
 
-class LabelInfoGetter extends TranslationAdapter {
+class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
+
+  private AnnotationElementCollection annotationElementCollection = null;
 
   private String details = "";
   private Boolean refineMode = false;
@@ -228,11 +230,11 @@ class LabelInfoGetter extends TranslationAdapter {
   private Boolean isNasalizationModifier = false;
 
   public LabelInfoGetter (AnnotationElementCollection annotationElementCollection) {
-    super(annotationElementCollection);
+    this.annotationElementCollection = annotationElementCollection;
   }
 
   public LabelInfoGetter (AnnotationElementCollection annotationElementCollection, Boolean refineMode, Label label) {
-    super(annotationElementCollection);
+    this.annotationElementCollection = annotationElementCollection;
     setRefineMode(refineMode);
     setLabel(label);
   }
@@ -245,16 +247,16 @@ class LabelInfoGetter extends TranslationAdapter {
     this.label = label;
   }
 
-  public void defaultIn(Node node) {
+  public void defaultIn(labels.node.Node node) {
     details = details + "\n---  " + node.getClass().toString();
 
     if (refineMode) {
 
-      if (node.getClass() == kc2tei.node.ABoundaryConsonantLabel.class || node.getClass().toString().contains("WordBoundary")) {
+      if (node.getClass() == labels.node.ABoundaryConsonantLabel.class || node.getClass().toString().contains("WordBoundary")) {
         label.setIsWordBegin(true);
       }
 
-      if (node.getClass() == kc2tei.node.ASegmentLabel.class) {
+      if (node.getClass() == labels.node.ASegmentLabel.class) {
         label.setIsPhon(true);
         if (nextPhonIsCreaked) {
           label.setIsCreaked(true);
@@ -295,7 +297,7 @@ class LabelInfoGetter extends TranslationAdapter {
         }
       }
 
-      if ( (! label.getPhonIsReplaced()) && (node.getClass().toString().contains("ConsonantSymbol") || node.getClass().toString().contains("StressableVowel") || node.getClass().toString().contains("UnstressableVowel") || node.getClass() == kc2tei.node.AAspirationSymbol.class)) {
+      if ( (! label.getPhonIsReplaced()) && (node.getClass().toString().contains("ConsonantSymbol") || node.getClass().toString().contains("StressableVowel") || node.getClass().toString().contains("UnstressableVowel") || node.getClass() == labels.node.AAspirationSymbol.class)) {
         if (label.getPhonIsDeleted()) {
           label.setModifiedPhon(stripWhiteSpaces(node.toString()));
         } else {
@@ -331,39 +333,40 @@ class LabelInfoGetter extends TranslationAdapter {
 
 }
 
-class PhonReplacementDetailsGetter extends TranslationAdapter {
+class PhonReplacementDetailsGetter extends labels.analysis.DepthFirstAdapter {
 
+  private AnnotationElementCollection annotationElementCollection = null;
   private Label label = null;
 
   public PhonReplacementDetailsGetter (AnnotationElementCollection annotationElementCollection) {
-    super(annotationElementCollection);
+    this.annotationElementCollection = annotationElementCollection;
   }
   public PhonReplacementDetailsGetter (AnnotationElementCollection annotationElementCollection, Label label) {
-    super(annotationElementCollection);
+    this.annotationElementCollection = annotationElementCollection;
     setLabel(label);
   }
   public void setLabel(Label label) {
     this.label = label;
   }
 
-  public void defaultIn(Node node) {
+  public void defaultIn(labels.node.Node node) {
 
     //
     // consonant replacements
     //
     // normal consonant replacement
-    if (node.getClass() == kc2tei.node.ANormalConsonantReplacement.class) {
+    if (node.getClass() == labels.node.ANormalConsonantReplacement.class) {
       label.setModifiedPhon(stripWhiteSpaces(((ANormalConsonantReplacement) node).getC1().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((ANormalConsonantReplacement) node).getC2().toString()));
     }
 
     // j by i consonant replacement
-    if (node.getClass() == kc2tei.node.APalatalApproximantByCloseUnroundedLongConsonantReplacement.class) {
+    if (node.getClass() == labels.node.APalatalApproximantByCloseUnroundedLongConsonantReplacement.class) {
       label.setModifiedPhon(stripWhiteSpaces(((APalatalApproximantByCloseUnroundedLongConsonantReplacement) node).getJ().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((APalatalApproximantByCloseUnroundedLongConsonantReplacement) node).getI().toString()));
     }
 //    {palatal_approximant_by_close_unrounded_less} uncertainty? j minus big_i;
-    if (node.getClass() == kc2tei.node.APalatalApproximantByCloseUnroundedLessConsonantReplacement.class) {
+    if (node.getClass() == labels.node.APalatalApproximantByCloseUnroundedLessConsonantReplacement.class) {
       label.setModifiedPhon(stripWhiteSpaces(((APalatalApproximantByCloseUnroundedLessConsonantReplacement) node).getJ().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((APalatalApproximantByCloseUnroundedLessConsonantReplacement) node).getBigI().toString()));
     }
@@ -371,33 +374,33 @@ class PhonReplacementDetailsGetter extends TranslationAdapter {
     //
     // vowel replacements
     //
-    if (node.getClass() == kc2tei.node.AUnstressedByUnstressedVowelReplacement2.class) {
+    if (node.getClass() == labels.node.AUnstressedByUnstressedVowelReplacement2.class) {
       label.setModifiedPhon(stripWhiteSpaces(((AUnstressedByUnstressedVowelReplacement2) node).getV1().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((AUnstressedByUnstressedVowelReplacement2) node).getV2().toString()));
     }
 
-    if (node.getClass() == kc2tei.node.AStressedByStressedVowelReplacement2.class) {
+    if (node.getClass() == labels.node.AStressedByStressedVowelReplacement2.class) {
       label.setModifiedPhon(stripWhiteSpaces(((AStressedByStressedVowelReplacement2) node).getS1().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((AStressedByStressedVowelReplacement2) node).getS2().toString()));
     }
 
-    if (node.getClass() == kc2tei.node.AStressedByUnstressedVowelReplacement2.class) {
+    if (node.getClass() == labels.node.AStressedByUnstressedVowelReplacement2.class) {
       label.setModifiedPhon(stripWhiteSpaces(((AStressedByUnstressedVowelReplacement2) node).getStressableVowel().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((AStressedByUnstressedVowelReplacement2) node).getVowelSymbol().toString()));
     }
-    if (node.getClass() == kc2tei.node.AUnstressedByStressedVowelReplacement2.class) {
+    if (node.getClass() == labels.node.AUnstressedByStressedVowelReplacement2.class) {
       label.setModifiedPhon(stripWhiteSpaces(((AUnstressedByStressedVowelReplacement2) node).getVowelSymbol().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((AUnstressedByStressedVowelReplacement2) node).getStressableVowel().toString()));
     }
-    if (node.getClass() == kc2tei.node.ACloseUnroundedLessByAlveolarLateralApproximantVowelReplacement2.class) {
+    if (node.getClass() == labels.node.ACloseUnroundedLessByAlveolarLateralApproximantVowelReplacement2.class) {
       label.setModifiedPhon(stripWhiteSpaces(((ACloseUnroundedLessByAlveolarLateralApproximantVowelReplacement2) node).getBigI().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((ACloseUnroundedLessByAlveolarLateralApproximantVowelReplacement2) node).getL().toString()));
     }
-    if (node.getClass() == kc2tei.node.ACloseUnroundedLessByVoicelessPalatalConsonantVowelReplacement2.class) {
+    if (node.getClass() == labels.node.ACloseUnroundedLessByVoicelessPalatalConsonantVowelReplacement2.class) {
       label.setModifiedPhon(stripWhiteSpaces(((ACloseUnroundedLessByVoicelessPalatalConsonantVowelReplacement2) node).getBigI().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((ACloseUnroundedLessByVoicelessPalatalConsonantVowelReplacement2) node).getBigC().toString()));
     }
-    if (node.getClass() == kc2tei.node.ASchwarByAlveolarLateralApproximantVowelReplacement2.class) {
+    if (node.getClass() == labels.node.ASchwarByAlveolarLateralApproximantVowelReplacement2.class) {
       label.setModifiedPhon(stripWhiteSpaces(((ASchwarByAlveolarLateralApproximantVowelReplacement2) node).getSchwar().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((ASchwarByAlveolarLateralApproximantVowelReplacement2) node).getL().toString()));
     }

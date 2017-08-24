@@ -1,4 +1,4 @@
-import kc2tei.node.PTlabel;
+import labels.node.PTlabel;
 
 public class Label extends TimedAnnotationElement<PTlabel> {
 

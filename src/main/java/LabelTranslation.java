@@ -1,18 +1,20 @@
-import kc2tei.node.ATimedLabel;
-import kc2tei.node.PTlabel;
+import labels.analysis.DepthFirstAdapter;
+import labels.node.ATimedLabel;
+import labels.node.PTlabel;
 
 /*
  * class to collect timed labels and time marks from label section
  */
 
-public class LabelTranslation extends TranslationAdapter {
+public class LabelTranslation extends DepthFirstAdapter {
+
+  private AnnotationElementCollection annotationElementCollection = null;
 
   private TimedAnnotationElement<PTlabel> lastAnnotationElement = null;
   private TimeMark lastTimeMark = null;
 
-
   public LabelTranslation(AnnotationElementCollection annotationElementCollection) {
-    super(annotationElementCollection);
+    this.annotationElementCollection = annotationElementCollection;
   }
 
   /*

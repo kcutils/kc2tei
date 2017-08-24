@@ -1,12 +1,6 @@
-import kc2tei.node.EOF;
-import kc2tei.node.Token;
-import kc2tei.parser.Parser;
 import org.apache.commons.cli.*;
 
 import java.io.*;
-
-import kc2tei.lexer.Lexer;
-import kc2tei.node.Start;
 
 public class Main {
 
@@ -35,46 +29,62 @@ public class Main {
 //    try {
 
       // create filereader
-      FileReader fr = new FileReader(inputFileName);
+      FileReader translitFr = new FileReader(inputFileName);
+      FileReader labelsFr = new FileReader(inputFileName);
 
       // create pushbackreader
-      PushbackReader pbr = new PushbackReader(fr, 1024);
+      PushbackReader translitPbr = new PushbackReader(translitFr, 1024);
+      PushbackReader labelsPbr = new PushbackReader(labelsFr, 1024);
 
       // create lexer
-      Lexer l = new Lexer(pbr);
+      transliteration.lexer.Lexer translitLexer  = new transliteration.lexer.Lexer(translitPbr);
+      labels.lexer.Lexer labelsLexer  = new labels.lexer.Lexer(labelsPbr);
 
       if (debugMode) {
+
         while (true) {
-          Token t = l.next();
-          if (t instanceof EOF) {
+          transliteration.node.Token t = translitLexer.next();
+          if (t instanceof transliteration.node.EOF) {
             break;
           }
           //System.out.println("State: " + l.getStateId() + ", Token type: " + t.getClass() + ", Token: '" + t.getText() + "'");
           System.out.println("Token type: " + t.getClass() + ", Token: '" + t.getText() + "'");
         }
         // create new lexer with new file reader and new pushback reader which reads from beginning of the file again
-        fr = new FileReader(inputFileName);
-        pbr = new PushbackReader(fr, 1024);
-        l = new Lexer(pbr);
+        translitFr = new FileReader(inputFileName);
+        translitPbr = new PushbackReader(translitFr, 1024);
+        translitLexer = new transliteration.lexer.Lexer(translitPbr);
+
+        while (true) {
+          labels.node.Token t = labelsLexer.next();
+          if (t instanceof labels.node.EOF) {
+            break;
+          }
+          //System.out.println("State: " + l.getStateId() + ", Token type: " + t.getClass() + ", Token: '" + t.getText() + "'");
+          System.out.println("Token type: " + t.getClass() + ", Token: '" + t.getText() + "'");
+        }
+        // create new lexer with new file reader and new pushback reader which reads from beginning of the file again
+        labelsFr = new FileReader(inputFileName);
+        labelsPbr = new PushbackReader(labelsFr, 1024);
+        labelsLexer = new labels.lexer.Lexer(labelsPbr);
+
       }
 
       // create parser
-      Parser p = new Parser(l);
+      transliteration.parser.Parser translitParser = new transliteration.parser.Parser(translitLexer);
+      labels.parser.Parser labelsParser = new labels.parser.Parser(labelsLexer);
 
       // parse input
-      Start tree = p.parse();
-
-
+      transliteration.node.Start translitTree = translitParser.parse();
+      labels.node.Start labelsTree = labelsParser.parse();
 
       // apply translations
 
-      TranslationAdapter t = null;
+      LabelTranslation l = new LabelTranslation(annotationElements);
+      labelsTree.apply(l);
 
-      t = new LabelTranslation(annotationElements);
-      tree.apply(t);
-
-      t = new WordTranslation(annotationElements);
-      tree.apply(t);
+      WordTranslation w = new WordTranslation(annotationElements);
+      translitTree.apply(w);
 
       annotationElements.refineCollection();
 
