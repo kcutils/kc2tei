@@ -64,11 +64,7 @@ public class Main {
       // parse input
       Start tree = p.parse();
 
-      // pre-check for inconsistencies in file to process
-      KCFileChecker check = null;
 
-      check = new KCFileChecker();
-      tree.apply(check);
 
       // apply translations
 
@@ -80,9 +76,7 @@ public class Main {
       t = new WordTranslation(annotationElements);
       tree.apply(t);
 
-      annotationElements.setTimeMarkerNames();
-
-      annotationElements.refineTimedLabels();
+      annotationElements.refineCollection();
 
       if (debugMode) {
         System.out.println(annotationElements + "\n");
@@ -93,7 +87,8 @@ public class Main {
 
       teiDoc = new TEIDoc(annotationElements, charConverter);
 
-      check.setEntriesNotInUnicodeTable(charConverter.getNoHits());
+      // check for inconsistencies in file to process
+      KCFileChecker check = new KCFileChecker(annotationElements, charConverter);
 
       if (! check.noErrorsFound()) {
         System.err.print(check);

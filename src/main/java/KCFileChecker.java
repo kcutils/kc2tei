@@ -1,26 +1,26 @@
-import kc2tei.analysis.DepthFirstAdapter;
-import kc2tei.node.Node;
-import kc2tei.node.TWordBoundaryPrefix;
 
-public class KCFileChecker extends DepthFirstAdapter {
+public class KCFileChecker {
 
   private int wordCounter = 0;
   private int wordBoundaryCounter = 0;
   private int entriesNotInUnicodeTable = 0;
 
+  private AnnotationElementCollection annotationElementCollection;
+  private KCSampaToIPAConverter sampaToIPAConverter;
+
   public KCFileChecker () {
   }
 
-  public void defaultIn(Node node) {
-
-    if (node.getClass() == kc2tei.node.AWordTransliterationContent.class || node.getClass() == kc2tei.node.AHesistationTransliterationContent.class) {
-      wordCounter++;
-    }
-
+  KCFileChecker (AnnotationElementCollection annotationElementCollection, KCSampaToIPAConverter sampaToIPAConverter) {
+    this.annotationElementCollection = annotationElementCollection;
+    this.sampaToIPAConverter = sampaToIPAConverter;
+    setValues();
   }
 
-  public void caseTWordBoundaryPrefix (TWordBoundaryPrefix node) {
-    wordBoundaryCounter++;
+  private void setValues () {
+    entriesNotInUnicodeTable = sampaToIPAConverter.getNoHits();
+    wordCounter = annotationElementCollection.getAmountOfWords();
+    wordBoundaryCounter = annotationElementCollection.getAmountOfWordBoundaries();
   }
 
   public Boolean noErrorsFound () {
@@ -49,7 +49,4 @@ public class KCFileChecker extends DepthFirstAdapter {
     return rval;
   }
 
-  public void setEntriesNotInUnicodeTable (Integer i) {
-    this.entriesNotInUnicodeTable = i;
-  }
 }

@@ -5,7 +5,6 @@ import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.XPath;
 import org.jaxen.dom4j.Dom4jXPath;
 
-import java.io.BufferedWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
@@ -105,33 +104,33 @@ public class TEIDoc {
 
       //List<TimedAnnotationElement> list = annotationElements.getListOfAnnotationElementsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
 
-      List<TimedAnnotationElement> list = annotationElements.getListOfPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
-      if (list != null) {
-        for (TimedAnnotationElement a : list) {
-          String realizedPhon = a.getContent().toString();
-          String canonicalPhon = a.getContent().toString();
-          // all "a" are Phones
-          if (((Label) a).getModifiedPhon() == null) {
-            canonicalPhon = charConverter.getUnicodeByASCII(((Label) a).getRealizedPhon());
+      List<Label> labels = annotationElements.getListOfPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
+      if (labels != null) {
+        for (Label l : labels) {
+          String realizedPhon = l.getContent().toString();
+          String canonicalPhon = l.getContent().toString();
+          // all "l" are Phones
+          if (l.getModifiedPhon() == null) {
+            canonicalPhon = charConverter.getUnicodeByASCII(l.getRealizedPhon());
             realizedPhon = canonicalPhon;
           } else {
-            canonicalPhon = charConverter.getUnicodeByASCII(((Label) a).getModifiedPhon());
-            realizedPhon = charConverter.getUnicodeByASCII(((Label) a).getRealizedPhon());
+            canonicalPhon = charConverter.getUnicodeByASCII(l.getModifiedPhon());
+            realizedPhon = charConverter.getUnicodeByASCII(l.getRealizedPhon());
           }
 
-          if (((Label) a).getIsCreaked()) {
+          if (l.getIsCreaked()) {
             realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("creaked");
           }
-          if (((Label) a).getIsNasalized()) {
+          if (l.getIsNasalized()) {
             realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("nasalized");
           }
           if (realizedPhon != null) {
-            spanGrpRealizedPhones.addElement("span").addAttribute("from", a.getStartTime().getName()).addAttribute("to", a.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(realizedPhon);
+            spanGrpRealizedPhones.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(realizedPhon);
             spanCounter++;
           }
 
           if (canonicalPhon != null) {
-            spanGrpCanonicalPhones.addElement("span").addAttribute("from", a.getStartTime().getName()).addAttribute("to", a.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(canonicalPhon);
+            spanGrpCanonicalPhones.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(canonicalPhon);
             spanCounter++;
           }
         }
