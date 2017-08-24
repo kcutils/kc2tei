@@ -14,6 +14,12 @@ public class AnnotationElementCollection {
 
   private Label lastPhon = null;
 
+  private Integer amountOfWords = 0;
+  private Integer amountOfWordBoundaries = 0;
+
+  private Boolean labelsRefined = false;
+  private Boolean wordsRefined = false;
+
   public void add (TimedAnnotationElement t) {
 
     if (t != null) {
@@ -23,8 +29,11 @@ public class AnnotationElementCollection {
       t.setStartTime(s);
       t.setEndTime(e);
       annotationElements.add(t);
-    }
 
+      if (t.getClass().equals(Word.class)) {
+        amountOfWords++;
+      }
+    }
   }
 
   public TimeMark addTimeMarkAndReturn (TimeMark t) {
@@ -38,9 +47,9 @@ public class AnnotationElementCollection {
       rval = rval + "\n" + t.toString();
       Node n = (Node) t.getContent();
       if (n.getClass() == kc2tei.node.ATlabel.class) {
-        NodeChildClassInfoGetter nInfo = new NodeChildClassInfoGetter(this);
-        n.apply(nInfo);
-        rval = rval + nInfo.toString();
+        LabelInfoGetter lInfo = new LabelInfoGetter(this);
+        n.apply(lInfo);
+        rval = rval + lInfo.toString();
       }
     }
 
@@ -67,10 +76,10 @@ public class AnnotationElementCollection {
     return rval;
   }
 
-  public List<TimedAnnotationElement> getListOfPhonesStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
+  public List<Label> getListOfPhonesStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
     Boolean firstWordBeginFound = false;
     Boolean secondWordBeginFound = false;
-    List<TimedAnnotationElement> rval = null;
+    List<Label> rval = null;
 
     if (t1 != null && t2 != null) {
       rval = new ArrayList<>();
@@ -83,7 +92,7 @@ public class AnnotationElementCollection {
             firstWordBeginFound = true;
           }
           if (firstWordBeginFound && ! secondWordBeginFound && ((Label) e).getIsPhon() && ! ((Label) e).getIgnorePhon()) {
-              rval.add(e);
+              rval.add((Label) e);
           }
         }
       }
@@ -95,17 +104,28 @@ public class AnnotationElementCollection {
     return timeMarkers.getList();
   }
 
-  public List<TimedAnnotationElement> getListOfWords () {
-    List<TimedAnnotationElement> rval = new ArrayList<>();
+  public List<Word> getListOfWords () {
+    List<Word> rval = new ArrayList<>();
     for (TimedAnnotationElement e : annotationElements) {
       if (e.getClass().equals(Word.class)) {
-        rval.add(e);
+        rval.add((Word) e);
       }
     }
     return rval;
   }
 
-  public void setTimeMarkerNames () {
+  public List<Label> getListOfLabels () {
+    List<Label> rval = new ArrayList<>();
+    for (TimedAnnotationElement e : annotationElements) {
+      if (e.getClass().equals(Label.class)) {
+        rval.add((Label) e);
+      }
+    }
+    return rval;
+  }
+
+
+  private void setTimeMarkerNames () {
     Integer nameSuffix = null;
     for (int i = 0; i < getTimeMarkerList().size(); i++) {
       nameSuffix = i + 1;
@@ -113,42 +133,83 @@ public class AnnotationElementCollection {
     }
   }
 
-  public void refineTimedLabels () {
-    for (TimedAnnotationElement t : annotationElements) {
-      Node node = (Node) t.getContent();
-      if (node.getClass() == kc2tei.node.ATlabel.class) {
-        NodeChildClassInfoGetter nInfo = new NodeChildClassInfoGetter(this, true, (Label) t);
-        nInfo.setNextPhonIsCreaked(nextPhonIsCreaked);
-        node.apply(nInfo);
+  private void refineWords () {
+    if (!wordsRefined) {
+      List<Word> words = getListOfWords();
+      Integer i = 0;
+      for (Label l : getListOfLabels()) {
+        if (l.getIsWordBegin()) {
+          if (i < words.size()) {
+            words.get(i).setStartTime(l.getStartTime());
+            if (i > 0) {
+              words.get(i - 1).setEndTime(l.getStartTime());
+            }
+            i++;
+          }
+        }
+      }
+      if (words.get(i - 1).getEndTime() == null) {
+        words.get(i - 1).setEndTime(getTimeMarkerList().get(getTimeMarkerList().size() - 1));
+      }
+      wordsRefined = true;
+    }
+  }
+
+  private void refineTimedLabels () {
+    if (!labelsRefined) {
+      for (Label l : getListOfLabels()) {
+        Node node = (Node) l.getContent();
+        LabelInfoGetter lInfo = new LabelInfoGetter(this, true, l);
+        lInfo.setNextPhonIsCreaked(nextPhonIsCreaked);
+        node.apply(lInfo);
+
+        if (l.getIsWordBegin()) {
+          amountOfWordBoundaries++;
+        }
 
         // nasalization modifiers modify previous labels if they occure before deleted nasal
         // and they modify next labels if the occure after deleted nasal
-        if (((Label) t).getIsPhon() && nasalizationModifierFound) {
+        if (l.getIsPhon() && nasalizationModifierFound) {
 
-          if (((Label) t).getIsNasal() && ((Label) t).getPhonIsDeleted()) {
+          if (l.getIsNasal() && l.getPhonIsDeleted()) {
             // modify previous phon
             lastPhon.setIsNasalized(true);
           }
 
           // modify current phon
           if (lastPhon != null && lastPhon.getIsNasal() && lastPhon.getPhonIsDeleted()) {
-            ((Label) t).setIsNasalized(true);
+            l.setIsNasalized(true);
           }
 
         }
 
-        nextPhonIsCreaked = nInfo.getNextPhonIsCreaked();
-        if (((Label) t).getIsPhon()) {
-          nasalizationModifierFound = nInfo.getIsNasalizationModifier();
+        nextPhonIsCreaked = lInfo.getNextPhonIsCreaked();
+        if (l.getIsPhon()) {
+          nasalizationModifierFound = lInfo.getIsNasalizationModifier();
         }
-        if (((Label) t).getIsPhon() && ! ((Label) t).getIgnorePhon()) {
-          lastPhon = (Label) t;
+        if (l.getIsPhon() && !l.getIgnorePhon()) {
+          lastPhon = l;
         }
       }
+      labelsRefined = true;
     }
   }
 
+  public void refineCollection () {
+    setTimeMarkerNames();
+    refineTimedLabels();
+    refineWords();
+  }
 
+  public Integer getAmountOfWords () {
+    refineCollection();
+    return amountOfWords;
+  }
+
+  public Integer getAmountOfWordBoundaries () {
+    refineCollection();
+    return amountOfWordBoundaries;
+  }
 
 }
 
@@ -156,7 +217,7 @@ public class AnnotationElementCollection {
 // in normal/read-only mode it can be used to gather some debug informations
 // in refinement/read-write mode it modifies labels according to their contending nodes
 
-class NodeChildClassInfoGetter extends TranslationAdapter {
+class LabelInfoGetter extends TranslationAdapter {
 
   private String details = "";
   private Boolean refineMode = false;
@@ -166,11 +227,11 @@ class NodeChildClassInfoGetter extends TranslationAdapter {
 
   private Boolean isNasalizationModifier = false;
 
-  public NodeChildClassInfoGetter (AnnotationElementCollection annotationElementCollection) {
+  public LabelInfoGetter (AnnotationElementCollection annotationElementCollection) {
     super(annotationElementCollection);
   }
 
-  public NodeChildClassInfoGetter (AnnotationElementCollection annotationElementCollection, Boolean refineMode, Label label) {
+  public LabelInfoGetter (AnnotationElementCollection annotationElementCollection, Boolean refineMode, Label label) {
     super(annotationElementCollection);
     setRefineMode(refineMode);
     setLabel(label);

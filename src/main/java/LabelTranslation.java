@@ -1,6 +1,9 @@
 import kc2tei.node.ATimedLabel;
 import kc2tei.node.PTlabel;
 
+/*
+ * class to collect timed labels and time marks from label section
+ */
 
 public class LabelTranslation extends TranslationAdapter {
 
