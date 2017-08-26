@@ -93,50 +93,52 @@ public class TEIDoc {
       charConverter = new KCSampaToIPAConverter();
     }
     for (TimedAnnotationElement w : annotationElements.getListOfWords()) {
-      Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
-                                                                                                                      addAttribute("start", w.getStartTime().getName()).addAttribute("end", w.getEndTime().getName());
-      annotationBlock.addElement("u").addAttribute("xml:id", "u" + utteranceCounter).addElement("w").addText(w.getContent().toString());
+      if (w.getStartTime() != null && w.getContent() != null && w.getEndTime() != null) {
+        Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
+                                                                                                                        addAttribute("start", w.getStartTime().getName()).addAttribute("end", w.getEndTime().getName());
+        annotationBlock.addElement("u").addAttribute("xml:id", "u" + utteranceCounter).addElement("w").addText(w.getContent().toString());
 
-      // add realized phones to word
-      Element spanGrpRealizedPhones = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-realized");
+        // add realized phones to word
+        Element spanGrpRealizedPhones = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-realized");
 
-      Element spanGrpCanonicalPhones = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-canonical");
+        Element spanGrpCanonicalPhones = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-canonical");
 
-      //List<TimedAnnotationElement> list = annotationElements.getListOfAnnotationElementsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
+        //List<TimedAnnotationElement> list = annotationElements.getListOfAnnotationElementsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
 
-      List<Label> labels = annotationElements.getListOfPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
-      if (labels != null) {
-        for (Label l : labels) {
-          String realizedPhon = l.getContent().toString();
-          String canonicalPhon = l.getContent().toString();
-          // all "l" are Phones
-          if (l.getModifiedPhon() == null) {
-            canonicalPhon = charConverter.getUnicodeByASCII(l.getRealizedPhon());
-            realizedPhon = canonicalPhon;
-          } else {
-            canonicalPhon = charConverter.getUnicodeByASCII(l.getModifiedPhon());
-            realizedPhon = charConverter.getUnicodeByASCII(l.getRealizedPhon());
-          }
+        List<Label> labels = annotationElements.getListOfPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
+        if (labels != null) {
+          for (Label l : labels) {
+            String realizedPhon = l.getContent().toString();
+            String canonicalPhon = l.getContent().toString();
+            // all "l" are Phones
+            if (l.getModifiedPhon() == null) {
+              canonicalPhon = charConverter.getUnicodeByASCII(l.getRealizedPhon());
+              realizedPhon = canonicalPhon;
+            } else {
+              canonicalPhon = charConverter.getUnicodeByASCII(l.getModifiedPhon());
+              realizedPhon = charConverter.getUnicodeByASCII(l.getRealizedPhon());
+            }
 
-          if (l.getIsCreaked()) {
-            realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("creaked");
-          }
-          if (l.getIsNasalized()) {
-            realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("nasalized");
-          }
-          if (realizedPhon != null) {
-            spanGrpRealizedPhones.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(realizedPhon);
-            spanCounter++;
-          }
+            if (l.getIsCreaked()) {
+              realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("creaked");
+            }
+            if (l.getIsNasalized()) {
+              realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("nasalized");
+            }
+            if (realizedPhon != null) {
+              spanGrpRealizedPhones.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(realizedPhon);
+              spanCounter++;
+            }
 
-          if (canonicalPhon != null) {
-            spanGrpCanonicalPhones.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(canonicalPhon);
-            spanCounter++;
+            if (canonicalPhon != null) {
+              spanGrpCanonicalPhones.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(canonicalPhon);
+              spanCounter++;
+            }
           }
         }
-      }
-      utteranceCounter++;
+        utteranceCounter++;
 
+      }
     }
 
   }
