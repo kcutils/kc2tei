@@ -1,4 +1,5 @@
 import labels.node.*;
+import org.apache.xpath.operations.Bool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,9 @@ public class AnnotationElementCollection {
 
   private Boolean labelsRefined = false;
   private Boolean wordsRefined = false;
+
+  private Boolean lastLabelWasWordBegin = false;
+  private Boolean lastLabelWasNonVerbal = false;
 
   public void add (TimedAnnotationElement t) {
 
@@ -161,9 +165,14 @@ public class AnnotationElementCollection {
         labels.node.Node node = l.getContent();
         LabelInfoGetter lInfo = new LabelInfoGetter(this, true, l);
         lInfo.setNextPhonIsCreaked(nextPhonIsCreaked);
+        lInfo.setLastLabelWasWordBegin(lastLabelWasWordBegin);
+        lInfo.setLastLabelWasNonVerbal(lastLabelWasNonVerbal);
         node.apply(lInfo);
 
-        if (l.getIsWordBegin()) {
+        lastLabelWasWordBegin = l.getIsWordBegin();
+        lastLabelWasNonVerbal = lInfo.getIsNonVerbal();
+
+        if (lastLabelWasWordBegin) {
           amountOfWordBoundaries++;
         }
 
@@ -228,6 +237,10 @@ class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
   private Boolean nextPhonIsCreaked = false;
 
   private Boolean isNasalizationModifier = false;
+  private Boolean isNonVerbal = false;
+
+  private Boolean lastLabelWasWordBegin = false;
+  private Boolean lastLabelWasNonVerbal = false;
 
   public LabelInfoGetter (AnnotationElementCollection annotationElementCollection) {
     this.annotationElementCollection = annotationElementCollection;
@@ -252,8 +265,14 @@ class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
 
     if (refineMode) {
 
+      if (node.getClass() == labels.node.ANonverbalLabel.class) {
+        isNonVerbal = true;
+      }
+
       if (node.getClass() == labels.node.ABoundaryConsonantLabel.class || node.getClass().toString().contains("WordBoundary")) {
-        label.setIsWordBegin(true);
+        if (! (lastLabelWasWordBegin && lastLabelWasNonVerbal)) {
+          label.setIsWordBegin(true);
+        }
       }
 
       if (node.getClass() == labels.node.ASegmentLabel.class) {
@@ -329,6 +348,18 @@ class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
 
   public Boolean getIsNasalizationModifier () {
     return isNasalizationModifier;
+  }
+
+  public void setLastLabelWasWordBegin (Boolean lastLabelWasWordBegin) {
+    this.lastLabelWasWordBegin = lastLabelWasWordBegin;
+  }
+
+  public void setLastLabelWasNonVerbal (Boolean lastLabelWasNonVerbal) {
+    this.lastLabelWasNonVerbal = lastLabelWasNonVerbal;
+  }
+
+  public Boolean getIsNonVerbal () {
+    return this.isNonVerbal;
   }
 
 }
