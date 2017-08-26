@@ -18,6 +18,7 @@ public class KCSampaToIPAConverter {
     convertTable.put("e:", "\u0065\u02D0");
     convertTable.put("E", "\u025B");
     convertTable.put("i:", "\u0069\u02D0");
+    convertTable.put("i", "\u0069");
     convertTable.put("I", "\u026A");
     convertTable.put("o:", "\u006F\u02D0");
     convertTable.put("O", "\u0254");
