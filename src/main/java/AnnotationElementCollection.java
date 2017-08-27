@@ -152,7 +152,7 @@ public class AnnotationElementCollection {
           }
         }
       }
-      if (words.get(i - 1).getEndTime() == null) {
+      if (i > 0 && words.get(i - 1).getEndTime() == null) {
         words.get(i - 1).setEndTime(getTimeMarkerList().get(getTimeMarkerList().size() - 1));
       }
       wordsRefined = true;
