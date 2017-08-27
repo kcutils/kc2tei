@@ -272,13 +272,9 @@ Productions
 
   false_start = equals? verbal_break plus;
 
-  full_accent =   {case1} accent_modifier full_accent_symbol effort_marker synchronizer
-                | {case2} accent_modifier full_accent_symbol synchronizer
-                | {case3} accent_modifier full_accent_symbol effort_marker
-                | {case4} full_accent_symbol effort_marker synchronizer
-                | {case5} full_accent_symbol synchronizer
-                | {case6} full_accent_symbol effort_marker
-                | {case7} full_accent_symbol;
+  full_accent =   {case1} accent_modifier uncertainty? full_accent_symbol effort_marker? synchronizer
+                | {case2} accent_modifier uncertainty? full_accent_symbol effort_marker
+                | {case3} uncertainty? full_accent_symbol effort_marker? synchronizer?;
 
   full_accent_symbol = two;
 
@@ -318,6 +314,7 @@ Productions
   level_fall = null;
 
   ma_label =   {word_boundary} word_boundary_prefix minus ma_symbol
+             | {compound_boundary} compound_boundary_prefix minus ma_symbol
              | {word_internal} word_internal_prefix minus ma_symbol;
 
   mid_fall = one;
@@ -396,13 +393,16 @@ Productions
   punctuation_label =   {sentence_punctuation} non_word_prefix sentence_punctuation
                       | {comma} non_word_prefix comma;
 
-  read_error_label =   {word_boundary} word_boundary_prefix minus neologism_symbol
+  read_error_label =   {unrepresented_speech_stretch_marker} word_boundary_prefix minus neologism_symbol
+                     | {word_boundary} word_boundary_prefix neologism_symbol minus?
                      | {non_word} non_word_prefix minus neologism_symbol;
 
   register =    {high} highregister
               | {low} lowregister;
 
-  register_label = non_word_prefix pros_label_marker register;
+  register_label =   {word_internal} word_internal_prefix pros_label_marker register
+                   | {non_word} non_word_prefix pros_label_marker register;
+
   reinforcement = three;
   reset = plus;
   rise =   {comma} comma
@@ -440,7 +440,8 @@ Productions
   tempo =   {faster} rateplus
           | {slower} rateminus;
 
-  tempo_label = non_word_prefix pros_label_marker tempo;
+  tempo_label =   {word_internal} word_internal_prefix pros_label_marker tempo
+                | {non_word} non_word_prefix pros_label_marker tempo;
 
   terminal_fall = two;
 
@@ -546,7 +547,7 @@ Productions
                        | {close_unrounded_less_by_alveolar_lateral_approximant} big_i minus l
                        | {close_unrounded_less_by_voiceless_palatal_consonant} big_i minus big_c
                        | {schwar_by_alveolar_lateral_approximant} schwar minus l
-;//                       | {close_less_by_bilabial} big_u minus m; // TODO: code too large error
+;//                       | {close_less_by_bilabial} big_u minus m; // TODO: code too large error, KCSpon_r1X/VerbMobil/g21a/g211a/g211a12r.s2
 
   front_vowel =   {close_unrounded_long} i colon
                 | {close_rounded_long} y colon
