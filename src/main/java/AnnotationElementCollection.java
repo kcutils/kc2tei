@@ -9,11 +9,6 @@ public class AnnotationElementCollection {
   private TimeMarkSet timeMarkers = new TimeMarkSet();
   private List<TimedAnnotationElement> annotationElements = new ArrayList<>();
 
-  private Boolean nextPhonIsCreaked = false;
-
-  private Boolean nasalizationModifierFound = false;
-
-  private Label lastPhon = null;
 
   private Integer amountOfWords = 0;
   private Integer amountOfWordBoundaries = 0;
@@ -21,8 +16,6 @@ public class AnnotationElementCollection {
   private Boolean labelsRefined = false;
   private Boolean wordsRefined = false;
 
-  private Boolean lastLabelWasWordBegin = false;
-  private Boolean lastLabelWasNonVerbal = false;
 
   public void add (TimedAnnotationElement t) {
 
@@ -95,7 +88,7 @@ public class AnnotationElementCollection {
           if (((Label) e).getIsWordBegin() && ! firstWordBeginFound) {
             firstWordBeginFound = true;
           }
-          if (firstWordBeginFound && ! secondWordBeginFound && ((Label) e).getIsPhon() && ! ((Label) e).getIgnorePhon()) {
+          if (firstWordBeginFound && ! secondWordBeginFound && ((Label) e).getIsPhon() && ! ((Label) e).getIgnorePhon() && ! ((Label) e).getPhonIsDeleted()) {
               rval.add((Label) e);
           }
         }
@@ -142,7 +135,7 @@ public class AnnotationElementCollection {
       List<Word> words = getListOfWords();
       Integer i = 0;
       for (Label l : getListOfLabels()) {
-        if (l.getIsWordBegin()) {
+        if (l.getIsBeginOfAccousticWord()) {
           if (i < words.size()) {
             words.get(i).setStartTime(l.getStartTime());
             if (i > 0) {
@@ -161,19 +154,30 @@ public class AnnotationElementCollection {
 
   private void refineTimedLabels () {
     if (!labelsRefined) {
+
+      Label lastPhon = null;
+
+      Boolean creakModifierFound = false;
+      Boolean nasalizationModifierFound = false;
+
+      Boolean wordBeginFound = false;
+      Label beginOfAccousticWordLabel = null;
+
       for (Label l : getListOfLabels()) {
         labels.node.Node node = l.getContent();
         LabelInfoGetter lInfo = new LabelInfoGetter(this, true, l);
-        lInfo.setNextPhonIsCreaked(nextPhonIsCreaked);
-        lInfo.setLastLabelWasWordBegin(lastLabelWasWordBegin);
-        lInfo.setLastLabelWasNonVerbal(lastLabelWasNonVerbal);
+
         node.apply(lInfo);
 
-        lastLabelWasWordBegin = l.getIsWordBegin();
-        lastLabelWasNonVerbal = lInfo.getIsNonVerbal();
+        if (l.getIsWordBegin()) {
+          wordBeginFound = true;
+          beginOfAccousticWordLabel = l;
+        }
 
-        if (lastLabelWasWordBegin) {
+        if (wordBeginFound && l.getIsPhon()) {
           amountOfWordBoundaries++;
+          beginOfAccousticWordLabel.setIsBeginOfAccousticWord(true);
+          wordBeginFound = false;
         }
 
         // nasalization modifiers modify previous labels if they occure before deleted nasal
@@ -190,12 +194,21 @@ public class AnnotationElementCollection {
             l.setIsNasalized(true);
           }
 
+          nasalizationModifierFound = false;
         }
 
-        nextPhonIsCreaked = lInfo.getNextPhonIsCreaked();
-        if (l.getIsPhon()) {
-          nasalizationModifierFound = lInfo.getIsNasalizationModifier();
+        if (l.getIsPhon() && creakModifierFound) {
+          l.setIsCreaked(true);
         }
+
+        if (l.getIsCreakModifier()) {
+          creakModifierFound = true;
+        }
+
+        if (l.getIsNasalizationModifier()) {
+          nasalizationModifierFound = true;
+        }
+
         if (l.getIsPhon() && !l.getIgnorePhon()) {
           lastPhon = l;
         }
@@ -234,14 +247,6 @@ class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
   private Boolean refineMode = false;
   private Label label = null;
 
-  private Boolean nextPhonIsCreaked = false;
-
-  private Boolean isNasalizationModifier = false;
-  private Boolean isNonVerbal = false;
-
-  private Boolean lastLabelWasWordBegin = false;
-  private Boolean lastLabelWasNonVerbal = false;
-
   public LabelInfoGetter (AnnotationElementCollection annotationElementCollection) {
     this.annotationElementCollection = annotationElementCollection;
   }
@@ -265,22 +270,12 @@ class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
 
     if (refineMode) {
 
-      if (node.getClass() == labels.node.ANonverbalLabel.class) {
-        isNonVerbal = true;
-      }
-
       if (node.getClass() == labels.node.ABoundaryConsonantLabel.class || node.getClass().toString().contains("WordBoundary")) {
-        if (! (lastLabelWasWordBegin && lastLabelWasNonVerbal)) {
-          label.setIsWordBegin(true);
-        }
+        label.setIsWordBegin(true);
       }
 
       if (node.getClass() == labels.node.ASegmentLabel.class) {
         label.setIsPhon(true);
-        if (nextPhonIsCreaked) {
-          label.setIsCreaked(true);
-          nextPhonIsCreaked = false;
-        }
       }
 
       if (label.getIsPhon() && node.getClass().toString().contains("Deletion")) {
@@ -291,8 +286,8 @@ class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
       }
 
       if (label.getIsPhon() && ! label.getPhonIsDeleted() && node.getClass().toString().contains("Creak")) {
-        this.nextPhonIsCreaked = true;
         label.setIgnorePhon(true);
+        label.setIsCreakModifier(true);
       }
 
       if (label.getIsPhon() && node.getClass().toString().contains("NasalConsonant")) {
@@ -300,12 +295,20 @@ class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
       }
 
       if (label.getIsPhon() && node.getClass().toString().contains("Nasalization")) {
-        this.isNasalizationModifier = true;
+        label.setIsNasalizationModifier(true);
         label.setIgnorePhon(true);
       }
 
       if (label.getIsPhon() && node.getClass().toString().contains("Unmodified")) {
         label.setPhonIsReplaced(false);
+      }
+
+      if (label.getIsPhon() && node.getClass().toString().contains("Insertion")) {
+        label.setPhonIsReplaced(false);
+      }
+
+      if (label.getIsPhon() && ( node.getClass().toString().contains("Lengthening") ||  node.getClass().toString().contains("MaConsonantLabel") || node.getClass().toString().contains("KpConsonantLabel"))) {
+        label.setIgnorePhon(true);
       }
 
       if (label.getIsPhon() && node.getClass().toString().contains("Modified") && ! node.getClass().toString().contains("Lengthening")) {
@@ -336,30 +339,6 @@ class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
     String rval = i;
     rval = rval.replaceAll("\\s", "");
     return rval;
-  }
-
-  public void setNextPhonIsCreaked (Boolean nextPhonIsCreaked) {
-    this.nextPhonIsCreaked = nextPhonIsCreaked;
-  }
-
-  public Boolean getNextPhonIsCreaked () {
-    return this.nextPhonIsCreaked;
-  }
-
-  public Boolean getIsNasalizationModifier () {
-    return isNasalizationModifier;
-  }
-
-  public void setLastLabelWasWordBegin (Boolean lastLabelWasWordBegin) {
-    this.lastLabelWasWordBegin = lastLabelWasWordBegin;
-  }
-
-  public void setLastLabelWasNonVerbal (Boolean lastLabelWasNonVerbal) {
-    this.lastLabelWasNonVerbal = lastLabelWasNonVerbal;
-  }
-
-  public Boolean getIsNonVerbal () {
-    return this.isNonVerbal;
   }
 
 }

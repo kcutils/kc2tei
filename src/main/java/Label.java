@@ -9,7 +9,12 @@ public class Label extends TimedAnnotationElement<PTlabel> {
   private Boolean ignorePhon = false;
 
   private Boolean isWordBegin = false;
+  private Boolean isBeginOfAccousticWord = false;
+
+  private Boolean isCreakModifier = false;
   private Boolean isCreaked = false;
+
+  private Boolean isNasalizationModifier = false;
   private Boolean isNasalized= false;
   private Boolean isNasal = false;
 
@@ -48,6 +53,14 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     isWordBegin = wordBegin;
   }
 
+  public Boolean getIsBeginOfAccousticWord () {
+    return isBeginOfAccousticWord;
+  }
+
+  public void setIsBeginOfAccousticWord (Boolean isBeginOfAccousticWord) {
+    this.isBeginOfAccousticWord = isBeginOfAccousticWord;
+  }
+
   public void setRealizedPhon(String phon) {
     this.realizedPhon = phon;
   }
@@ -71,6 +84,14 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.phonIsReplaced = phonIsReplaced;
   }
 
+  public Boolean getIsCreakModifier () {
+    return isCreakModifier;
+  }
+
+  public void setIsCreakModifier (Boolean isCreakModifier) {
+    this.isCreakModifier = isCreakModifier;
+  }
+
   public void setIsCreaked (Boolean isCreaked) {
     this.isCreaked = isCreaked;
   }
@@ -85,6 +106,14 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
   public Boolean getIgnorePhon () {
     return this.ignorePhon;
+  }
+
+  public Boolean getIsNasalizationModifier () {
+    return isNasalizationModifier;
+  }
+
+  public void setIsNasalizationModifier (Boolean isNasalizationModifier) {
+    this.isNasalizationModifier = isNasalizationModifier;
   }
 
   public Boolean getIsNasalized () {
@@ -108,14 +137,18 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
     rval = super.toString();
 
-    rval = addStringAndDescrToString(isWordBegin.toString(), "isWordBegin", rval);
-    rval = addStringAndDescrToString(isPhon.toString(), "isPhon", rval);
-    rval = addStringAndDescrToString(ignorePhon.toString(), "ignorePhon", rval);
-    rval = addStringAndDescrToString(phonIsDeleted.toString(), "phonIsDeleted", rval);
-    rval = addStringAndDescrToString(phonIsReplaced.toString(), "phonIsReplaced", rval);
-    rval = addStringAndDescrToString(isCreaked.toString(), "isCreaked", rval);
-    rval = addStringAndDescrToString(isNasal.toString(), "isNasal", rval);
-    rval = addStringAndDescrToString(isNasalized.toString(), "isNasalized", rval);
+    rval = addTrueBooleansAndDescrToString(isWordBegin, "isWordBegin", rval);
+    rval = addTrueBooleansAndDescrToString(isBeginOfAccousticWord, "isBeginOfAccousticWord", rval);
+    rval = addTrueBooleansAndDescrToString(isPhon, "isPhon", rval);
+    rval = addTrueBooleansAndDescrToString(ignorePhon, "ignorePhon", rval);
+    rval = addTrueBooleansAndDescrToString(phonIsDeleted, "phonIsDeleted", rval);
+    rval = addTrueBooleansAndDescrToString(phonIsReplaced, "phonIsReplaced", rval);
+    rval = addTrueBooleansAndDescrToString(isCreakModifier, "isCreakModifier", rval);
+    rval = addTrueBooleansAndDescrToString(isCreaked, "isCreaked", rval);
+    rval = addTrueBooleansAndDescrToString(isNasalizationModifier, "isNasalizationModifier", rval);
+    rval = addTrueBooleansAndDescrToString(isNasal, "isNasal", rval);
+    rval = addTrueBooleansAndDescrToString(isNasalized, "isNasalized", rval);
+
     rval = addStringAndDescrToString(modifiedPhon, "modifiedPhon", rval);
     rval = addStringAndDescrToString(realizedPhon, "realizedPhon", rval);
 
@@ -126,6 +159,15 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     String rval = r;
     if (str != null && ! str.equals("")) {
       rval = rval + "  " + descr + ": " + str;
+    }
+    return rval;
+  }
+
+  private String addTrueBooleansAndDescrToString(Boolean b, String descr, String r) {
+    String rval = r;
+    // only add "true" booleans
+    if (b != null && b) {
+      rval = rval + "  " + descr;
     }
    return rval;
   }
