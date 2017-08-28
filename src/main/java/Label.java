@@ -2,14 +2,16 @@ import labels.node.PTlabel;
 
 public class Label extends TimedAnnotationElement<PTlabel> {
 
+  // general variables
+  private Boolean isWordBegin = false;
+  private Boolean isBeginOfAccousticWord = false;
+
+  // phon specific variables
   private Boolean isPhon = false;
   private Boolean phonIsDeleted = false;
   private Boolean phonIsReplaced = false;
 
   private Boolean ignorePhon = false;
-
-  private Boolean isWordBegin = false;
-  private Boolean isBeginOfAccousticWord = false;
 
   private Boolean isCreakModifier = false;
   private Boolean isCreaked = false;
@@ -20,6 +22,13 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
   private String realizedPhon = null;
   private String modifiedPhon = null;
+
+  // vocal noise specific variables
+  private Boolean isVocalNoise = false;
+  private Boolean isPause = false;
+  private Boolean vocalNoiseIsDeleted = false;
+  private String vocalNoiseType = null;
+
 
   public Label(PTlabel pTlabel) {
     super(pTlabel);
@@ -132,13 +141,48 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.isNasal = isNasal;
   }
 
+  public Boolean getIsVocalNoise () {
+    return isVocalNoise;
+  }
+
+  public void setIsVocalNoise (Boolean isVocalNoise) {
+    this.isVocalNoise = isVocalNoise;
+  }
+
+  public Boolean getIsPause () {
+    return isPause;
+  }
+
+  public void setIsPause (Boolean isPause) {
+    this.isPause = isPause;
+  }
+
+  public Boolean getVocalNoiseIsDeleted () {
+    return vocalNoiseIsDeleted;
+  }
+
+  public void setVocalNoiseIsDeleted (Boolean vocalNoiseIsDeleted) {
+    this.vocalNoiseIsDeleted = vocalNoiseIsDeleted;
+  }
+
+  public String getVocalNoiseType () {
+    return vocalNoiseType;
+  }
+
+  public void setVocalNoiseType (String vocalNoiseType) {
+    this.vocalNoiseType = vocalNoiseType;
+  }
+
   public String toString () {
     String rval = "";
 
     rval = super.toString();
 
+    // general informations
     rval = addTrueBooleansAndDescrToString(isWordBegin, "isWordBegin", rval);
     rval = addTrueBooleansAndDescrToString(isBeginOfAccousticWord, "isBeginOfAccousticWord", rval);
+
+    // phone specifica
     rval = addTrueBooleansAndDescrToString(isPhon, "isPhon", rval);
     rval = addTrueBooleansAndDescrToString(ignorePhon, "ignorePhon", rval);
     rval = addTrueBooleansAndDescrToString(phonIsDeleted, "phonIsDeleted", rval);
@@ -151,6 +195,11 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
     rval = addStringAndDescrToString(modifiedPhon, "modifiedPhon", rval);
     rval = addStringAndDescrToString(realizedPhon, "realizedPhon", rval);
+
+    // vocal noise specifica
+    rval = addTrueBooleansAndDescrToString(isVocalNoise, "isVocalNoise", rval);
+    rval = addTrueBooleansAndDescrToString(vocalNoiseIsDeleted, "vocalNoiseIsDeleted", rval);
+    rval = addStringAndDescrToString(vocalNoiseType, "vocalNoiseType", rval);
 
     return rval;
   }

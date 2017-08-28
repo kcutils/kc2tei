@@ -86,26 +86,60 @@ public class TEIDoc {
     }
   }
 
+  private void addVocalNoises (TimeMark vocalNoiseSearchBegin, TimeMark vocalNoiseSearchEnd) throws Exception {
+    List<Label> vocalNoises = annotationElements.getListOfVocalNoisesStartingWithAndNotEndingBefore(vocalNoiseSearchBegin, vocalNoiseSearchEnd);
+    if (vocalNoises != null) {
+      for (Label v : vocalNoises) {
+        if (! v.getIsPause()) {
+          Element vocal = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("vocal").addAttribute("start", v.getStartTime().getName()).addAttribute("end", v.getEndTime().getName());
+          vocal.addElement("desc").addText(v.getVocalNoiseType());
+        } else {
+          addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("pause").addAttribute("start", v.getStartTime().getName()).addAttribute("end", v.getEndTime().getName());
+        }
+      }
+    }
+  }
+
   private void addAnnotationBlocks () throws Exception {
     Integer utteranceCounter = 1;
     Integer spanCounter = 1;
+
+    Boolean firstWordProcessed = false;
+
     if (charConverter == null) {
       charConverter = new KCSampaToIPAConverter();
     }
+
+    // get for each word corresponding phonetic labels
+
+    TimeMark vocalNoiseSearchBegin = null;
+    TimeMark vocalNoiseSearchEnd = null;
+
     for (TimedAnnotationElement w : annotationElements.getListOfWords()) {
       if (w.getStartTime() != null && w.getContent() != null && w.getEndTime() != null) {
+
+        if (! firstWordProcessed) {
+          vocalNoiseSearchBegin = annotationElements.getTimeMarkerList().get(0);
+          firstWordProcessed = true;
+        } else {
+          vocalNoiseSearchBegin = vocalNoiseSearchEnd;
+        }
+        vocalNoiseSearchEnd = w.getStartTime();
+
+        // get all vocal noises before first word/between the beginning of last words and beginning of current word
+        addVocalNoises(vocalNoiseSearchBegin, vocalNoiseSearchEnd);
+
+        // create TEI document elements for current word and related elements
         Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
                                                                                                                         addAttribute("start", w.getStartTime().getName()).addAttribute("end", w.getEndTime().getName());
         annotationBlock.addElement("u").addAttribute("xml:id", "u" + utteranceCounter).addElement("w").addText(w.getContent().toString());
 
-        // add realized phones to word
+        // add realized and canonical phones to word
         Element spanGrpRealizedPhones = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-realized");
-
         Element spanGrpCanonicalPhones = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-canonical");
 
-        //List<TimedAnnotationElement> list = annotationElements.getListOfAnnotationElementsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
-
         List<Label> labels = annotationElements.getListOfPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
+
         if (labels != null) {
           for (Label l : labels) {
             String realizedPhon = l.getRealizedPhon();
@@ -139,7 +173,15 @@ public class TEIDoc {
           }
         }
         utteranceCounter++;
+      }
+    }
 
+    // in case there was no word at all
+    if (!firstWordProcessed) {
+      if (annotationElements.getTimeMarkerList() != null && annotationElements.getTimeMarkerList().size() > 0) {
+        vocalNoiseSearchBegin = annotationElements.getTimeMarkerList().get(0);
+        vocalNoiseSearchEnd = annotationElements.getTimeMarkerList().get(annotationElements.getTimeMarkerList().size() - 1);
+        addVocalNoises(vocalNoiseSearchBegin, vocalNoiseSearchEnd);
       }
     }
 

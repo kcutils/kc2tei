@@ -73,6 +73,21 @@ public class AnnotationElementCollection {
     return rval;
   }
 
+  public List<Label> getListOfVocalNoisesStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
+    List<Label> rval = null;
+    if (t1 != null && t2 != null) {
+      rval = new ArrayList<>();
+      for (TimedAnnotationElement e : getListOfAnnotationElementsStartingWithAndNotEndingBefore(t1, t2)) {
+        if (e.getClass() == Label.class) {
+          if (((Label) e).getIsVocalNoise() && ! ((Label) e).getVocalNoiseIsDeleted()) {
+            rval.add((Label) e);
+          }
+        }
+      }
+    }
+    return rval;
+  }
+
   public List<Label> getListOfPhonesStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
     Boolean firstWordBeginFound = false;
     Boolean secondWordBeginFound = false;
@@ -135,19 +150,30 @@ public class AnnotationElementCollection {
       List<Word> words = getListOfWords();
       Integer i = 0;
       for (Label l : getListOfLabels()) {
+
+        // set start of current word to
+        // start of label that marks begin of accoustic word
+        // and increment word counter
         if (l.getIsBeginOfAccousticWord()) {
           if (i < words.size()) {
             words.get(i).setStartTime(l.getStartTime());
-            if (i > 0) {
-              words.get(i - 1).setEndTime(l.getStartTime());
-            }
-            i++;
           }
+          i++;
         }
+
+        // set end of current word to end of current label
+        // if label is unignored phone
+        if (i > 0 && l.getIsPhon() && ! l.getIgnorePhon()) {
+          words.get(i - 1).setEndTime(l.getEndTime());
+        }
+
       }
+
+      // set end of last word to last time mark if not already set
       if (i > 0 && words.get(i - 1).getEndTime() == null) {
         words.get(i - 1).setEndTime(getTimeMarkerList().get(getTimeMarkerList().size() - 1));
       }
+
       wordsRefined = true;
     }
   }
@@ -274,61 +300,101 @@ class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
         label.setIsWordBegin(true);
       }
 
+      if (node.getClass() == labels.node.AVocalNoiseNonverbalLabel.class) {
+        label.setIsVocalNoise(true);
+      }
+
+      if (label.getIsVocalNoise()) {
+        if (node.getClass().toString().contains("Deletion")) {
+          label.setVocalNoiseIsDeleted(true);
+        }
+
+        if (node.getClass().toString().contains("Breathing")) {
+          label.setVocalNoiseType("breathing");
+        }
+
+        if (node.getClass().toString().contains("Laughter")) {
+          label.setVocalNoiseType("laughing");
+        }
+
+        if (node.getClass().toString().contains("Cough")) {
+          label.setVocalNoiseType("cough");
+        }
+
+        if (node.getClass().toString().contains("Harrumph")) {
+          label.setVocalNoiseType("harrumph");
+        }
+
+        if (node.getClass().toString().contains("Smack")) {
+          label.setVocalNoiseType("smack");
+        }
+
+        if (node.getClass().toString().contains("Swallow")) {
+          label.setVocalNoiseType("swallow");
+        }
+
+        if (node.getClass().toString().contains("Unspecific")) {
+          label.setVocalNoiseType("unspecific");
+        }
+
+        if (node.getClass().toString().contains("Silence")) {
+          label.setIsPause(true);
+        }
+      }
+
       if (node.getClass() == labels.node.ASegmentLabel.class) {
         label.setIsPhon(true);
       }
 
-      if (label.getIsPhon() && node.getClass().toString().contains("Deletion")) {
-        if (label.getPhonIsReplaced()) {
+      // Phone labels
+      if (label.getIsPhon()) {
+
+        if (node.getClass().toString().contains("Deletion")) {
+          if (label.getPhonIsReplaced()) {
+            label.setPhonIsReplaced(false);
+          }
+          label.setPhonIsDeleted(true);
+        }
+
+        if (!label.getPhonIsDeleted() && node.getClass().toString().contains("Creak")) {
+          label.setIgnorePhon(true);
+          label.setIsCreakModifier(true);
+        }
+
+        if (node.getClass().toString().contains("NasalConsonant")) {
+          label.setIsNasal(true);
+        }
+
+        if (node.getClass().toString().contains("Nasalization")) {
+          label.setIsNasalizationModifier(true);
+          label.setIgnorePhon(true);
+        }
+
+        if (node.getClass().toString().contains("Insertion") || node.getClass().toString().contains("Unmodified")) {
           label.setPhonIsReplaced(false);
         }
-        label.setPhonIsDeleted(true);
-      }
 
-      if (label.getIsPhon() && ! label.getPhonIsDeleted() && node.getClass().toString().contains("Creak")) {
-        label.setIgnorePhon(true);
-        label.setIsCreakModifier(true);
-      }
+        if (node.getClass().toString().contains("Lengthening") || node.getClass().toString().contains("MaConsonantLabel") || node.getClass().toString().contains("KpConsonantLabel")) {
+          label.setIgnorePhon(true);
+        }
 
-      if (label.getIsPhon() && node.getClass().toString().contains("NasalConsonant")) {
-        label.setIsNasal(true);
-      }
+        if (node.getClass().toString().contains("Modified") && !node.getClass().toString().contains("Lengthening")) {
+          if (!label.getPhonIsDeleted()) {
+            label.setPhonIsReplaced(true);
+            PhonReplacementDetailsGetter prdg = new PhonReplacementDetailsGetter(annotationElementCollection, label);
+            node.apply(prdg);
+          }
+        }
 
-      if (label.getIsPhon() && node.getClass().toString().contains("Nasalization")) {
-        label.setIsNasalizationModifier(true);
-        label.setIgnorePhon(true);
-      }
-
-      if (label.getIsPhon() && node.getClass().toString().contains("Unmodified")) {
-        label.setPhonIsReplaced(false);
-      }
-
-      if (label.getIsPhon() && node.getClass().toString().contains("Insertion")) {
-        label.setPhonIsReplaced(false);
-      }
-
-      if (label.getIsPhon() && ( node.getClass().toString().contains("Lengthening") ||  node.getClass().toString().contains("MaConsonantLabel") || node.getClass().toString().contains("KpConsonantLabel"))) {
-        label.setIgnorePhon(true);
-      }
-
-      if (label.getIsPhon() && node.getClass().toString().contains("Modified") && ! node.getClass().toString().contains("Lengthening")) {
-        if (!label.getPhonIsDeleted()) {
-          label.setPhonIsReplaced(true);
-          PhonReplacementDetailsGetter prdg = new PhonReplacementDetailsGetter(annotationElementCollection,label);
-          node.apply(prdg);
+        if ((!label.getPhonIsReplaced()) && (node.getClass().toString().contains("ConsonantSymbol") || node.getClass().toString().contains("StressableVowel") || node.getClass().toString().contains("UnstressableVowel") || node.getClass() == labels.node.AAspirationSymbol.class)) {
+          if (label.getPhonIsDeleted()) {
+            label.setModifiedPhon(stripWhiteSpaces(node.toString()));
+          } else {
+            label.setRealizedPhon(stripWhiteSpaces(node.toString()));
+          }
         }
       }
-
-      if ( (! label.getPhonIsReplaced()) && (node.getClass().toString().contains("ConsonantSymbol") || node.getClass().toString().contains("StressableVowel") || node.getClass().toString().contains("UnstressableVowel") || node.getClass() == labels.node.AAspirationSymbol.class)) {
-        if (label.getPhonIsDeleted()) {
-          label.setModifiedPhon(stripWhiteSpaces(node.toString()));
-        } else {
-          label.setRealizedPhon(stripWhiteSpaces(node.toString()));
-        }
-      }
-
     }
-
   }
 
   public String toString () {

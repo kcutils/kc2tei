@@ -115,7 +115,7 @@ Tokens
   colon = ':';
   semicolon = ';';
   sentence_start_symbol = 'c:';
-  silence_symbol = 'p:';
+  silence_symbol = 'p:'; // pause
   tilde = '~';
   three = '3';
   uncertainty = '%';
@@ -128,7 +128,7 @@ Tokens
   harrumph = 'r:';          // <R\"auspern>
   swallow = 'w:';           // <Schlucken>
   smack = 's:';             // <Schmatzen>
-  vocal_noise_h = 'h:';
+  breathing = 'h:';         // <A> atmen
 
   whitespaces = whitespaces;
   word_boundary_prefix =  '##';
@@ -258,7 +258,7 @@ Productions
   creak =   {case1} creak1
           | {case2} creak2;
 
-  fwm = plus;
+  fwm = plus;  // Funktionswortmarkierung
 
   fall =   {level_fall} level_fall full_stop
          | {mid_fall} mid_fall full_stop
@@ -471,13 +471,13 @@ Productions
 
   vocal_noise1_symbol =   {smack} smack
                         | {swallow} swallow
-                        | {h} vocal_noise_h
+                        | {breathing} breathing
                         | {laughter} laughter
                         | {cough} cough
-                        | {harrumpg} harrumph
+                        | {harrumph} harrumph
                         | {unspecific} unspecified_noise;
 
-  vocal_noise2_symbol =   {h} vocal_noise_h
+  vocal_noise2_symbol =   {breathing} breathing
                         | {laughter} laughter
                         | {cough} cough
                         | {harrumph} harrumph
