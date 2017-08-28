@@ -122,7 +122,12 @@ for FILE in $FILES; do
       fi
     fi
   else
-    echo "$FILE" >> $GOOD_FILES_LIST
+    OUT_A=$( echo "$OUT" | grep null )
+    if [ "$OUT_A" != "" ]; then
+      echo "$FILE" >> strange_output_problem_files.tmp
+    else
+      echo "$FILE" >> $GOOD_FILES_LIST
+    fi
   fi
 
   COUNTER=$(( COUNTER + 1 ))
