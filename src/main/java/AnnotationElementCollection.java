@@ -157,21 +157,21 @@ public class AnnotationElementCollection {
         if (l.getIsBeginOfAccousticWord()) {
           if (i < words.size()) {
             words.get(i).setStartTime(l.getStartTime());
+            i++;
           }
-          i++;
         }
 
         // set end of current word to end of current label
         // if label is unignored phone
-        if (i > 0 && l.getIsPhon() && ! l.getIgnorePhon()) {
+        if (i > 0 && i <= words.size() && l.getIsPhon() && ! l.getIgnorePhon()) {
           words.get(i - 1).setEndTime(l.getEndTime());
         }
 
       }
 
       // set end of last word to last time mark if not already set
-      if (i > 0 && words.get(i - 1).getEndTime() == null) {
-        words.get(i - 1).setEndTime(getTimeMarkerList().get(getTimeMarkerList().size() - 1));
+      if (words.size() > 0  && words.get(words.size() - 1).getEndTime() == null) {
+        words.get(words.size()- 1).setEndTime(getTimeMarkerList().get(getTimeMarkerList().size() - 1));
       }
 
       wordsRefined = true;
