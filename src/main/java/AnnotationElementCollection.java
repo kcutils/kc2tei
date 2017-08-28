@@ -88,7 +88,7 @@ public class AnnotationElementCollection {
           if (((Label) e).getIsWordBegin() && ! firstWordBeginFound) {
             firstWordBeginFound = true;
           }
-          if (firstWordBeginFound && ! secondWordBeginFound && ((Label) e).getIsPhon() && ! ((Label) e).getIgnorePhon() && ! ((Label) e).getPhonIsDeleted()) {
+          if (firstWordBeginFound && ! secondWordBeginFound && ((Label) e).getIsPhon() && ! ((Label) e).getIgnorePhon()) {
               rval.add((Label) e);
           }
         }

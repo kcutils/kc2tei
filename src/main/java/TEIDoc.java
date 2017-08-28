@@ -108,24 +108,26 @@ public class TEIDoc {
         List<Label> labels = annotationElements.getListOfPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
         if (labels != null) {
           for (Label l : labels) {
-            String realizedPhon = l.getContent().toString();
-            String canonicalPhon = l.getContent().toString();
-            // all "l" are Phones
-            if (l.getModifiedPhon() == null) {
-              canonicalPhon = charConverter.getUnicodeByASCII(l.getRealizedPhon());
-              realizedPhon = canonicalPhon;
-            } else {
-              canonicalPhon = charConverter.getUnicodeByASCII(l.getModifiedPhon());
-              realizedPhon = charConverter.getUnicodeByASCII(l.getRealizedPhon());
+            String realizedPhon = l.getRealizedPhon();
+            String canonicalPhon = l.getRealizedPhon();
+
+            if (l.getPhonIsDeleted() || l.getPhonIsReplaced()) {
+              canonicalPhon = l.getModifiedPhon();
             }
 
-            if (l.getIsCreaked()) {
-              realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("creaked");
-            }
-            if (l.getIsNasalized()) {
-              realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("nasalized");
-            }
+            canonicalPhon = charConverter.getUnicodeByASCII(canonicalPhon);
+            realizedPhon = charConverter.getUnicodeByASCII(realizedPhon);
+
             if (realizedPhon != null) {
+
+              if (l.getIsCreaked()) {
+                realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("creaked");
+              }
+
+              if (l.getIsNasalized()) {
+                realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("nasalized");
+              }
+
               spanGrpRealizedPhones.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(realizedPhon);
               spanCounter++;
             }
