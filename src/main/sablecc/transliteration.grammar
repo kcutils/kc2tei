@@ -49,11 +49,12 @@ Tokens
   {transliteration} tech_break = '<;T>';
   {transliteration} breathing = '<A>';
   {transliteration} pause = '<P>';
-  {transliteration} hesistational_lengthning = '<Z>';
-  {transliteration} hesistation =   '<"ahm>'
-                                  | '<hm>'
-                                  | '<"ah>'
-                                  | '<h"as>';
+//  {transliteration} hesistational_lengthning = '<Z>';
+  {transliteration} vocal_hesistation =   '<"ahm>'
+                                        | '<hm>'
+                                        | '<"ah>';
+
+  {transliteration} non_vocal_hesistation =  '<h"as>';
   {transliteration} unidentified_utterance = '<%>';
   {transliteration} overlapping_boundary_begin_marker = '<:';
   {transliteration} overlapping_boundary_end_marker = ':>';
@@ -64,6 +65,7 @@ Tokens
   {transliteration} punctuation = punctuation_chars;
   {transliteration} speaker = word ': ';
   {transliteration} word = word | word '-' word;
+  {transliteration} hesist_word = '<Z>' | '<Z>' word; // TODO: optimize this without getting shift/reduce conflicts
 
   {rest} string = string;
 
@@ -82,13 +84,16 @@ Productions
                                         | {external_noise} external_noise
                                         | {breathing} breathing
                                         | {pause} pause
-                                        | {hesistational_lengthning} hesistational_lengthning;
+                                        | {hesistation} non_vocal_hesistation
+;//                                        | {hesistational_lengthning} hesistational_lengthning;
 
   // TODO: false start should be: false_start_begin_marker (transliteration_content+ false_start_end_marker)+
 
-  transliteration_content =   {word} word word_fragment_marker? truncation_marker?
+
+  transliteration_content =   {word} word hesist_word* word_fragment_marker? truncation_marker?
+//                            | {hesist_word} word hesist_word? word_fragment_marker? truncation_marker?
                             | {non_vocal_utterance} transliteration_non_vocal_utterance word_fragment_marker? truncation_marker?
-                            | {hesistation} hesistation
+                            | {hesistation} vocal_hesistation
                             | {punctuation} punctuation
                             | {speaker} speaker
                             | {unidentified_utterance} unidentified_utterance truncation_marker?

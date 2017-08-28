@@ -189,7 +189,7 @@ Productions
 
   consonant_label =   {boundary} boundaryconsonant
                     | {compound} compoundconsonant
-                    | {nonboundary} nonboundaryconsonant
+                    | {nonboundary} nonboundaryconsonant  // following cases are no real consonants ...
                     | {nasalization} nasalization_label
                     | {ma} ma_label
                     | {lengthening} lengthening_label
