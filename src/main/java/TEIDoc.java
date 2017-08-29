@@ -22,6 +22,9 @@ public class TEIDoc {
 
   private KCSampaToIPAConverter charConverter = null;
 
+  private Integer utteranceCounter = 0;
+  private Integer spanCounter = 0;
+
   private void createXMLdoc () {
     this.doc = DocumentHelper.createDocument();
     namespaceMap.put("tei", "http://www.tei-c.org/ns/1.0");
@@ -71,7 +74,7 @@ public class TEIDoc {
     addElementFoundByXpath("/tei:TEI/tei:text").addElement("body").addElement("p").addText("dummy");
 
     // add content
-    addAnnotationBlocks();
+    addContent();
   }
 
   private void addTimeLineEntries () throws Exception {
@@ -86,105 +89,87 @@ public class TEIDoc {
     }
   }
 
-  private void addVocalNoises (TimeMark vocalNoiseSearchBegin, TimeMark vocalNoiseSearchEnd) throws Exception {
-    List<Label> vocalNoises = annotationElements.getListOfVocalNoisesStartingWithAndNotEndingBefore(vocalNoiseSearchBegin, vocalNoiseSearchEnd);
-    if (vocalNoises != null) {
-      for (Label v : vocalNoises) {
-        if (! v.getIsPause()) {
-          Element vocal = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("vocal").addAttribute("start", v.getStartTime().getName()).addAttribute("end", v.getEndTime().getName());
-          vocal.addElement("desc").addText(v.getVocalNoiseType());
-        } else {
-          addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("pause").addAttribute("start", v.getStartTime().getName()).addAttribute("end", v.getEndTime().getName());
+  private void addContent () throws Exception {
+    // we expect a sorted list of timed annotation elements
+    for (TimedAnnotationElement t : annotationElements.getAnnotationElements()) {
+      if (t.getClass() == Word.class) {
+        addWordWithPhones((Word) t);
+      }
+      if (t.getClass() == Label.class && ((Label) t).getIsVocalNoise() && ! ((Label) t).getVocalNoiseIsDeleted()) {
+        addVocalNoise((Label) t);
+      }
+    }
+  }
+
+  private void addVocalNoise (Label v) throws Exception {
+    if (v != null && ! v.getIsPause()) {
+      Element vocal = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("vocal").addAttribute("start", v.getStartTime().getName()).addAttribute("end", v.getEndTime().getName());
+      vocal.addElement("desc").addText(v.getVocalNoiseType());
+    } else {
+      addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("pause").addAttribute("start", v.getStartTime().getName()).addAttribute("end", v.getEndTime().getName());
+    }
+  }
+
+  private void addWordWithPhones (Word w) throws Exception {
+    if (w != null && w.getStartTime() != null && w.getContent() != null && w.getEndTime() != null) {
+      utteranceCounter++;
+
+      if (charConverter == null) {
+        charConverter = new KCSampaToIPAConverter();
+      }
+
+      // create TEI document elements for current word and related elements
+      Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
+                                                                                                                      addAttribute("start", w.getStartTime().getName()).addAttribute("end", w.getEndTime().getName());
+      annotationBlock.addElement("u").addAttribute("xml:id", "u" + utteranceCounter).addElement("w").addText(w.getContent().toString());
+
+
+      List<Label> phoneLabels = annotationElements.getListOfPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
+
+      if (phoneLabels != null) {
+        // add realized and canonical phones to word
+        Element realizedPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-realized");
+        Element canonicalPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-canonical");
+
+        for (Label l : phoneLabels) {
+          addPhone(l, canonicalPhonesSpanGrp, realizedPhonesSpanGrp);
         }
       }
     }
   }
 
-  private void addAnnotationBlocks () throws Exception {
-    Integer utteranceCounter = 1;
-    Integer spanCounter = 1;
+  private void addPhone (Label l, Element canonicalPhonesSpanGrp, Element realizedPhonesSpanGrp) {
+    if (l != null && l.getIsPhon() && !l.getIgnorePhon() && l.getRealizedPhon() != null) {
 
-    Boolean firstWordProcessed = false;
+      String realizedPhon = l.getRealizedPhon();
+      String canonicalPhon = l.getRealizedPhon();
 
-    if (charConverter == null) {
-      charConverter = new KCSampaToIPAConverter();
-    }
+      if (l.getPhonIsDeleted() || l.getPhonIsReplaced()) {
+        canonicalPhon = l.getModifiedPhon();
+      }
 
-    // get for each word corresponding phonetic labels
+      canonicalPhon = charConverter.getUnicodeByASCII(canonicalPhon);
+      realizedPhon = charConverter.getUnicodeByASCII(realizedPhon);
 
-    TimeMark vocalNoiseSearchBegin = null;
-    TimeMark vocalNoiseSearchEnd = null;
+      if (realizedPhon != null) {
 
-    for (TimedAnnotationElement w : annotationElements.getListOfWords()) {
-      if (w.getStartTime() != null && w.getContent() != null && w.getEndTime() != null) {
-
-        if (! firstWordProcessed) {
-          vocalNoiseSearchBegin = annotationElements.getTimeMarkerList().get(0);
-          firstWordProcessed = true;
-        } else {
-          vocalNoiseSearchBegin = vocalNoiseSearchEnd;
+        if (l.getIsCreaked()) {
+          realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("creaked");
         }
-        vocalNoiseSearchEnd = w.getStartTime();
 
-        // get all vocal noises before first word/between the beginning of last words and beginning of current word
-        addVocalNoises(vocalNoiseSearchBegin, vocalNoiseSearchEnd);
-
-        // create TEI document elements for current word and related elements
-        Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
-                                                                                                                        addAttribute("start", w.getStartTime().getName()).addAttribute("end", w.getEndTime().getName());
-        annotationBlock.addElement("u").addAttribute("xml:id", "u" + utteranceCounter).addElement("w").addText(w.getContent().toString());
-
-        // add realized and canonical phones to word
-        Element spanGrpRealizedPhones = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-realized");
-        Element spanGrpCanonicalPhones = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-canonical");
-
-        List<Label> labels = annotationElements.getListOfPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
-
-        if (labels != null) {
-          for (Label l : labels) {
-            String realizedPhon = l.getRealizedPhon();
-            String canonicalPhon = l.getRealizedPhon();
-
-            if (l.getPhonIsDeleted() || l.getPhonIsReplaced()) {
-              canonicalPhon = l.getModifiedPhon();
-            }
-
-            canonicalPhon = charConverter.getUnicodeByASCII(canonicalPhon);
-            realizedPhon = charConverter.getUnicodeByASCII(realizedPhon);
-
-            if (realizedPhon != null) {
-
-              if (l.getIsCreaked()) {
-                realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("creaked");
-              }
-
-              if (l.getIsNasalized()) {
-                realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("nasalized");
-              }
-
-              spanGrpRealizedPhones.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(realizedPhon);
-              spanCounter++;
-            }
-
-            if (canonicalPhon != null) {
-              spanGrpCanonicalPhones.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(canonicalPhon);
-              spanCounter++;
-            }
-          }
+        if (l.getIsNasalized()) {
+          realizedPhon = realizedPhon + charConverter.getUnicodeByASCII("nasalized");
         }
-        utteranceCounter++;
+
+        realizedPhonesSpanGrp.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(realizedPhon);
+        spanCounter++;
+      }
+
+      if (canonicalPhon != null) {
+        canonicalPhonesSpanGrp.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + spanCounter).addText(canonicalPhon);
+        spanCounter++;
       }
     }
-
-    // in case there was no word at all
-    if (!firstWordProcessed) {
-      if (annotationElements.getTimeMarkerList() != null && annotationElements.getTimeMarkerList().size() > 0) {
-        vocalNoiseSearchBegin = annotationElements.getTimeMarkerList().get(0);
-        vocalNoiseSearchEnd = annotationElements.getTimeMarkerList().get(annotationElements.getTimeMarkerList().size() - 1);
-        addVocalNoises(vocalNoiseSearchBegin, vocalNoiseSearchEnd);
-      }
-    }
-
   }
 
   // write XML doc to String and return String

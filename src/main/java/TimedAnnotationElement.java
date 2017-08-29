@@ -1,5 +1,5 @@
 
-public abstract class TimedAnnotationElement<T> {
+public abstract class TimedAnnotationElement<T> implements Comparable<TimedAnnotationElement> {
   private TimeMark startTime = null;
   private T content = null;
   private TimeMark endTime = null;
@@ -53,5 +53,37 @@ public abstract class TimedAnnotationElement<T> {
     }
 
     return rval;
+  }
+
+  @Override
+  public int compareTo (TimedAnnotationElement o) throws NullPointerException, ClassCastException {
+
+    if (o == null) {
+      throw new NullPointerException();
+    }
+
+    // TODO: couldn't that be done better?
+    if (this.getClass() != Word.class) {
+      if (this.getStartTime().compareTo(o.getStartTime()) < 0 && this.getEndTime().compareTo(o.getEndTime()) <= 0) {
+        return -1;
+      }
+      if (this.getStartTime().compareTo(o.getStartTime()) > 0 && this.getEndTime().compareTo(o.getEndTime()) >= 0) {
+        return 1;
+      }
+      if (this.getStartTime().compareTo(o.getStartTime()) == 0 && this.getEndTime().compareTo(o.getEndTime()) < 0) {
+        return -1;
+      }
+      if (this.getStartTime().compareTo(o.getStartTime()) == 0 && this.getEndTime().compareTo(o.getEndTime()) > 0) {
+        return 1;
+      }
+      // this.getStartTime().compareTo(o.getStartTime()) == 0 && this.getEndTime().compareTo(o.getEndTime()) == 0
+      return 0;
+    } else {
+      // we want a word to appear before all labels in list that are relevant for this word
+      if (this.getStartTime().compareTo(o.getStartTime()) == 0 && this.getStartTime().compareTo(o.getEndTime()) <= 0 ) {
+        return -1;
+      }
+      return this.getStartTime().compareTo(o.getStartTime());
+    }
   }
 }

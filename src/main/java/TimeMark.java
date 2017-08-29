@@ -1,4 +1,4 @@
-public class TimeMark {
+public class TimeMark implements Comparable<TimeMark> {
 
   private String name = null;
   private Float time = null;
@@ -43,6 +43,13 @@ public class TimeMark {
     return rval;
   }
 
+  /**
+   *
+   * @param  t the TimeMark to be compared
+   * @return true if this TimeMark same name and time as specified TimeMark,
+   *         false otherwise.
+   */
+
   public boolean equals (TimeMark t) {
     Boolean rval = false;
     if (t != null) {
@@ -50,6 +57,13 @@ public class TimeMark {
     }
     return rval;
   }
+
+  /**
+   *
+   * @param  t the TimeMark to be compared.
+   * @return true if this TimeMark has greater time than specified TimeMark,
+   *         false otherwise.
+   */
 
   public boolean isGreater (TimeMark t) {
     Boolean rval = false;
@@ -69,6 +83,22 @@ public class TimeMark {
 
   public boolean isSmallerOrEqual (TimeMark t) {
     return equals(t) || isSmaller(t);
+  }
+
+  @Override
+  public int compareTo (TimeMark o) throws NullPointerException, ClassCastException {
+    if (o == null) {
+      throw(new NullPointerException());
+    }
+    if (isSmaller(o)) {
+      return -1;
+    }
+
+    if (isGreater(o)) {
+      return 1;
+    }
+
+    return 0;
   }
 
   public String toString() {

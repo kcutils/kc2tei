@@ -1,7 +1,9 @@
 import labels.node.*;
 import org.apache.xpath.operations.Bool;
 
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AnnotationElementCollection {
@@ -51,6 +53,10 @@ public class AnnotationElementCollection {
     }
 
     return rval;
+  }
+
+  public List<TimedAnnotationElement> getAnnotationElements () {
+    return this.annotationElements;
   }
 
   public List<TimedAnnotationElement> getListOfAnnotationElementsStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
@@ -247,6 +253,7 @@ public class AnnotationElementCollection {
     setTimeMarkerNames();
     refineTimedLabels();
     refineWords();
+    Collections.sort(annotationElements);
   }
 
   public Integer getAmountOfWords () {
