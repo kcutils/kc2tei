@@ -1,16 +1,22 @@
+package kc2tei;
+
 import java.util.HashMap;
 
 public class KCSampaToIPAConverter {
- 
-  private HashMap<String,String> convertTable = new HashMap<>();
+
+  private HashMap<String, String> convertTable;
 
   // for checks/debug
-  private Integer noHits = 0;
-  private Boolean debugMode = false;
+  private Integer noHits;
+  private Boolean debugMode;
 
   public KCSampaToIPAConverter () {
 
+    this.setNoHits(0);
+    this.setDebugMode(false);
+
     // init hashmap
+    convertTable = new HashMap<>();
 
     // german vowels
     convertTable.put("a", "\u0061");
@@ -100,6 +106,27 @@ public class KCSampaToIPAConverter {
 
   }
 
+  public KCSampaToIPAConverter (Boolean debugMode) {
+    this();
+    this.setDebugMode(debugMode);
+  }
+
+  public Integer getNoHits () {
+    return noHits;
+  }
+
+  public void setNoHits (Integer noHits) {
+    this.noHits = noHits;
+  }
+
+  public Boolean getDebugMode () {
+    return this.debugMode;
+  }
+
+  public void setDebugMode (Boolean b) {
+    this.debugMode = b;
+  }
+
   public String getUnicodeByASCII (String in) {
     String rval = null;
 
@@ -107,8 +134,8 @@ public class KCSampaToIPAConverter {
       if (convertTable.get(in) != null) {
         rval = convertTable.get(in);
       } else {
-        noHits++;
-        if (debugMode) {
+        this.setNoHits(this.getNoHits() + 1);
+        if (this.getDebugMode()) {
           rval = "XSAMPA: " + in;
         } else {
           rval = in;
@@ -117,13 +144,5 @@ public class KCSampaToIPAConverter {
     }
 
     return rval;
-  }
-
-  public Integer getNoHits () {
-    return noHits;
-  }
-
-  public void setDebugMode (Boolean b) {
-    this.debugMode = b;
   }
 }
