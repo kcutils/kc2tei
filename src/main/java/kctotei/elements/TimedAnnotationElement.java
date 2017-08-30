@@ -1,4 +1,4 @@
-package kc2tei.elements;
+package kctotei.elements;
 
 /**
  * A TimedAnnotationElement consists of
@@ -73,11 +73,10 @@ public abstract class TimedAnnotationElement<T> implements Comparable<TimedAnnot
    * @return -1 if this TimedAnnotationElement is "smaller" than the specified TimedAnnotationElement,
    *          0 if they are "equal",
    *          1 if this TimedAnnotationElement is "bigger" than the specified one.
-   * @throws NullPointerException
-   * @throws ClassCastException
+   * @throws ClassCastException on casting problems (as defined by interface)
    */
   @Override
-  public int compareTo (TimedAnnotationElement o) throws NullPointerException, ClassCastException {
+  public int compareTo (TimedAnnotationElement o) throws ClassCastException, NullPointerException {
 
     // TODO: couldn't that be done better?
     // we want a word to appear before all labels in list that are relevant for this word

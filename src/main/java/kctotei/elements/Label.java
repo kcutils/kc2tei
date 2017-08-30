@@ -1,14 +1,18 @@
-package kc2tei.elements;
+package kctotei.elements;
 
 import labels.node.PTlabel;
 
+/**
+ * A label is a special timed annotation element which can hold
+ * lots of different information.
+ */
 public class Label extends TimedAnnotationElement<PTlabel> {
 
   // general variables
   private Boolean isWordBegin;
   private Boolean isBeginOfAccousticWord;
 
-  // phon specific variables
+  // phone specific variables
   private Boolean isPhon;
   private Boolean phonIsDeleted;
   private Boolean phonIsReplaced;
@@ -198,15 +202,13 @@ public class Label extends TimedAnnotationElement<PTlabel> {
   }
 
   public String toString () {
-    String rval = "";
+    String rval = super.toString();
 
-    rval = super.toString();
-
-    // general informations
+    // general information
     rval = addTrueBooleansAndDescrToString(this.getIsWordBegin(), "isWordBegin", rval);
     rval = addTrueBooleansAndDescrToString(this.getIsBeginOfAccousticWord(), "isBeginOfAccousticWord", rval);
 
-    // phone specifica
+    // phone specifics
     rval = addTrueBooleansAndDescrToString(this.getIsPhon(), "isPhon", rval);
     rval = addTrueBooleansAndDescrToString(this.getIgnorePhon(), "ignorePhon", rval);
     rval = addTrueBooleansAndDescrToString(this.getPhonIsDeleted(), "phonIsDeleted", rval);
@@ -220,7 +222,7 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     rval = addStringAndDescrToString(this.getModifiedPhon(), "modifiedPhon", rval);
     rval = addStringAndDescrToString(this.getRealizedPhon(), "realizedPhon", rval);
 
-    // vocal noise specifica
+    // vocal noise specifics
     rval = addTrueBooleansAndDescrToString(this.getIsVocalNoise(), "isVocalNoise", rval);
     rval = addTrueBooleansAndDescrToString(this.getVocalNoiseIsDeleted(), "vocalNoiseIsDeleted", rval);
     rval = addStringAndDescrToString(this.getVocalNoiseType(), "vocalNoiseType", rval);

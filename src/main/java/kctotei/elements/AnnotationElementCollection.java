@@ -1,9 +1,15 @@
-package kc2tei.elements;
+package kctotei.elements;
 
-import kc2tei.postCollectProcessors.LabelInfoGetter;
+import kctotei.postCollectProcessors.LabelInfoGetter;
 
 import java.util.ArrayList;
 import java.util.List;
+
+/**
+ * An annotation element collection holds relevant annotation elements
+ * and provides methods collect them
+ * and methods to access them, e.g. get all elements of a certain type.
+ */
 
 public class AnnotationElementCollection {
 
@@ -49,19 +55,20 @@ public class AnnotationElementCollection {
   }
 
   public String toString () {
-    String rval = "";
+    StringBuilder buf = new StringBuilder();
 
     for (TimedAnnotationElement t : this.getAnnotationElements()) {
-      rval = rval + "\n" + t.toString();
+      buf.append("\n");
+      buf.append(t.toString());
       Object n = t.getContent();
       if (n.getClass() == labels.node.ATlabel.class) {
         LabelInfoGetter lInfo = new LabelInfoGetter();
         ((labels.node.Node) n).apply(lInfo);
-        rval = rval + lInfo.toString();
+        buf.append(lInfo.toString());
       }
     }
 
-    return rval;
+    return buf.toString();
   }
 
   public List<TimedAnnotationElement> getListOfAnnotationElementsStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
@@ -77,21 +84,6 @@ public class AnnotationElementCollection {
           //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t2) && e.getEndTime().equals(t2))) {
           if (e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
             rval.add(e);
-          }
-        }
-      }
-    }
-    return rval;
-  }
-
-  public List<Label> getListOfVocalNoisesStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
-    List<Label> rval = null;
-    if (t1 != null && t2 != null) {
-      rval = new ArrayList<>();
-      for (TimedAnnotationElement e : getListOfAnnotationElementsStartingWithAndNotEndingBefore(t1, t2)) {
-        if (e.getClass() == Label.class) {
-          if (((Label) e).getIsVocalNoise() && !((Label) e).getVocalNoiseIsDeleted()) {
-            rval.add((Label) e);
           }
         }
       }

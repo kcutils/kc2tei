@@ -1,6 +1,15 @@
-package kc2tei.postCollectProcessors;
+package kctotei.postCollectProcessors;
 
-import kc2tei.elements.Label;
+import kctotei.elements.Label;
+
+/**
+ * A label info getter analyzes a label and its children to get
+ * a more precise view of the type of the label.
+ *
+ * When running in refinement mode it modifies the label according to
+ * the gathered information, otherwise it only gathers information
+ * without modifying the label.
+ */
 
 public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
 

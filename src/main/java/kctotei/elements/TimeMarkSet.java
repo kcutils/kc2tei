@@ -1,4 +1,4 @@
-package kc2tei.elements;
+package kctotei.elements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,12 +65,13 @@ public class TimeMarkSet {
   }
 
   public String toString () {
-    String rval = "";
+    StringBuilder buf = new StringBuilder();
 
     for (TimeMark tm : this.getList()) {
-      rval = rval + tm.toString() + "\n";
+      buf.append(tm.toString());
+      buf.append("\n");
     }
 
-    return rval;
+    return buf.toString();
   }
 }

@@ -1,4 +1,4 @@
-package kc2tei.elements;
+package kctotei.elements;
 
 /**
  * A TimeMark has a name and a time value.
@@ -40,10 +40,11 @@ public class TimeMark implements Comparable<TimeMark> {
   }
 
   public void setName (String name) {
-    if (name != null) {
-      name = name.replaceAll("\\s", "");
+    String n = name;
+    if (n != null) {
+      n = n.replaceAll("\\s", "");
+      this.name = n;
     }
-    this.name = name;
   }
 
   Float getTime () {
@@ -52,9 +53,10 @@ public class TimeMark implements Comparable<TimeMark> {
 
   // keep time setters private, so that they cannot be modified later
   private void setTime (String time) {
+    String t = time;
     if (time != null) {
-      time = time.replaceAll("\\s", "");
-      this.time = Float.parseFloat(time);
+      t = t.replaceAll("\\s", "");
+      this.time = Float.parseFloat(t);
     }
   }
 
@@ -111,10 +113,15 @@ public class TimeMark implements Comparable<TimeMark> {
   }
 
   @Override
-  public int compareTo (TimeMark o) throws NullPointerException, ClassCastException {
+  public int compareTo (TimeMark o) throws ClassCastException, NullPointerException {
     if (o == null) {
-      throw (new NullPointerException());
+      throw(new NullPointerException());
     }
+
+    if (this.equals(o)) {
+      return 0;
+    }
+
     if (isSmaller(o)) {
       return -1;
     }

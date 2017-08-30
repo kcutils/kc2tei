@@ -1,11 +1,16 @@
-package kc2tei.checkers;
+package kctotei.checkers;
 
-import kc2tei.KCSampaToIPAConverter;
-import kc2tei.elements.TEIDoc;
-import kc2tei.postCollectProcessors.PostCollectProcessor;
+import kctotei.KCSampaToIPAConverter;
+import kctotei.elements.TEIDoc;
+import kctotei.postCollectProcessors.PostCollectProcessor;
+import org.xml.sax.SAXException;
 
 import java.io.File;
+import java.io.IOException;
 
+/**
+ * The result checker is a wrapper class that calls several checkers for different sorts of checks.
+ */
 public class ResultChecker {
   private PostCollectProcessor postCollectProcessor;
   private KCSampaToIPAConverter charConverter;
@@ -24,7 +29,7 @@ public class ResultChecker {
     this.setXmlValidator(null);
   }
 
-  public ResultChecker (PostCollectProcessor postCollectProcessor, KCSampaToIPAConverter charConverter, File rngSchemaFile, TEIDoc teiDoc) throws Exception {
+  public ResultChecker (PostCollectProcessor postCollectProcessor, KCSampaToIPAConverter charConverter, File rngSchemaFile, TEIDoc teiDoc) {
     this();
     this.setPostCollectProcessor(postCollectProcessor);
     this.setCharConverter(charConverter);
@@ -33,7 +38,6 @@ public class ResultChecker {
 
     this.setKcFileChecker(new KCFileChecker(this.getPostCollectProcessor(), this.getCharConverter()));
     this.setXmlValidator(new XMLValidator(this.getTeiDoc(), this.getRngSchemaFile()));
-
   }
 
   public PostCollectProcessor getPostCollectProcessor () {
@@ -84,7 +88,14 @@ public class ResultChecker {
     this.xmlValidator = xmlValidator;
   }
 
-  public Boolean noErrorsFound () throws Exception {
+  /**
+   *
+   * @return true if none of the called checkers reports a problem
+   *         false otherwise
+   * @throws IOException  on file read/write problems
+   * @throws SAXException on XML problems
+   */
+  public Boolean noErrorsFound () throws IOException, SAXException {
     return this.getKcFileChecker().noErrorsFound() && this.getXmlValidator().validate();
   }
 

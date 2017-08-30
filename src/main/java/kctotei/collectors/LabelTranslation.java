@@ -1,9 +1,9 @@
-package kc2tei.collectors;
+package kctotei.collectors;
 
-import kc2tei.elements.AnnotationElementCollection;
-import kc2tei.elements.Label;
-import kc2tei.elements.TimeMark;
-import kc2tei.elements.TimedAnnotationElement;
+import kctotei.elements.AnnotationElementCollection;
+import kctotei.elements.Label;
+import kctotei.elements.TimeMark;
+import kctotei.elements.TimedAnnotationElement;
 import labels.analysis.DepthFirstAdapter;
 import labels.node.ATimedLabel;
 import labels.node.PTlabel;

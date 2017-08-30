@@ -1,24 +1,39 @@
-package kc2tei.elements;
+package kctotei.elements;
 
-import kc2tei.KCSampaToIPAConverter;
+import kctotei.KCSampaToIPAConverter;
 import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.jaxen.JaxenException;
 import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.XPath;
 import org.jaxen.dom4j.Dom4jXPath;
 
-import java.io.StringWriter;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * A TEI document is a special XML document that
+ * provides methods to add relevant collected information to itself.
+ */
 public class TEIDoc {
 
   private Document doc;
 
-  private Namespace xmlns;
+  private static final Namespace XMLNS = Namespace.get("http://www.tei-c.org/ns/1.0");
 
-  private HashMap namespaceMap;
+  private static final String XML_ID = "xml:id";
+  private static final String FROM = "from";
+  private static final String TO = "to";
+  private static final String START = "start";
+  private static final String END = "end";
+
+  private static final String REALIZED_PHONE_TYPE = "pho-realized";
+  private static final String CANONICAL_PHONE_TYPE = "pho-canonical";
+
+  private Map namespaceMap;
   private XPath xpath;
 
   private AnnotationElementCollection annotationElements;
@@ -30,22 +45,22 @@ public class TEIDoc {
 
   private TEIDoc () {
     this.setDoc(null);
-    this.setXmlns(Namespace.get("http://www.tei-c.org/ns/1.0"));
     this.setNamespaceMap(new HashMap());
     this.setXpath(null);
     this.setAnnotationElements(null);
     this.setCharConverter(null);
     this.setUtteranceCounter(0);
     this.setSpanCounter(0);
+
   }
 
-  public TEIDoc (AnnotationElementCollection annotationElements) throws Exception {
+  public TEIDoc (AnnotationElementCollection annotationElements) throws JaxenException {
     this();
     this.annotationElements = annotationElements;
     init();
   }
 
-  public TEIDoc (AnnotationElementCollection annotationElements, KCSampaToIPAConverter charConverter) throws Exception {
+  public TEIDoc (AnnotationElementCollection annotationElements, KCSampaToIPAConverter charConverter) throws JaxenException {
     this();
     this.annotationElements = annotationElements;
     this.charConverter = charConverter;
@@ -60,19 +75,11 @@ public class TEIDoc {
     this.doc = doc;
   }
 
-  public Namespace getXmlns () {
-    return xmlns;
-  }
-
-  public void setXmlns (Namespace xmlns) {
-    this.xmlns = xmlns;
-  }
-
-  public HashMap getNamespaceMap () {
+  public Map getNamespaceMap () {
     return namespaceMap;
   }
 
-  public void setNamespaceMap (HashMap namespaceMap) {
+  public void setNamespaceMap (Map namespaceMap) {
     this.namespaceMap = namespaceMap;
   }
 
@@ -116,7 +123,7 @@ public class TEIDoc {
     this.spanCounter = spanCounter;
   }
 
-  private void init () throws Exception {
+  private void init () throws JaxenException {
 
     createXMLdoc();
     createXMLHeader();
@@ -140,15 +147,15 @@ public class TEIDoc {
     this.getNamespaceMap().put("tei", "http://www.tei-c.org/ns/1.0");
   }
 
-  private Element addElementFoundByXpath (String xpathExpr) throws Exception {
+  private Element addElementFoundByXpath (String xpathExpr) throws JaxenException {
     this.setXpath(new Dom4jXPath(xpathExpr));
     this.getXpath().setNamespaceContext(new SimpleNamespaceContext(this.getNamespaceMap()));
     return (Element) this.getXpath().selectSingleNode(doc);
   }
 
-  private void createXMLHeader () throws Exception {
-    // built common header informations
-    this.getDoc().addElement(new QName("TEI", xmlns)).addElement("teiHeader").addElement("fileDesc").addElement("titleStmt").addElement("title").addText("TODO");
+  private void createXMLHeader () throws JaxenException {
+    // built common header information
+    this.getDoc().addElement(new QName("TEI", XMLNS)).addElement("teiHeader").addElement("fileDesc").addElement("titleStmt").addElement("title").addText("TODO");
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").addElement("publicationStmt").addElement("authority").addText("ISFAS");
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt").addElement("availability").addElement("p").addText("TODO");
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt").addElement("address").addElement("street").addText("TODO");
@@ -159,19 +166,19 @@ public class TEIDoc {
   }
 
 
-  private void addTimeLineEntries () throws Exception {
+  private void addTimeLineEntries () throws JaxenException {
 
     // set reference point
-    addElementFoundByXpath("/tei:TEI/tei:text").addElement("timeline").addAttribute("unit", "s").addElement("when").addAttribute("xml:id", "T0");
+    addElementFoundByXpath("/tei:TEI/tei:text").addElement("timeline").addAttribute("unit", "s").addElement("when").addAttribute(XML_ID, "T0");
 
     for (int i = 0; i < annotationElements.getTimeMarkerList().size(); i++) {
-      addElementFoundByXpath("/tei:TEI/tei:text/tei:timeline").addElement("when").addAttribute("xml:id", annotationElements.getTimeMarkerList().get(i).getName()).
+      addElementFoundByXpath("/tei:TEI/tei:text/tei:timeline").addElement("when").addAttribute(XML_ID, annotationElements.getTimeMarkerList().get(i).getName()).
                                                                                                                                                                      addAttribute("interval", Float.toString(annotationElements.getTimeMarkerList().get(i).getTime())).
                                                                                                                                                                                                                                                                           addAttribute("since", "#T0");
     }
   }
 
-  private void addContent () throws Exception {
+  private void addContent () throws JaxenException {
     // we expect a sorted list of timed annotation elements
     for (TimedAnnotationElement t : this.getAnnotationElements().getAnnotationElements()) {
       if (t.getClass() == Word.class) {
@@ -183,16 +190,16 @@ public class TEIDoc {
     }
   }
 
-  private void addVocalNoise (Label v) throws Exception {
+  private void addVocalNoise (Label v) throws JaxenException {
     if (v != null && !v.getIsPause()) {
-      Element vocal = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("vocal").addAttribute("start", v.getStartTime().getName()).addAttribute("end", v.getEndTime().getName());
+      Element vocal = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("vocal").addAttribute(START, v.getStartTime().getName()).addAttribute(END, v.getEndTime().getName());
       vocal.addElement("desc").addText(v.getVocalNoiseType());
     } else {
-      addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("pause").addAttribute("start", v.getStartTime().getName()).addAttribute("end", v.getEndTime().getName());
+      addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("pause").addAttribute(START, v.getStartTime().getName()).addAttribute(END, v.getEndTime().getName());
     }
   }
 
-  private void addWordWithPhones (Word w) throws Exception {
+  private void addWordWithPhones (Word w) throws JaxenException {
     if (w != null && w.getStartTime() != null && w.getContent() != null && w.getEndTime() != null) {
       this.setUtteranceCounter(this.getUtteranceCounter() + 1);
 
@@ -202,16 +209,16 @@ public class TEIDoc {
 
       // create TEI document elements for current word and related elements
       Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
-                                                                                                                      addAttribute("start", w.getStartTime().getName()).addAttribute("end", w.getEndTime().getName());
-      annotationBlock.addElement("u").addAttribute("xml:id", "u" + this.getUtteranceCounter()).addElement("w").addText(w.getContent().toString());
+                                                                                                                      addAttribute(START, w.getStartTime().getName()).addAttribute(END, w.getEndTime().getName());
+      annotationBlock.addElement("u").addAttribute(XML_ID, "u" + this.getUtteranceCounter()).addElement("w").addText(w.getContent().toString());
 
 
       List<Label> phoneLabels = this.getAnnotationElements().getListOfPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
 
       if (phoneLabels != null) {
         // add realized and canonical phones to word
-        Element realizedPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-realized");
-        Element canonicalPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", "pho-canonical");
+        Element realizedPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", REALIZED_PHONE_TYPE);
+        Element canonicalPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", CANONICAL_PHONE_TYPE);
 
         for (Label l : phoneLabels) {
           addPhone(l, canonicalPhonesSpanGrp, realizedPhonesSpanGrp);
@@ -223,45 +230,46 @@ public class TEIDoc {
   private void addPhone (Label l, Element canonicalPhonesSpanGrp, Element realizedPhonesSpanGrp) {
     if (l != null && l.getIsPhon() && !l.getIgnorePhon() && l.getRealizedPhon() != null) {
 
-      String realizedPhon = l.getRealizedPhon();
-      String canonicalPhon = l.getRealizedPhon();
+      String realizedPhone = l.getRealizedPhon();
+      String canonicalPhone = l.getRealizedPhon();
 
       if (l.getPhonIsDeleted() || l.getPhonIsReplaced()) {
-        canonicalPhon = l.getModifiedPhon();
+        canonicalPhone = l.getModifiedPhon();
       }
 
-      canonicalPhon = this.getCharConverter().getUnicodeByASCII(canonicalPhon);
-      realizedPhon = this.getCharConverter().getUnicodeByASCII(realizedPhon);
+      canonicalPhone = this.getCharConverter().getUnicodeByASCII(canonicalPhone);
+      realizedPhone = this.getCharConverter().getUnicodeByASCII(realizedPhone);
 
-      if (realizedPhon != null) {
+      if (realizedPhone != null) {
 
         if (l.getIsCreaked()) {
-          realizedPhon = realizedPhon + this.getCharConverter().getUnicodeByASCII("creaked");
+          realizedPhone = realizedPhone + this.getCharConverter().getUnicodeByASCII("creaked");
         }
 
         if (l.getIsNasalized()) {
-          realizedPhon = realizedPhon + this.getCharConverter().getUnicodeByASCII("nasalized");
+          realizedPhone = realizedPhone + this.getCharConverter().getUnicodeByASCII("nasalized");
         }
 
-        realizedPhonesSpanGrp.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + this.getSpanCounter()).addText(realizedPhon);
+        realizedPhonesSpanGrp.addElement("span").addAttribute(FROM, l.getStartTime().getName()).addAttribute(TO, l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(realizedPhone);
         this.setSpanCounter(this.getSpanCounter() + 1);
       }
 
-      if (canonicalPhon != null) {
-        canonicalPhonesSpanGrp.addElement("span").addAttribute("from", l.getStartTime().getName()).addAttribute("to", l.getEndTime().getName()).addAttribute("xml:id", "s" + this.getSpanCounter()).addText(canonicalPhon);
+      if (canonicalPhone != null) {
+        canonicalPhonesSpanGrp.addElement("span").addAttribute(FROM, l.getStartTime().getName()).addAttribute(TO, l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(canonicalPhone);
         this.setSpanCounter(this.getSpanCounter() + 1);
       }
     }
   }
 
   // write XML doc to String and return String
-  public String toStringEx () throws Exception {
-    String rval = "";
+  public String toStringEx () throws IOException {
+    String rval;
     // Pretty print the document to System.out
     OutputFormat format = OutputFormat.createPrettyPrint();
     StringWriter str = new StringWriter();
     XMLWriter writer = new XMLWriter(str, format);
     writer.write(this.getDoc());
+    writer.close();
     rval = str.toString();
     return rval;
   }
@@ -273,5 +281,6 @@ public class TEIDoc {
     }
     return "";
   }
+
 
 }

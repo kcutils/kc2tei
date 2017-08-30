@@ -1,9 +1,18 @@
-package kc2tei.collectors;
+package kctotei.collectors;
 
-import kc2tei.elements.AnnotationElementCollection;
+import kctotei.elements.AnnotationElementCollection;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PushbackReader;
+
+/**
+ * An element collector creates lexer and parser and processes a Kiel Corpus file
+ * with the help of these components.
+ *
+ * On the trees resulting from lexing and parsing separate classes collect
+ * relevant informations.
+ */
 
 public class ElementCollector {
 
@@ -18,7 +27,7 @@ public class ElementCollector {
     this.setDebugMode(false);
   }
 
-  public ElementCollector (AnnotationElementCollection annotationElementCollection, String inputFileName, Boolean debugMode) throws Exception {
+  public ElementCollector (AnnotationElementCollection annotationElementCollection, String inputFileName, Boolean debugMode) throws transliteration.lexer.LexerException, labels.lexer.LexerException, transliteration.parser.ParserException, IOException, labels.parser.ParserException {
     this();
     this.setInputFileName(inputFileName);
     this.setAnnotationElementCollection(annotationElementCollection);
@@ -42,12 +51,12 @@ public class ElementCollector {
     this.debugMode = debugMode;
   }
 
-  private void lexAndParse () throws Exception {
-    // create filereader
+  private void lexAndParse () throws IOException, transliteration.lexer.LexerException, labels.lexer.LexerException, transliteration.parser.ParserException, labels.parser.ParserException {
+    // create file reader
     FileReader translitFr = new FileReader(inputFileName);
     FileReader labelsFr = new FileReader(inputFileName);
 
-    // create pushbackreader
+    // create push back reader
     PushbackReader translitPbr = new PushbackReader(translitFr, 1024);
     PushbackReader labelsPbr = new PushbackReader(labelsFr, 1024);
 

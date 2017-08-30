@@ -1,9 +1,14 @@
-package kc2tei.postCollectProcessors;
+package kctotei.postCollectProcessors;
 
-import kc2tei.elements.Label;
+import kctotei.elements.Label;
 import labels.analysis.DepthFirstAdapter;
 import labels.node.*;
 
+/**
+ * The phone replacement details getter could be part of
+ * the label info getter, but was extracted to keep
+ * the label info getter more clear.
+ */
 class PhoneReplacementDetailsGetter extends DepthFirstAdapter {
 
   private Label label;

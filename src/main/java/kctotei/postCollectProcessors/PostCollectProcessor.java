@@ -1,13 +1,17 @@
-package kc2tei.postCollectProcessors;
+package kctotei.postCollectProcessors;
 
-import kc2tei.elements.AnnotationElementCollection;
-import kc2tei.elements.Label;
-import kc2tei.elements.TimedAnnotationElement;
-import kc2tei.elements.Word;
+import kctotei.elements.AnnotationElementCollection;
+import kctotei.elements.Label;
+import kctotei.elements.TimedAnnotationElement;
+import kctotei.elements.Word;
 
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * The post collect processor is a wrapper class that calls other parts
+ * of the program which refine the collected elements.
+ */
 public class PostCollectProcessor {
 
   private Boolean timeMarkersRefined;
@@ -101,6 +105,9 @@ public class PostCollectProcessor {
     this.annotationElementCollection = annotationElementCollection;
   }
 
+  /**
+   * call all refinement methods and sort the resulting collection
+   */
   private void refineAnnotationElementCollection () {
     refineTimeMarkers();
     refineTimedLabels();
@@ -109,9 +116,12 @@ public class PostCollectProcessor {
     Collections.sort(this.getAnnotationElementCollection().getAnnotationElements());
   }
 
+  /**
+   * add names to time markers
+   */
   private void refineTimeMarkers () {
     if (!this.getTimeMarkersRefined()) {
-      Integer nameSuffix = null;
+      Integer nameSuffix;
       for (int i = 0; i < this.getAnnotationElementCollection().getTimeMarkerList().size(); i++) {
         nameSuffix = i + 1;
         this.getAnnotationElementCollection().getTimeMarkerList().get(i).setName("T" + nameSuffix);
@@ -120,16 +130,19 @@ public class PostCollectProcessor {
     }
   }
 
+  /**
+   * refine timed labels by getting information for each label
+   */
   private void refineTimedLabels () {
     if (!this.getLabelsRefined()) {
 
-      Label lastPhon = null;
+      Label lastPhone = null;
 
       Boolean creakModifierFound = false;
       Boolean nasalizationModifierFound = false;
 
       Boolean wordBeginFound = false;
-      Label beginOfAccousticWordLabel = null;
+      Label beginOfAcousticWordLabel = null;
 
       for (Label l : this.getAnnotationElementCollection().getListOfLabels()) {
         labels.node.Node node = l.getContent();
@@ -139,25 +152,25 @@ public class PostCollectProcessor {
 
         if (l.getIsWordBegin()) {
           wordBeginFound = true;
-          beginOfAccousticWordLabel = l;
+          beginOfAcousticWordLabel = l;
         }
 
         if (wordBeginFound && l.getIsPhon()) {
-          beginOfAccousticWordLabel.setIsBeginOfAccousticWord(true);
+          beginOfAcousticWordLabel.setIsBeginOfAccousticWord(true);
           wordBeginFound = false;
         }
 
-        // nasalization modifiers modify previous labels if they occure before deleted nasal
-        // and they modify next labels if the occure after deleted nasal
+        // nasalization modifiers modify previous labels if they occur before deleted nasal
+        // and they modify next labels if the occur after deleted nasal
         if (l.getIsPhon() && nasalizationModifierFound) {
 
           if (l.getIsNasal() && l.getPhonIsDeleted()) {
-            // modify previous phon
-            lastPhon.setIsNasalized(true);
+            // modify previous phone
+            lastPhone.setIsNasalized(true);
           }
 
-          // modify current phon
-          if (lastPhon != null && lastPhon.getIsNasal() && lastPhon.getPhonIsDeleted()) {
+          // modify current phone
+          if (lastPhone != null && lastPhone.getIsNasal() && lastPhone.getPhonIsDeleted()) {
             l.setIsNasalized(true);
           }
 
@@ -177,13 +190,16 @@ public class PostCollectProcessor {
         }
 
         if (l.getIsPhon() && !l.getIgnorePhon()) {
-          lastPhon = l;
+          lastPhone = l;
         }
       }
       this.setLabelsRefined(true);
     }
   }
 
+  /**
+   * refine words by setting starting and ending time marks to proper values
+   */
   private void refineWords () {
     if (!this.getWordsRefined()) {
       List<Word> words = this.getAnnotationElementCollection().getListOfWords();
@@ -191,7 +207,7 @@ public class PostCollectProcessor {
       for (Label l : this.getAnnotationElementCollection().getListOfLabels()) {
 
         // set start of current word to
-        // start of label that marks begin of accoustic word
+        // start of label that marks begin of acoustic word
         // and increment word counter
         if (l.getIsBeginOfAccousticWord()) {
           if (i < words.size()) {
@@ -217,6 +233,9 @@ public class PostCollectProcessor {
     }
   }
 
+  /**
+   * set counters for elements in collection
+   */
   private void setCounters () {
     if (!this.getCountersSet()) {
 

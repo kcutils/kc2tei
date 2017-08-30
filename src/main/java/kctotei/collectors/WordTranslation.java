@@ -1,6 +1,6 @@
-package kc2tei.collectors;
+package kctotei.collectors;
 
-import kc2tei.elements.*;
+import kctotei.elements.*;
 import transliteration.analysis.DepthFirstAdapter;
 import transliteration.node.*;
 
@@ -44,10 +44,10 @@ public class WordTranslation extends DepthFirstAdapter {
 
     */
   public void caseAWordTransliterationContent (AWordTransliterationContent node) {
-    this.getAnnotationElementCollection().add(new Word((Node) node));
+    this.getAnnotationElementCollection().add(new Word(node));
   }
 
   public void caseAHesistationTransliterationContent (AHesistationTransliterationContent node) {
-    this.getAnnotationElementCollection().add(new Word((Node) node));
+    this.getAnnotationElementCollection().add(new Word(node));
   }
 }
