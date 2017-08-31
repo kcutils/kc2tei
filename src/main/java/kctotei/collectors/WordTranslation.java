@@ -29,25 +29,25 @@ public class WordTranslation extends DepthFirstAdapter {
     this.annotationElementCollection = annotationElementCollection;
   }
 
-  /*
+
     public void caseTWord (TWord node) {
       this.getAnnotationElementCollection().add(new Word((Node) node));
     }
 
-    public void caseTHesistWord (THesistWord node) {
+    public void caseTHesitWord (THesitWord node) {
       this.getAnnotationElementCollection().add(new Word((Node) node));
     }
-
+/*
     public void caseAHesistWordTransliterationContent (AHesistWordTransliterationContent node) {
       this.getAnnotationElementCollection().add(new Word((Node) node));
     }
 
-    */
   public void caseAWordTransliterationContent (AWordTransliterationContent node) {
     this.getAnnotationElementCollection().add(new Word(node));
   }
+    */
 
-  public void caseAHesistationTransliterationContent (AHesistationTransliterationContent node) {
+  public void caseAHesitationTransliterationContent (AHesitationTransliterationContent node) {
     this.getAnnotationElementCollection().add(new Word(node));
   }
 }

@@ -21,6 +21,7 @@ Helpers
   special_chars = [ '<' + [ '>' +  [ ':' + [ '%' + [ '#' + [ '-' + [ '+' + [ '/' + '=' ]]]]]]]];
   word = [[string_chars - punctuation_chars ] - special_chars ]+;
   file_extension = '.s1h' | '.s1' | '.s2';
+  hesitating_lengthening = '<Z>';
 
 States
   header, transliteration, rest, timed_labels;
@@ -49,12 +50,11 @@ Tokens
   {transliteration} tech_break = '<;T>';
   {transliteration} breathing = '<A>';
   {transliteration} pause = '<P>';
-//  {transliteration} hesistational_lengthning = '<Z>';
-  {transliteration} vocal_hesistation =   '<"ahm>'
-                                        | '<hm>'
-                                        | '<"ah>';
+  {transliteration} vocal_hesitation =   '<"ahm>'
+                                       | '<hm>'
+                                       | '<"ah>';
 
-  {transliteration} non_vocal_hesistation =  '<h"as>';
+  {transliteration} non_vocal_hesitation =  '<h"as>';
   {transliteration} unidentified_utterance = '<%>';
   {transliteration} overlapping_boundary_begin_marker = '<:';
   {transliteration} overlapping_boundary_end_marker = ':>';
@@ -65,7 +65,7 @@ Tokens
   {transliteration} punctuation = punctuation_chars;
   {transliteration} speaker = word ': ';
   {transliteration} word = word | word '-' word;
-  {transliteration} hesist_word = '<Z>' | '<Z>' word; // TODO: optimize this without getting shift/reduce conflicts
+  {transliteration} hesit_word =  hesitating_lengthening word | (word hesitating_lengthening)+ word?;
 
   {rest} string = string;
 
@@ -84,16 +84,15 @@ Productions
                                         | {external_noise} external_noise
                                         | {breathing} breathing
                                         | {pause} pause
-                                        | {hesistation} non_vocal_hesistation
-;//                                        | {hesistational_lengthning} hesistational_lengthning;
+                                        | {hesitation} non_vocal_hesitation;
 
   // TODO: false start should be: false_start_begin_marker (transliteration_content+ false_start_end_marker)+
 
 
-  transliteration_content =   {word} word hesist_word* word_fragment_marker? truncation_marker?
-//                            | {hesist_word} word hesist_word? word_fragment_marker? truncation_marker?
+  transliteration_content =   {word} word word_fragment_marker? truncation_marker?
+                            | {hesit_word} hesit_word word_fragment_marker? truncation_marker?
                             | {non_vocal_utterance} transliteration_non_vocal_utterance word_fragment_marker? truncation_marker?
-                            | {hesistation} vocal_hesistation
+                            | {hesitation} vocal_hesitation
                             | {punctuation} punctuation
                             | {speaker} speaker
                             | {unidentified_utterance} unidentified_utterance truncation_marker?
@@ -107,8 +106,7 @@ Productions
                     | {overlapping_content} overlapping_boundary_begin_marker transliteration_content+ overlapping_boundary_end_marker;
 
   /*
-   * canonical transcription and realised form can be
-   * imprecise as we have all those informations in
-   * the last section (timed labels)
+   * canonical transcription, realised form and labels can be
+   * imprecise as we have all wanted informations for now
    */
   rest = string+;
