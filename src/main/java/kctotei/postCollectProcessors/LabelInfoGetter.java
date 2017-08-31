@@ -1,6 +1,7 @@
 package kctotei.postCollectProcessors;
 
 import kctotei.elements.Label;
+import kctotei.elements.StressType;
 
 /**
  * A label info getter analyzes a label and its children to get
@@ -178,6 +179,22 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
             label.setPhonIsReplaced(true);
             PhoneReplacementDetailsGetter prdg = new PhoneReplacementDetailsGetter(label);
             node.apply(prdg);
+          }
+        }
+
+        if (node.getClass() == labels.node.AStressedVowel.class || node.getClass() == labels.node.AStressedVowelDeletion.class) {
+          Boolean isPrimaryStress = true;
+          if (node.getClass() == labels.node.AStressedVowel.class) {
+            isPrimaryStress = ((labels.node.AStressedVowel) node).getLexicalStress().equals("'");
+          } else {
+            isPrimaryStress = ((labels.node.AStressedVowelDeletion) node).getLexicalStress().equals("'");
+          }
+          if (label.getPhonIsDeleted()) {
+            label.setModifiedPhoneIsStressed(true);
+            label.setModifiedPhoneStressType(new StressType().setPrimaryStressAndReturnStressType(isPrimaryStress));
+          } else {
+            label.setRealizedPhoneIsStressed(true);
+            label.setRealizedPhoneStressType(new StressType().setPrimaryStressAndReturnStressType(isPrimaryStress));
           }
         }
 

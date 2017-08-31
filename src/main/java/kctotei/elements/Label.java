@@ -26,6 +26,12 @@ public class Label extends TimedAnnotationElement<PTlabel> {
   private Boolean isNasalized;
   private Boolean isNasal;
 
+  private Boolean realizedPhoneIsStressed;
+  private Boolean modifiedPhoneIsStressed;
+
+  private StressType realizedPhoneStressType;
+  private StressType modifiedPhoneStressType;
+
   private String realizedPhon;
   private String modifiedPhon;
 
@@ -63,6 +69,10 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.setIsNasalizationModifier(false);
     this.setIsNasalized(false);
     this.setIsNasal(false);
+    this.setRealizedPhoneIsStressed(false);
+    this.setModifiedPhoneIsStressed(false);
+    this.setRealizedPhoneStressType(null);
+    this.setModifiedPhoneStressType(null);
     this.setRealizedPhon(null);
     this.setModifiedPhon(null);
     this.setIsVocalNoise(false);
@@ -177,6 +187,38 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
   public void setIsNasal (Boolean isNasal) {
     this.isNasal = isNasal;
+  }
+
+  public Boolean getRealizedPhoneIsStressed () {
+    return realizedPhoneIsStressed;
+  }
+
+  public void setRealizedPhoneIsStressed (Boolean realizedPhoneIsStressed) {
+    this.realizedPhoneIsStressed = realizedPhoneIsStressed;
+  }
+
+  public Boolean getModifiedPhoneIsStressed () {
+    return modifiedPhoneIsStressed;
+  }
+
+  public void setModifiedPhoneIsStressed (Boolean modifiedPhoneIsStressed) {
+    this.modifiedPhoneIsStressed = modifiedPhoneIsStressed;
+  }
+
+  public StressType getRealizedPhoneStressType () {
+    return realizedPhoneStressType;
+  }
+
+  public void setRealizedPhoneStressType (StressType realizedPhoneStressType) {
+    this.realizedPhoneStressType = realizedPhoneStressType;
+  }
+
+  public StressType getModifiedPhoneStressType () {
+    return modifiedPhoneStressType;
+  }
+
+  public void setModifiedPhoneStressType (StressType modifiedPhoneStressType) {
+    this.modifiedPhoneStressType = modifiedPhoneStressType;
   }
 
   public Boolean getIsVocalNoise () {

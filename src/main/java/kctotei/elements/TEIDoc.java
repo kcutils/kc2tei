@@ -264,13 +264,8 @@ public class TEIDoc {
     if (l != null && l.getIsPhon() && !l.getIgnorePhon()) {
 
       String realizedPhone = l.getRealizedPhon();
-      String canonicalPhone = l.getRealizedPhon();
+      String canonicalPhone = null;
 
-      if (l.getPhonIsDeleted() || l.getPhonIsReplaced()) {
-        canonicalPhone = l.getModifiedPhon();
-      }
-
-      canonicalPhone = this.getCharConverter().getUnicodeByASCII(canonicalPhone);
       realizedPhone = this.getCharConverter().getUnicodeByASCII(realizedPhone);
 
       if (realizedPhone != null) {
@@ -283,8 +278,31 @@ public class TEIDoc {
           realizedPhone = realizedPhone + this.getCharConverter().getUnicodeByASCII("nasalized");
         }
 
+        if (l.getRealizedPhoneIsStressed()) {
+          if (l.getRealizedPhoneStressType().isPrimary()) {
+            realizedPhone = this.getCharConverter().getUnicodeByASCII("pri_stress") + realizedPhone;
+          } else {
+            realizedPhone = this.getCharConverter().getUnicodeByASCII("sec_stress") + realizedPhone;
+          }
+        }
+
         this.setSpanCounter(this.getSpanCounter() + 1);
         realizedPhonesSpanGrp.addElement("span").addAttribute(FROM, l.getStartTime().getName()).addAttribute(TO, l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(realizedPhone);
+      }
+
+      if (l.getPhonIsDeleted() || l.getPhonIsReplaced()) {
+        canonicalPhone = l.getModifiedPhon();
+        canonicalPhone = this.getCharConverter().getUnicodeByASCII(canonicalPhone);
+
+        if (l.getModifiedPhoneIsStressed()) {
+          if (l.getModifiedPhoneStressType().isPrimary()) {
+            canonicalPhone = this.getCharConverter().getUnicodeByASCII("pri_stress") + canonicalPhone;
+          } else {
+            canonicalPhone = this.getCharConverter().getUnicodeByASCII("sec_stress") + canonicalPhone;
+          }
+        }
+      } else {
+        canonicalPhone = realizedPhone;
       }
 
       if (canonicalPhone != null) {
@@ -295,6 +313,9 @@ public class TEIDoc {
   }
 
   private void addPunctuation (Label p, Element utterance) throws JaxenException {
+
+    // TODO: How to deal with uncertain punctuations?
+
     if (p != null) {
       this.setPcCounter(this.getPcCounter() + 1);
       utterance.addElement("pc").addAttribute(XML_ID, "pc" + this.getPcCounter()).addText(p.getPunctuation());

@@ -112,6 +112,8 @@ public class KCSampaToIPAConverter {
     // diacritics
     convertTable.put("creaked", "\u0330");
     convertTable.put("nasalized", "\u0303");
+    convertTable.put("pri_stress", "\u028c" );
+    convertTable.put("sec_stress", "\u02cc" );
 
   }
 
