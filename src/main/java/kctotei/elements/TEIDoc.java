@@ -228,7 +228,7 @@ public class TEIDoc {
   }
 
   private void addPhone (Label l, Element canonicalPhonesSpanGrp, Element realizedPhonesSpanGrp) {
-    if (l != null && l.getIsPhon() && !l.getIgnorePhon() && l.getRealizedPhon() != null) {
+    if (l != null && l.getIsPhon() && !l.getIgnorePhon()) {
 
       String realizedPhone = l.getRealizedPhon();
       String canonicalPhone = l.getRealizedPhon();
