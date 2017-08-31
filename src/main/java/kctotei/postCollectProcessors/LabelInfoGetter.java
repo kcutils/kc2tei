@@ -58,6 +58,40 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
         label.setIsWordBegin(true);
       }
 
+      // detect punctuation labels
+      if (node.getClass() == labels.node.APunctuationLabel.class) {
+        label.setIsPunctuation(true);
+      }
+
+      // refine punctuation labels
+      if (label.getIsPunctuation()) {
+        if (node.getClass() == labels.node.ASentenceStartSentencePunctuation.class) {
+          label.setIgnorePunctuation(true);
+        }
+
+        if (node.getClass() == labels.node.ACommaPunctuationLabel.class) {
+          label.setPunctuation(",");
+        }
+
+        if (node.getClass() == labels.node.AFullStopSentencePunctuation.class) {
+          label.setPunctuation(".");
+          if (((labels.node.AFullStopSentencePunctuation) node).getUncertainty() != null) {
+            label.setPunctIsUncertain(true);
+          }
+        }
+
+        if (node.getClass() == labels.node.AQuestionMarkSentencePunctuation.class) {
+          label.setPunctuation("?");
+          if (((labels.node.AQuestionMarkSentencePunctuation) node).getUncertainty() != null) {
+            label.setPunctIsUncertain(true);
+          }
+        }
+
+        if (node.getClass() == labels.node.AExclamationMarkSentencePunctuation.class) {
+          label.setPunctuation("!");
+        }
+      }
+
       // detect vocal non verbal noise labels
       if (node.getClass() == labels.node.AVocalNoiseNonverbalLabel.class) {
         label.setIsVocalNoise(true);

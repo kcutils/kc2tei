@@ -9,7 +9,8 @@ import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.XPath;
 import org.jaxen.dom4j.Dom4jXPath;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,9 @@ public class TEIDoc {
   private KCSampaToIPAConverter charConverter;
 
   private Integer utteranceCounter;
+  private Integer wordCounter;
   private Integer spanCounter;
+  private Integer pcCounter;
 
   private TEIDoc () {
     this.setDoc(null);
@@ -50,7 +53,9 @@ public class TEIDoc {
     this.setAnnotationElements(null);
     this.setCharConverter(null);
     this.setUtteranceCounter(0);
+    this.setWordCounter(0);
     this.setSpanCounter(0);
+    this.setPcCounter(0);
 
   }
 
@@ -115,12 +120,28 @@ public class TEIDoc {
     this.utteranceCounter = utteranceCounter;
   }
 
+  public Integer getWordCounter () {
+    return wordCounter;
+  }
+
+  public void setWordCounter (Integer wordCounter) {
+    this.wordCounter = wordCounter;
+  }
+
   public Integer getSpanCounter () {
     return spanCounter;
   }
 
   public void setSpanCounter (Integer spanCounter) {
     this.spanCounter = spanCounter;
+  }
+
+  public Integer getPcCounter () {
+    return pcCounter;
+  }
+
+  public void setPcCounter (Integer pcCounter) {
+    this.pcCounter = pcCounter;
   }
 
   private void init () throws JaxenException {
@@ -182,7 +203,7 @@ public class TEIDoc {
     // we expect a sorted list of timed annotation elements
     for (TimedAnnotationElement t : this.getAnnotationElements().getAnnotationElements()) {
       if (t.getClass() == Word.class) {
-        addWordWithPhones((Word) t);
+        addWordWithPhonesAndPunctuations((Word) t);
       }
       if (t.getClass() == Label.class && ((Label) t).getIsVocalNoise() && !((Label) t).getVocalNoiseIsDeleted()) {
         addVocalNoise((Label) t);
@@ -199,9 +220,8 @@ public class TEIDoc {
     }
   }
 
-  private void addWordWithPhones (Word w) throws JaxenException {
+  private void addWordWithPhonesAndPunctuations (Word w) throws JaxenException {
     if (w != null && w.getStartTime() != null && w.getContent() != null && w.getEndTime() != null) {
-      this.setUtteranceCounter(this.getUtteranceCounter() + 1);
 
       if (this.getCharConverter() == null) {
         this.setCharConverter(new KCSampaToIPAConverter());
@@ -210,11 +230,23 @@ public class TEIDoc {
       // create TEI document elements for current word and related elements
       Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
                                                                                                                       addAttribute(START, w.getStartTime().getName()).addAttribute(END, w.getEndTime().getName());
-      annotationBlock.addElement("u").addAttribute(XML_ID, "u" + this.getUtteranceCounter()).addElement("w").addText(w.getContent().toString());
 
+      this.setUtteranceCounter(this.getUtteranceCounter() + 1);
+      Element utterance = annotationBlock.addElement("u").addAttribute(XML_ID, "u" + this.getUtteranceCounter());
 
+      this.setWordCounter(this.getWordCounter() + 1);
+      utterance.addElement("w").addAttribute(XML_ID, "w" + this.getWordCounter()).addText(w.getContent().toString());
+
+      // add punctuations
+      List<Label> punctuationLabels = this.getAnnotationElements().getListOfPunctuationsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
+      if (punctuationLabels != null) {
+        for (Label p : punctuationLabels) {
+          addPunctuation(p, utterance);
+        }
+      }
+
+      // add phones
       List<Label> phoneLabels = this.getAnnotationElements().getListOfPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
-
       if (phoneLabels != null) {
         // add realized and canonical phones to word
         Element realizedPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", REALIZED_PHONE_TYPE);
@@ -224,6 +256,7 @@ public class TEIDoc {
           addPhone(l, canonicalPhonesSpanGrp, realizedPhonesSpanGrp);
         }
       }
+
     }
   }
 
@@ -250,14 +283,21 @@ public class TEIDoc {
           realizedPhone = realizedPhone + this.getCharConverter().getUnicodeByASCII("nasalized");
         }
 
-        realizedPhonesSpanGrp.addElement("span").addAttribute(FROM, l.getStartTime().getName()).addAttribute(TO, l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(realizedPhone);
         this.setSpanCounter(this.getSpanCounter() + 1);
+        realizedPhonesSpanGrp.addElement("span").addAttribute(FROM, l.getStartTime().getName()).addAttribute(TO, l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(realizedPhone);
       }
 
       if (canonicalPhone != null) {
-        canonicalPhonesSpanGrp.addElement("span").addAttribute(FROM, l.getStartTime().getName()).addAttribute(TO, l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(canonicalPhone);
         this.setSpanCounter(this.getSpanCounter() + 1);
+        canonicalPhonesSpanGrp.addElement("span").addAttribute(FROM, l.getStartTime().getName()).addAttribute(TO, l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(canonicalPhone);
       }
+    }
+  }
+
+  private void addPunctuation (Label p, Element utterance) throws JaxenException {
+    if (p != null) {
+      this.setPcCounter(this.getPcCounter() + 1);
+      utterance.addElement("pc").addAttribute(XML_ID, "pc" + this.getPcCounter()).addText(p.getPunctuation());
     }
   }
 

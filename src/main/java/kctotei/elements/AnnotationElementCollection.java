@@ -71,19 +71,28 @@ public class AnnotationElementCollection {
     return buf.toString();
   }
 
-  public List<TimedAnnotationElement> getListOfAnnotationElementsStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
-    List<TimedAnnotationElement> rval = null;
+  private List<Label> getListOfLabelsWithinWordStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
+    Boolean firstWordBeginFound = false;
+    List<Label> rval = null;
 
     if (t1 != null && t2 != null) {
       rval = new ArrayList<>();
       for (TimedAnnotationElement e : this.getAnnotationElements()) {
         if (e.getStartTime() != null && e.getEndTime() != null) {
-          // TODO: gehoeren events vor einem Wort zu dem Wort oder zu dem vorigen?
-          // kommt wahrscheinlich drauf an, was das fuer ein event ist ...
-          //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t1) && e.getEndTime().equals(t1))) {
-          //if(e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2) && ! (e.getStartTime().equals(t2) && e.getEndTime().equals(t2))) {
           if (e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
-            rval.add(e);
+            if (e.getClass() == Label.class) {
+              if (((Label) e).getIsWordBegin()) {
+                if (! firstWordBeginFound) {
+                  firstWordBeginFound = true;
+                } else {
+                  // second word begin found which marks end of word in question
+                  break;
+                }
+              }
+              if (firstWordBeginFound) {
+                rval.add((Label) e);
+              }
+            }
           }
         }
       }
@@ -92,23 +101,26 @@ public class AnnotationElementCollection {
   }
 
   public List<Label> getListOfPhonesStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
-    Boolean firstWordBeginFound = false;
-    Boolean secondWordBeginFound = false;
     List<Label> rval = null;
-
     if (t1 != null && t2 != null) {
       rval = new ArrayList<>();
-      for (TimedAnnotationElement e : getListOfAnnotationElementsStartingWithAndNotEndingBefore(t1, t2)) {
-        if (e.getClass() == Label.class) {
-          if (((Label) e).getIsWordBegin() && firstWordBeginFound) {
-            secondWordBeginFound = true;
-          }
-          if (((Label) e).getIsWordBegin() && !firstWordBeginFound) {
-            firstWordBeginFound = true;
-          }
-          if (firstWordBeginFound && !secondWordBeginFound && ((Label) e).getIsPhon() && !((Label) e).getIgnorePhon()) {
-            rval.add((Label) e);
-          }
+      for (Label p : getListOfLabelsWithinWordStartingWithAndNotEndingBefore(t1, t2)) {
+        if (p.getIsPhon() && ! p.getIgnorePhon()) {
+          rval.add(p);
+        }
+      }
+    }
+    return rval;
+  }
+
+
+  public List<Label> getListOfPunctuationsStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
+    List<Label> rval = null;
+    if (t1 != null && t2 != null) {
+      rval = new ArrayList<>();
+      for (Label p : getListOfLabelsWithinWordStartingWithAndNotEndingBefore(t1, t2)) {
+        if (p.getIsPunctuation() && ! p.getIgnorePunctuation()) {
+          rval.add(p);
         }
       }
     }

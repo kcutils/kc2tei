@@ -35,6 +35,12 @@ public class Label extends TimedAnnotationElement<PTlabel> {
   private Boolean vocalNoiseIsDeleted;
   private String vocalNoiseType;
 
+  // punctuation
+  private Boolean isPunctuation;
+  private Boolean ignorePunctuation;
+  private String punctuation;
+  private Boolean punctIsUncertain;
+
   public Label (PTlabel pTlabel) {
     super(pTlabel);
     init();
@@ -63,6 +69,10 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.setIsPause(false);
     this.setVocalNoiseIsDeleted(false);
     this.setVocalNoiseType(null);
+    this.setIsPunctuation(false);
+    this.setIgnorePunctuation(false);
+    this.setPunctuation(null);
+    this.setPunctIsUncertain(false);
   }
 
   public Boolean getIsPhon () {
@@ -201,6 +211,38 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.vocalNoiseType = vocalNoiseType;
   }
 
+  public Boolean getIsPunctuation () {
+    return isPunctuation;
+  }
+
+  public void setIsPunctuation (Boolean isPunctuation) {
+    this.isPunctuation = isPunctuation;
+  }
+
+  public Boolean getIgnorePunctuation () {
+    return ignorePunctuation;
+  }
+
+  public void setIgnorePunctuation (Boolean ignorePunctuation) {
+    this.ignorePunctuation = ignorePunctuation;
+  }
+
+  public String getPunctuation () {
+    return punctuation;
+  }
+
+  public void setPunctuation (String punctuation) {
+    this.punctuation = punctuation;
+  }
+
+  public Boolean getPunctIsUncertain () {
+    return punctIsUncertain;
+  }
+
+  public void setPunctIsUncertain (Boolean punctIsUncertain) {
+    this.punctIsUncertain = punctIsUncertain;
+  }
+
   public String toString () {
     String rval = super.toString();
 
@@ -226,6 +268,12 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     rval = addTrueBooleansAndDescrToString(this.getIsVocalNoise(), "isVocalNoise", rval);
     rval = addTrueBooleansAndDescrToString(this.getVocalNoiseIsDeleted(), "vocalNoiseIsDeleted", rval);
     rval = addStringAndDescrToString(this.getVocalNoiseType(), "vocalNoiseType", rval);
+
+    // punctuation specifics
+    rval = addTrueBooleansAndDescrToString(this.getIsPunctuation(), "isPunctuation", rval);
+    rval = addTrueBooleansAndDescrToString(this.getIgnorePunctuation(), "ignorePunctuation", rval);
+    rval = addStringAndDescrToString(this.getPunctuation(), "punctuation", rval);
+    rval = addTrueBooleansAndDescrToString(this.getPunctIsUncertain(), "punctIsUncertain", rval);
 
     return rval;
   }
