@@ -75,7 +75,7 @@ public class LabelTranslation extends DepthFirstAdapter {
     this.getAnnotationElementCollection().add(currentAnnotationElement);
 
     // if last element is no event, correct it
-    if (this.getLastTimeMark() != null && !this.getLastTimeMark().equals(currentTimeMark)) {
+    if (this.getLastTimeMark() != null && !this.getLastTimeMark().isEqual(currentTimeMark)) {
       this.getLastAnnotationElement().setEndTime(currentTimeMark);
     }
 

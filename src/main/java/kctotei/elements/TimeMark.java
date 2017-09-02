@@ -25,7 +25,7 @@ public class TimeMark implements Comparable<TimeMark> {
     this.setTime(time);
   }
 
-  TimeMark (String name, String time) {
+  public TimeMark (String name, String time) {
     this(time);
     this.setName(name);
   }
@@ -35,7 +35,7 @@ public class TimeMark implements Comparable<TimeMark> {
     this.setName(name);
   }
 
-  String getName () {
+  public String getName () {
     return name;
   }
 
@@ -47,7 +47,7 @@ public class TimeMark implements Comparable<TimeMark> {
     }
   }
 
-  Float getTime () {
+  public Float getTime () {
     return time;
   }
 
@@ -75,7 +75,7 @@ public class TimeMark implements Comparable<TimeMark> {
    */
   public TimeMark returnMoreComplete (TimeMark t) {
     TimeMark rval = this;
-    if (t != null && this.equals(t) && this.getName() == null && t.getName() != null) {
+    if (t != null && this.isEqual(t) && this.getName() == null && t.getName() != null) {
       rval = t;
     }
     return rval;
@@ -90,26 +90,26 @@ public class TimeMark implements Comparable<TimeMark> {
    * false otherwise
    */
 
-  boolean equals (TimeMark t) {
+  public boolean isEqual (TimeMark t) {
     return t != null && this.getTime().equals(t.getTime()) && (
                         (this.getName() == null || t.getName() == null) ||
                          this.getName().equals(t.getName()));
   }
 
-  boolean isGreater (TimeMark t) {
-    return t != null && this.getTime() > t.getTime();
+  public boolean isGreater (TimeMark t) {
+    return t != null && this.getTime().compareTo(t.getTime()) > 0;
   }
 
-  boolean isSmaller (TimeMark t) {
-    return !equals(t) && !isGreater(t);
+  public boolean isSmaller (TimeMark t) {
+    return t != null && !isEqual(t) && !isGreater(t);
   }
 
-  boolean isGreaterOrEqual (TimeMark t) {
-    return equals(t) || isGreater(t);
+  public boolean isGreaterOrEqual (TimeMark t) {
+    return t != null && (isEqual(t) || isGreater(t));
   }
 
-  boolean isSmallerOrEqual (TimeMark t) {
-    return equals(t) || isSmaller(t);
+  public boolean isSmallerOrEqual (TimeMark t) {
+    return t != null && (isEqual(t) || isSmaller(t));
   }
 
   @Override
@@ -118,7 +118,7 @@ public class TimeMark implements Comparable<TimeMark> {
       throw(new NullPointerException());
     }
 
-    if (this.equals(o)) {
+    if (this.isEqual(o)) {
       return 0;
     }
 

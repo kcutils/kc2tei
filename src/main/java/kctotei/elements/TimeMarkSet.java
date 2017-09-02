@@ -41,7 +41,7 @@ public class TimeMarkSet {
 
       // check if the TimeMark is already in list in some way
       for (TimeMark tm : this.getList()) {
-        if (t.equals(tm)) {
+        if (t.isEqual(tm)) {
 
           // get the more complete TimeMark
           rval = tm.returnMoreComplete(t);
