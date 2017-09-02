@@ -14,7 +14,7 @@ public class TimeMarkSet {
 
   private List<TimeMark> list;
 
-  TimeMarkSet () {
+  public TimeMarkSet () {
     this.setList(new ArrayList<>());
   }
 
@@ -33,7 +33,7 @@ public class TimeMarkSet {
    * @param t the TimeMark object to add
    * @return the TimeMark object that is equal or identical to the TimeMark object that should be added and which is part of the set
    */
-  TimeMark addAndReturn (TimeMark t) {
+  public TimeMark addAndReturn (TimeMark t) {
     TimeMark rval = null;
 
     // do not add null objects to the set
