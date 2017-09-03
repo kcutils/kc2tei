@@ -320,19 +320,35 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     return rval;
   }
 
-  private String addStringAndDescrToString (String str, String descr, String r) {
-    String rval = r;
-    if (str != null && !str.equals("")) {
-      rval = rval + "  " + descr + ": " + str;
+  public String addStringAndDescrToString (String str, String descr, String r) {
+    String rval = null;
+    if (r != null) {
+      rval = r;
+    }
+    if (str != null && !str.replaceAll("\\s", "").equals("")) {
+      if (descr != null && ! descr.replaceAll("\\s", "").equals("")) {
+        if (rval == null) {
+          rval = "";
+        }
+        rval = rval + "  " + descr + ": " + str;
+      }
     }
     return rval;
   }
 
-  private String addTrueBooleansAndDescrToString (Boolean b, String descr, String r) {
-    String rval = r;
+  public String addTrueBooleansAndDescrToString (Boolean b, String descr, String r) {
+    String rval = null;
+    if (r != null) {
+      rval = r;
+    }
     // only add "true" booleans
     if (b != null && b) {
-      rval = rval + "  " + descr;
+      if (descr != null && !descr.replaceAll("\\s", "").equals("")) {
+        if (rval == null) {
+          rval = "";
+        }
+        rval = rval + "  " + descr;
+      }
     }
     return rval;
   }
