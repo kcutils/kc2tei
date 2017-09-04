@@ -99,7 +99,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib</classpathPrefix>
-              <mainClass>Main</mainClass>
+              <mainClass>kctotei.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -114,7 +114,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>Main</mainClass>
+              <mainClass>kctotei.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -127,6 +127,14 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+       <artifactId>maven-javadoc-plugin</artifactId>
+       <version>3.0.0-M1</version>
+        <configuration>
+          <show>package</show>
+        </configuration>
       </plugin>
 
     </plugins>

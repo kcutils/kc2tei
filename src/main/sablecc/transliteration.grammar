@@ -1,0 +1,112 @@
+Package transliteration;
+
+
+// character sets or regular expressions denoted by identifers
+Helpers
+  all = [0 .. 0xFFFF];
+  cr = 13;
+  lf = 10;
+  eol_chars = [cr + lf];
+  chars = [all - eol_chars];
+  tab = 9;
+  space = ' ';
+  whitespace_chars = [tab + space];
+  whitespaces = whitespace_chars+;
+  string_chars = [chars - whitespace_chars];
+  string = string_chars+;
+
+  digit = ['0' .. '9'];
+
+  punctuation_chars = [ '.' + [',' + [ '!' + [ '?' + [ ':' + ';' ]]]]];
+  special_chars = [ '<' + [ '>' +  [ ':' + [ '%' + [ '#' + [ '-' + [ '+' + [ '/' + '=' ]]]]]]]];
+  word = [[string_chars - punctuation_chars ] - special_chars ]+;
+  file_extension = '.s1h' | '.s1' | '.s2';
+  hesitating_lengthening = '<Z>';
+
+States
+  header, transliteration, rest, timed_labels;
+
+Tokens
+  {header->transliteration,transliteration,rest} eol = eol_chars;
+  {transliteration->rest} oend_marker = eol_chars 'oend' eol_chars;
+
+  {header} filename = string file_extension;
+  {transliteration} minus = '-';
+  {transliteration} body_noise =   '<Lachen>'
+                                 | '<Husten>'
+                                 | '<R"auspern>'
+                                 | '<Schmatzen>'
+                                 | '<Schlucken>'
+                                 | '<Ger"ausch>';
+  {transliteration} external_noise =   '<#Klicken>'
+                                     | '<#Klingeln>'
+                                     | '<#Klopfen>'
+                                     | '<#Kopfh>'
+                                     | '<#Mikrobe>'
+                                     | '<#Mikrowind>'
+                                     | '<#Quietschen>'
+                                     | '<#Rascheln>'
+                                     | '<#>';
+  {transliteration} tech_break = '<;T>';
+  {transliteration} breathing = '<A>';
+  {transliteration} pause = '<P>';
+  {transliteration} vocal_hesitation =   '<"ahm>'
+                                       | '<hm>'
+                                       | '<"ah>';
+
+  {transliteration} non_vocal_hesitation =  '<h"as>';
+  {transliteration} unidentified_utterance = '<%>';
+  {transliteration} overlapping_boundary_begin_marker = '<:';
+  {transliteration} overlapping_boundary_end_marker = ':>';
+  {transliteration} truncation_marker = '/-';
+  {transliteration} word_fragment_marker = '=';
+  {transliteration} false_start_begin_marker = '+/';
+  {transliteration} false_start_end_marker = '/+';
+  {transliteration} punctuation = punctuation_chars;
+  {transliteration} speaker = word ': ';
+  {transliteration} word = word | word '-' word;
+  {transliteration} hesit_word =  hesitating_lengthening word | (word hesitating_lengthening)+ word?;
+
+  {rest} string = string;
+
+  uncertainty = '%';
+
+  whitespaces = whitespaces;
+
+Ignored Tokens
+  whitespaces, eol;
+
+Productions
+  
+  file =  filename transliteration+ oend_marker rest;
+
+  transliteration_non_vocal_utterance =   {body_noise} body_noise
+                                        | {external_noise} external_noise
+                                        | {breathing} breathing
+                                        | {pause} pause
+                                        | {hesitation} non_vocal_hesitation;
+
+  // TODO: false start should be: false_start_begin_marker (transliteration_content+ false_start_end_marker)+
+
+
+  transliteration_content =   {word} word word_fragment_marker? truncation_marker?
+                            | {hesit_word} hesit_word word_fragment_marker? truncation_marker?
+                            | {non_vocal_utterance} transliteration_non_vocal_utterance word_fragment_marker? truncation_marker?
+                            | {hesitation} vocal_hesitation
+                            | {punctuation} punctuation
+                            | {speaker} speaker
+                            | {unidentified_utterance} unidentified_utterance truncation_marker?
+                            | {uncertainty} uncertainty
+                            | {technical_break} tech_break
+                            | {false_start_begin_marker} false_start_begin_marker
+                            | {false_start_end_marker} false_start_end_marker
+                            | {parenthesis_marker} minus;
+
+  transliteration =   {non_overlapping_content} transliteration_content
+                    | {overlapping_content} overlapping_boundary_begin_marker transliteration_content+ overlapping_boundary_end_marker;
+
+  /*
+   * canonical transcription, realised form and labels can be
+   * imprecise as we have all wanted informations for now
+   */
+  rest = string+;

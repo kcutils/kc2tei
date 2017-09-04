@@ -1,17 +1,16 @@
-import kc2tei.lexer.Lexer;
-import kc2tei.node.*;
-import kc2tei.parser.Parser;
-import kc2tei.analysis.DepthFirstAdapter;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.PushbackReader;
+import java.io.*;
 import java.util.Scanner;
 
+/**
+ * Class for testing if the lexer and parsers generated from grammars
+ * recognize things as expected by a human lexer/parser.
+ */
 public class GrammarTest {
+
+  private static final String TEST_CONF_FILE = "testFiles.conf";
 
   private int filenameCounter = 0;
   private int noiseCounter = 0;
@@ -23,168 +22,243 @@ public class GrammarTest {
   private int sentencePunctuationCounter = 0;
   private int wordBoundaryCounter = 0;
 
-
-  private Start lexParse(File file) throws Exception {
-
-    // create lexer
-    MyLexer l = new MyLexer(new PushbackReader(new FileReader(file), 1024));
-
-    // print states and tokens
-    while (true) {
-      Token t = l.next();
-      if (t instanceof EOF) {
-        break;
-      }
-      // DEBUG
-//      System.out.println("State: " + l.getStateId() + ", Token type: " + t.getClass() + ", Token: '" + t.getText() + "'");
-
-      classCounter(t.getClass());
-    }
-
-    // create new lexer with new file reader which reads from beginning of the file again
-    l = new MyLexer(new PushbackReader(new FileReader(file), 1024));
-
-    // create parser
-    Parser p = new Parser(l);
-
-    // return parsed content
-    return p.parse();
-  }
-
-  private void classCounter (Class c) {
-    if (c == kc2tei.node.TFilename.class) {
-      filenameCounter++;
-    }
-    // OK, not all of these things are noises ...
-    if (c == kc2tei.node.TBodyNoise.class || c == kc2tei.node.TExternalNoise.class || c == kc2tei.node.TBreathing.class || c == kc2tei.node.TPause.class || c == kc2tei.node.THesistationalLengthning.class) {
-      noiseCounter++;
-    }
-    if (c == kc2tei.node.TVocalNoiseH.class) {
-      vocalNoiseCounter++;
-    }
-    if (c == kc2tei.node.TSentenceStartSymbol.class) {
-      sentenceStartCounter++;
-    }
-    if (c == kc2tei.node.TPunctuation.class) {
-      punctuationCounter++;
-    }
-    if (c == kc2tei.node.TWordBoundaryPrefix.class) {
-      wordBoundaryCounter++;
-    }
-  }
-
+  /**
+   * Read the test configuration file and get from it files to check lexer/parser against and
+   * expected values lexer/parser should produce if they do their business right.
+   */
   @Test
-  public void processTestFiles() throws Exception {
-    Scanner read = new Scanner (new File(getClass().getResource("testFiles.conf").getFile()));
+  public void processTestFiles () throws Exception {
+    BufferedReader reader = new BufferedReader(new FileReader(new File(getClass().getResource(TEST_CONF_FILE).getFile())));
 
-    String fileName;
-    Integer expectedNoises, expectedVocalNoises, expectedSentenceStarts, expectedSentencePunctuations, expectedPunctuations, expectedWords, expectedWordBoundaries;
+    String line = null;
+    Scanner scanner = null;
+    int i = 0;
+    String fileName = null;
+    Integer expectedNoises = null;
+    Integer expectedVocalNoises = null;
+    Integer expectedSentenceStarts = null;
+    Integer expectedSentencePunctuations = null;
+    Integer expectedPunctuations = null;
+    Integer expectedWords = null;
+    Integer expectedWordBoundaries = null;
 
-    read.useDelimiter(",");
+    while ((line = reader.readLine()) != null) {
+      scanner = new Scanner(line);
+      scanner.useDelimiter(",");
 
-    while (read.hasNext()) {
-      fileName = read.next();
-      if (fileName.trim().startsWith("#")) {
-        read.nextLine();
-        continue;
+      i = 0;
+      fileName = null;
+      expectedNoises = null;
+      expectedVocalNoises = null;
+      expectedSentenceStarts = null;
+      expectedSentencePunctuations = null;
+      expectedPunctuations = null;
+      expectedWords = null;
+      expectedWordBoundaries = null;
+
+      while (scanner.hasNext()) {
+        String field = scanner.next();
+        if (field.trim().startsWith("#")) {
+          // comment line found
+          break;
+        }
+        // at the moment our csv file has 8 fields
+        switch (i) {
+          case 0: fileName = field;
+                  break;
+          case 1: expectedNoises = Integer.valueOf(field);
+                  break;
+          case 2: expectedVocalNoises = Integer.valueOf(field);
+                  break;
+          case 3: expectedSentenceStarts = Integer.valueOf(field);
+                  break;
+          case 4: expectedSentencePunctuations = Integer.valueOf(field);
+                  break;
+          case 5: expectedPunctuations = Integer.valueOf(field);
+                  break;
+          case 6: expectedWords = Integer.valueOf(field);
+                  break;
+          case 7: expectedWordBoundaries = Integer.valueOf(field);
+                  break;
+          default:
+                  // ignore additional fields/values
+                  break;
+        }
+
+        i++;
       }
-      expectedNoises = Integer.valueOf(read.next());
-      expectedVocalNoises = Integer.valueOf(read.next());
-      expectedSentenceStarts = Integer.valueOf(read.next());
-      expectedSentencePunctuations = Integer.valueOf(read.next());
-      expectedPunctuations = Integer.valueOf(read.next());
-      expectedWords = Integer.valueOf(read.next());
-      expectedWordBoundaries = Integer.valueOf(read.next());
-
-      testLexParse(fileName, expectedNoises, expectedVocalNoises, expectedSentenceStarts, expectedSentencePunctuations, expectedPunctuations, expectedWords, expectedWordBoundaries);
-
+      if (scanner != null) {
+        scanner.close();
+      }
+      if (fileName != null && expectedNoises != null && expectedVocalNoises != null && expectedSentenceStarts != null && expectedSentencePunctuations != null && expectedPunctuations != null && expectedWords != null && expectedWordBoundaries != null) {
+        testLexParse(fileName, expectedNoises, expectedVocalNoises, expectedSentenceStarts, expectedSentencePunctuations, expectedPunctuations, expectedWords, expectedWordBoundaries);
+      }
     }
-
-    read.close();
+   reader.close();
 
   }
 
-
-  public void testLexParse(String fileName, Integer expectedNoises, Integer expectedVocalNoises, Integer expectedSentenceStarts, Integer expectedSentencePunctuations, Integer expectedPunctuations, Integer expectedWords, Integer expectedWordBoundaries) throws Exception {
+  /**
+   * Lex and parse file and compare found values with expected values
+   */
+  public void testLexParse (String fileName, Integer expectedNoises, Integer expectedVocalNoises, Integer expectedSentenceStarts, Integer expectedSentencePunctuations, Integer expectedPunctuations, Integer expectedWords, Integer expectedWordBoundaries) throws Exception {
 
     System.out.println("\n\n\n----------------------------------------------------------------------");
     System.out.println("Processing " + fileName + " ...\n");
 
     filenameCounter = 0;
     noiseCounter = 0;
-    vocalNoiseCounter= 0;
+    vocalNoiseCounter = 0;
     sentenceStartCounter = 0;
     sentencePunctuationCounter = 0;
     punctuationCounter = 0;
     wordCounter = 0;
     wordBoundaryCounter = 0;
 
-    //Start tree = lexParse(new File(getClass().getResource("/sample_kc_file.s1h").getFile()));
-    Start tree = lexParse(new File(getClass().getResource(fileName).getFile()));
+    transliteration.node.Start translitTree = lexParseTranslit(new File(getClass().getResource(fileName).getFile()));
 
-    Assert.assertNotNull(tree); // parsing went wrong?!
-    tree.apply(new testTranslator());
+    Assert.assertNotNull(translitTree); // parsing went wrong?!
+    translitTree.apply(new testTranslitTranslator());
 
-    System.out.println(filenameCounter + " filenames found.");
-    System.out.println(noiseCounter + " noises in orthography found, " + expectedNoises + " expected.");
-    System.out.println(vocalNoiseCounter + " vocal noises found, " + expectedVocalNoises + " expected.");
-    System.out.println(sentenceStartCounter + " sentence starts found, " + expectedSentenceStarts + " expected.");
-    System.out.println(sentencePunctuationCounter + " sentence punctuations found, " + expectedSentencePunctuations + " expected.");
-    System.out.println(punctuationCounter + " punctuations found, " + expectedPunctuations + " expected.");
-    System.out.println(wordCounter + " words found, " + expectedWords + " expected.");
-    System.out.println(wordBoundaryCounter + " word boundaries found, " + expectedWordBoundaries + " expected.");
+    labels.node.Start labelsTree = lexParseLabels(new File(getClass().getResource(fileName).getFile()));
 
+    Assert.assertNotNull(labelsTree); // parsing went wrong?!
+    labelsTree.apply(new testLabelsTranslator());
+
+    System.out.println(filenameCounter + "/1 filenames (transliteration)");
+    System.out.println(noiseCounter + "/" + expectedNoises + " noises (transliteration)");
+    System.out.println(vocalNoiseCounter + "/" + expectedVocalNoises + " vocal noises (transliteration)");
+    System.out.println(sentenceStartCounter + "/" + expectedSentenceStarts + " sentence starts (labels)");
+    System.out.println(sentencePunctuationCounter + "/" + expectedSentencePunctuations + " sentence punctuations (labels)");
+    System.out.println(punctuationCounter + "/" + expectedPunctuations + " punctuations (transliteration)");
+    System.out.println(wordCounter + "/" + expectedWords + " words (transliteration)");
+    System.out.println(wordBoundaryCounter + "/" + expectedWordBoundaries + " word boundaries (labels)");
+
+    Assert.assertTrue(filenameCounter == 1);
     Assert.assertTrue(noiseCounter == expectedNoises);
-    //TODO Assert.assertTrue(vocalNoiseCounter == expectedVocalNoises);
+    Assert.assertTrue(vocalNoiseCounter == expectedVocalNoises);
     Assert.assertTrue(sentenceStartCounter == expectedSentenceStarts);
     Assert.assertTrue(sentencePunctuationCounter == expectedSentencePunctuations);
     Assert.assertTrue(punctuationCounter == expectedPunctuations);
     Assert.assertTrue(wordCounter == expectedWords);
     Assert.assertTrue(wordBoundaryCounter == expectedWordBoundaries);
 
-    Assert.assertTrue(filenameCounter == 1); // each file has at least one filename
-    if (sentenceStartCounter > 0) {
-      //  Assert.assertTrue(punctuationCounter >= sentenceStartCounter);
-      Assert.assertTrue(sentencePunctuationCounter == sentenceStartCounter); // each starting sentence ends
-      Assert.assertTrue(punctuationCounter >= sentencePunctuationCounter); // a sentence punctuation is a punctuation
-    }
-    Assert.assertTrue(wordBoundaryCounter == wordCounter );
 
     System.out.println("\nEnd of processing of " + fileName + " .");
     System.out.println("----------------------------------------------------------------------");
 
   }
 
-  public class MyLexer extends Lexer {
-    public MyLexer(java.io.PushbackReader in) {
-      super(in);
-    }
+  /**
+   * Generate lexer and parser for transliteration section
+   *
+   * @param file  the file that should be lexed/parsed
+   * @return Start node of tree generated by parser
+   * @throws IOException  on file write/read problems
+   * @throws transliteration.lexer.LexerException  on lexer problems
+   * @throws transliteration.parser.ParserException  on parser problems
+   */
+  private transliteration.node.Start lexParseTranslit (File file) throws IOException, transliteration.lexer.LexerException, transliteration.parser.ParserException {
+    // create lexer
+    transliteration.lexer.Lexer l = new transliteration.lexer.Lexer(new PushbackReader(new FileReader(file), 1024));
 
-    public int getStateId() {
-      return this.state.id();
-    }
+    // create new lexer with new file reader which reads from beginning of the file again
+    l = new transliteration.lexer.Lexer(new PushbackReader(new FileReader(file), 1024));
+
+    // create parser
+    transliteration.parser.Parser p = new transliteration.parser.Parser(l);
+
+    // return parsed content
+    return p.parse();
   }
 
-  public class testTranslator extends DepthFirstAdapter {
+  /**
+   * Generate lexer and parser for labels section
+   *
+   * @param file  the file that should be lexed/parsed
+   * @return Start node of tree generated by parser
+   * @throws IOException  on file write/read problems
+   * @throws labels.lexer.LexerException  on lexer problems
+   * @throws labels.parser.ParserException  on parser problems
+   */
+  private labels.node.Start lexParseLabels (File file) throws IOException, labels.lexer.LexerException, labels.parser.ParserException {
+    // create lexer
+    labels.lexer.Lexer l = new labels.lexer.Lexer(new PushbackReader(new FileReader(file), 1024));
 
-    public void caseTWord(TWord node) {
+    // create new lexer with new file reader which reads from beginning of the file again
+    l = new labels.lexer.Lexer(new PushbackReader(new FileReader(file), 1024));
+
+    // create parser
+    labels.parser.Parser p = new labels.parser.Parser(l);
+
+    // return parsed content
+    return p.parse();
+  }
+
+  /**
+   * pick some relevant data from transliteration section
+   */
+  public class testTranslitTranslator extends transliteration.analysis.DepthFirstAdapter {
+
+    public void caseTFilename (transliteration.node.TFilename node) {
+      filenameCounter++;
+    }
+
+    public void caseABodyNoiseTransliterationNonVocalUtterance (transliteration.node.ABodyNoiseTransliterationNonVocalUtterance node) {
+      noiseCounter++;
+    }
+
+    public void caseAExternalNoiseTransliterationNonVocalUtterance (transliteration.node.AExternalNoiseTransliterationNonVocalUtterance node) {
+      noiseCounter++;
+    }
+
+    public void caseABreathingTransliterationNonVocalUtterance (transliteration.node.ABreathingTransliterationNonVocalUtterance node) {
+      noiseCounter++;
+    }
+
+    public void caseAHesitationTransliterationContent (transliteration.node.AHesitationTransliterationContent node) {
+      vocalNoiseCounter++;
       wordCounter++;
     }
 
-    public void caseTHesistation(THesistation node) {
+    public void caseTWord (transliteration.node.TWord node) {
       wordCounter++;
     }
 
-    public void caseAFullStopSentencePunctuation (AFullStopSentencePunctuation node) {
-      sentencePunctuationCounter++;
+    public void caseTHesitWord (transliteration.node.THesitWord node) {
+      wordCounter++;
     }
-    public void caseAQuestionMarkSentencePunctuation (AQuestionMarkSentencePunctuation node) {
-      sentencePunctuationCounter++;
+
+    public void caseTPunctuation (transliteration.node.TPunctuation node) {
+      punctuationCounter++;
     }
-    public void caseAExclamationMarkSentencePunctuation (AExclamationMarkSentencePunctuation node) {
+
+  }
+
+  /**
+   * pick some relevant data from label section
+   */
+  public class testLabelsTranslator extends labels.analysis.DepthFirstAdapter {
+
+    public void caseTSentenceStartSymbol (labels.node.TSentenceStartSymbol node) {
+      sentenceStartCounter++;
+    }
+
+    public void caseAFullStopSentencePunctuation (labels.node.AFullStopSentencePunctuation node) {
       sentencePunctuationCounter++;
     }
 
+    public void caseAQuestionMarkSentencePunctuation (labels.node.AQuestionMarkSentencePunctuation node) {
+      sentencePunctuationCounter++;
+    }
+
+    public void caseAExclamationMarkSentencePunctuation (labels.node.AExclamationMarkSentencePunctuation node) {
+      sentencePunctuationCounter++;
+    }
+
+    public void caseTWordBoundaryPrefix (labels.node.TWordBoundaryPrefix node) {
+      wordBoundaryCounter++;
+    }
   }
 }
 

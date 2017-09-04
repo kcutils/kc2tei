@@ -3,7 +3,6 @@
 FILE_LIST=
 
 GOOD_FILES_LIST="good_kcfiles.tmp"
-BAD_FILES_LIST="bad_kcfiles.tmp"
 
 CONVERTER="./kc2tei.sh"
 
@@ -21,14 +20,11 @@ EOL
 
 clean_exit () {
   wait
+  ALL_COUNTER=$(( $ALL_COUNTER + $COUNTER ))
   echo
   echo "$ALL_COUNTER files processed."
-  if [ -f "$GOOD_FILES_LIST" ]; then
-    echo "files without conversion problems: $GOOD_FILES_LIST"
-  fi
-  if [ -f "$BAD_FILES_LIST" ]; then
-    echo "files with conversion problems: $BAD_FILES_LIST"
-  fi
+  echo
+  wc -l $GOOD_FILES_LIST *problem_files.tmp
   exit
 }
 
@@ -61,13 +57,11 @@ FILES=$( cat "$FILE_LIST" )
 # without needing to start from the very beginning each time
 #
 
-if [ -f "$BAD_FILES_LIST" ]; then
-  BAD_FILES=$( cat "$BAD_FILES_LIST" )
+BAD_FILES=$( cat *problem_files.tmp )
 
-  for BAD_FILE in $BAD_FILES; do
-    FILES=$( echo "$FILES" | grep -v "$BAD_FILE" )
-  done
-fi
+for BAD_FILE in $BAD_FILES; do
+  FILES=$( echo "$FILES" | grep -v "$BAD_FILE" )
+done
 
 if [ -f "$GOOD_FILES_LIST" ]; then
   GOOD_FILES=$( cat "$GOOD_FILES_LIST" )
@@ -101,9 +95,39 @@ for FILE in $FILES; do
   OUT=$( $CONVERTER -i "$FILE" 2>&1 )
 
   if [ $? -ne 0 ]; then
-    echo "$FILE" >> $BAD_FILES_LIST
+    OUT_A=$( echo "$OUT" | grep Exception )
+    if [ "$OUT_A" != "" ]; then
+      OUT_A=$( echo "$OUT" | grep Parser )
+      if [ "$OUT_A" != "" ]; then
+        OUT_A=$( echo "$OUT" | grep translit )
+        if [ "$OUT_A" != "" ]; then
+          echo "$FILE" >> translit_parser_exception_problem_files.tmp
+        else
+          echo "$FILE" >> label_parser_exception_problem_files.tmp
+        fi
+      else
+        echo "$FILE" >> exception_problem_files.tmp
+      fi
+    else
+      OUT_A=$( echo "$OUT" | grep "Amount of words" )
+      if [ "$OUT_A" != "" ]; then
+        echo "$FILE" >> word_amount_problem_files.tmp
+      else
+        OUT_A=$( echo "$OUT" | grep -i unicode )
+        if [ "$OUT_A" != "" ]; then
+          echo "$FILE" >> unicode_problem_files.tmp
+        else
+          echo "$FILE" >> problem_files.tmp
+        fi
+      fi
+    fi
   else
-    echo "$FILE" >> $GOOD_FILES_LIST
+    OUT_A=$( echo "$OUT" | grep null )
+    if [ "$OUT_A" != "" ]; then
+      echo "$FILE" >> strange_output_problem_files.tmp
+    else
+      echo "$FILE" >> $GOOD_FILES_LIST
+    fi
   fi
 
   COUNTER=$(( COUNTER + 1 ))

@@ -1,16 +1,31 @@
-import java.util.HashMap;
+package kctotei;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * A KC-Sampa to IPA converter converts phonetic information
+ * that can occur in the Kiel Corpus and that is denoted in modified
+ * Sampa to Unicode characters that can be used to represent IPA
+ * characters.
+ *
+ */
 public class KCSampaToIPAConverter {
- 
-  private HashMap<String,String> convertTable = new HashMap<>();
+
+  private final Map<String, String> convertTable;
 
   // for checks/debug
-  private Integer noHits = 0;
-  private Boolean debugMode = false;
+  private Integer noHits;
+  private Boolean debugMode;
+
 
   public KCSampaToIPAConverter () {
 
-    // init hashmap
+    this.setNoHits(0);
+    this.setDebugMode(false);
+
+    // init map
+    convertTable = new HashMap<>();
 
     // german vowels
     convertTable.put("a", "\u0061");
@@ -18,6 +33,7 @@ public class KCSampaToIPAConverter {
     convertTable.put("e:", "\u0065\u02D0");
     convertTable.put("E", "\u025B");
     convertTable.put("i:", "\u0069\u02D0");
+    convertTable.put("i", "\u0069");
     convertTable.put("I", "\u026A");
     convertTable.put("o:", "\u006F\u02D0");
     convertTable.put("O", "\u0254");
@@ -93,12 +109,48 @@ public class KCSampaToIPAConverter {
     convertTable.put("u:6", "\u0075\u02D0\u0250");
     convertTable.put("2:6", "\u00F8\u02D0\u0250");
 
-    // diacritica
+    // diacritics
     convertTable.put("creaked", "\u0330");
     convertTable.put("nasalized", "\u0303");
+    convertTable.put("pri_stress", "\u028c" );
+    convertTable.put("sec_stress", "\u02cc" );
 
   }
 
+  public KCSampaToIPAConverter (Boolean debugMode) {
+    this();
+    this.setDebugMode(debugMode);
+  }
+
+  public Integer getNoHits () {
+    return noHits;
+  }
+
+  public void setNoHits (Integer noHits) {
+    this.noHits = noHits;
+  }
+
+  public Boolean getDebugMode () {
+    return this.debugMode;
+  }
+
+  public void setDebugMode (Boolean b) {
+    this.debugMode = b;
+  }
+
+  /**
+   * Converts a given ASCII/KC-Sampa String to the equivalent
+   * Unicode string. Therefore this method looks up the proper
+   * values in the "dictionary"/map.
+   *
+   * This method counts the missing entries for later error checking.
+   *
+   * In debug mode this method marks missing entries.
+   *
+   *
+   * @param in   the string to be converted
+   * @return     the converted string
+   */
   public String getUnicodeByASCII (String in) {
     String rval = null;
 
@@ -106,8 +158,8 @@ public class KCSampaToIPAConverter {
       if (convertTable.get(in) != null) {
         rval = convertTable.get(in);
       } else {
-        noHits++;
-        if (debugMode) {
+        this.setNoHits(this.getNoHits() + 1);
+        if (this.getDebugMode()) {
           rval = "XSAMPA: " + in;
         } else {
           rval = in;
@@ -116,13 +168,5 @@ public class KCSampaToIPAConverter {
     }
 
     return rval;
-  }
-
-  public Integer getNoHits () {
-    return noHits;
-  }
-
-  public void setDebugMode (Boolean b) {
-    this.debugMode = b;
   }
 }
