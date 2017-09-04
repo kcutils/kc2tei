@@ -179,6 +179,7 @@ public class PostCollectProcessor {
 
         if (l.getIsPhon() && creakModifierFound) {
           l.setIsCreaked(true);
+          creakModifierFound = false;
         }
 
         if (l.getIsCreakModifier()) {
