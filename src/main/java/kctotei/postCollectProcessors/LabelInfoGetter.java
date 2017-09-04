@@ -185,9 +185,9 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
         if (node.getClass() == labels.node.AStressedVowel.class || node.getClass() == labels.node.AStressedVowelDeletion.class) {
           Boolean isPrimaryStress = true;
           if (node.getClass() == labels.node.AStressedVowel.class) {
-            isPrimaryStress = ((labels.node.AStressedVowel) node).getLexicalStress().equals("'");
+            isPrimaryStress = ((labels.node.AStressedVowel) node).getLexicalStress().toString().contains("'");
           } else {
-            isPrimaryStress = ((labels.node.AStressedVowelDeletion) node).getLexicalStress().equals("'");
+            isPrimaryStress = ((labels.node.AStressedVowelDeletion) node).getLexicalStress().toString().contains("'");
           }
           if (label.getPhonIsDeleted()) {
             label.setModifiedPhoneIsStressed(true);

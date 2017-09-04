@@ -268,6 +268,13 @@ public class TEIDoc {
 
       realizedPhone = this.getCharConverter().getUnicodeByASCII(realizedPhone);
 
+      if (l.getPhonIsDeleted() || l.getPhonIsReplaced()) {
+        canonicalPhone = l.getModifiedPhon();
+        canonicalPhone = this.getCharConverter().getUnicodeByASCII(canonicalPhone);
+      } else {
+        canonicalPhone = realizedPhone;
+      }
+
       if (realizedPhone != null) {
 
         if (l.getIsCreaked()) {
@@ -290,10 +297,7 @@ public class TEIDoc {
         realizedPhonesSpanGrp.addElement("span").addAttribute(FROM, l.getStartTime().getName()).addAttribute(TO, l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(realizedPhone);
       }
 
-      if (l.getPhonIsDeleted() || l.getPhonIsReplaced()) {
-        canonicalPhone = l.getModifiedPhon();
-        canonicalPhone = this.getCharConverter().getUnicodeByASCII(canonicalPhone);
-
+      if (canonicalPhone != null) {
         if (l.getModifiedPhoneIsStressed()) {
           if (l.getModifiedPhoneStressType().isPrimary()) {
             canonicalPhone = this.getCharConverter().getUnicodeByASCII("pri_stress") + canonicalPhone;
@@ -301,11 +305,6 @@ public class TEIDoc {
             canonicalPhone = this.getCharConverter().getUnicodeByASCII("sec_stress") + canonicalPhone;
           }
         }
-      } else {
-        canonicalPhone = realizedPhone;
-      }
-
-      if (canonicalPhone != null) {
         this.setSpanCounter(this.getSpanCounter() + 1);
         canonicalPhonesSpanGrp.addElement("span").addAttribute(FROM, l.getStartTime().getName()).addAttribute(TO, l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(canonicalPhone);
       }
