@@ -37,6 +37,12 @@ public class AnnotationElementCollection {
     this.annotationElements = annotationElements;
   }
 
+  /**
+   * Add timed annotation element to collection and be sure it has time marks from a set of
+   * time marks where all time marks have a unique time.
+   *
+   * @param t TimedAnnotationElement to add to collection
+   */
   public void add (TimedAnnotationElement t) {
 
     if (t != null) {
