@@ -153,10 +153,11 @@ public class TEIDoc {
     addElementFoundByXpath("/tei:TEI").addElement("text");
 
     // add timeline
+    addElementFoundByXpath("/tei:TEI/tei:text").addElement("front");
     addTimeLineEntries();
 
     // add body
-    addElementFoundByXpath("/tei:TEI/tei:text").addElement("body").addElement("p").addText("dummy");
+    addElementFoundByXpath("/tei:TEI/tei:text").addElement("body");
 
     // add content
     addContent();
@@ -190,10 +191,10 @@ public class TEIDoc {
   private void addTimeLineEntries () throws JaxenException {
 
     // set reference point
-    addElementFoundByXpath("/tei:TEI/tei:text").addElement("timeline").addAttribute("unit", "s").addElement("when").addAttribute(XML_ID, "T0");
+    addElementFoundByXpath("/tei:TEI/tei:text/tei:front").addElement("timeline").addAttribute("unit", "s").addElement("when").addAttribute(XML_ID, "T0");
 
     for (int i = 0; i < annotationElements.getTimeMarkerList().size(); i++) {
-      addElementFoundByXpath("/tei:TEI/tei:text/tei:timeline").addElement("when").addAttribute(XML_ID, annotationElements.getTimeMarkerList().get(i).getName()).
+      addElementFoundByXpath("/tei:TEI/tei:text/tei:front/tei:timeline").addElement("when").addAttribute(XML_ID, annotationElements.getTimeMarkerList().get(i).getName()).
                                                                                                                                                                      addAttribute("interval", Float.toString(annotationElements.getTimeMarkerList().get(i).getTime())).
                                                                                                                                                                                                                                                                           addAttribute("since", "#T0");
     }
@@ -213,10 +214,10 @@ public class TEIDoc {
 
   private void addVocalNoise (Label v) throws JaxenException {
     if (v != null && !v.getIsPause()) {
-      Element vocal = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("vocal").addAttribute(START, v.getStartTime().getName()).addAttribute(END, v.getEndTime().getName());
+      Element vocal = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("vocal").addAttribute(START, "#" + v.getStartTime().getName()).addAttribute(END, "#" + v.getEndTime().getName());
       vocal.addElement("desc").addText(v.getVocalNoiseType());
     } else {
-      addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("pause").addAttribute(START, v.getStartTime().getName()).addAttribute(END, v.getEndTime().getName());
+      addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("pause").addAttribute(START, "#" + v.getStartTime().getName()).addAttribute(END, "#" + v.getEndTime().getName());
     }
   }
 
@@ -229,13 +230,13 @@ public class TEIDoc {
 
       // create TEI document elements for current word and related elements
       Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
-                                                                                                                      addAttribute(START, w.getStartTime().getName()).addAttribute(END, w.getEndTime().getName());
+                                                                                                                      addAttribute(START, "#" + w.getStartTime().getName()).addAttribute(END, "#" + w.getEndTime().getName());
 
       this.setUtteranceCounter(this.getUtteranceCounter() + 1);
       Element utterance = annotationBlock.addElement("u").addAttribute(XML_ID, "u" + this.getUtteranceCounter());
 
       this.setWordCounter(this.getWordCounter() + 1);
-      utterance.addElement("w").addAttribute(XML_ID, "w" + this.getWordCounter()).addText(w.getContent().toString());
+      utterance.addElement("w").addAttribute(XML_ID, "w" + this.getWordCounter()).addText(replaceSpecialCharsInWord(w.getContent().toString()));
 
       // add punctuations
       List<Label> punctuationLabels = this.getAnnotationElements().getListOfPunctuationsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
@@ -268,9 +269,28 @@ public class TEIDoc {
 
       realizedPhone = this.getCharConverter().getUnicodeByASCII(realizedPhone);
 
+      if (realizedPhone != null) {
+        if (l.getRealizedPhoneIsStressed()) {
+          if (l.getRealizedPhoneStressType().isPrimary()) {
+            realizedPhone = this.getCharConverter().getUnicodeByASCII("pri_stress") + realizedPhone;
+          } else {
+            realizedPhone = this.getCharConverter().getUnicodeByASCII("sec_stress") + realizedPhone;
+          }
+        }
+      }
+
       if (l.getPhonIsDeleted() || l.getPhonIsReplaced()) {
         canonicalPhone = l.getModifiedPhon();
         canonicalPhone = this.getCharConverter().getUnicodeByASCII(canonicalPhone);
+        if (canonicalPhone != null) {
+          if (l.getModifiedPhoneIsStressed()) {
+            if (l.getModifiedPhoneStressType().isPrimary()) {
+              canonicalPhone = this.getCharConverter().getUnicodeByASCII("pri_stress") + canonicalPhone;
+            } else {
+              canonicalPhone = this.getCharConverter().getUnicodeByASCII("sec_stress") + canonicalPhone;
+            }
+          }
+        }
       } else {
         canonicalPhone = realizedPhone;
       }
@@ -285,28 +305,13 @@ public class TEIDoc {
           realizedPhone = realizedPhone + this.getCharConverter().getUnicodeByASCII("nasalized");
         }
 
-        if (l.getRealizedPhoneIsStressed()) {
-          if (l.getRealizedPhoneStressType().isPrimary()) {
-            realizedPhone = this.getCharConverter().getUnicodeByASCII("pri_stress") + realizedPhone;
-          } else {
-            realizedPhone = this.getCharConverter().getUnicodeByASCII("sec_stress") + realizedPhone;
-          }
-        }
-
         this.setSpanCounter(this.getSpanCounter() + 1);
-        realizedPhonesSpanGrp.addElement("span").addAttribute(FROM, l.getStartTime().getName()).addAttribute(TO, l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(realizedPhone);
+        realizedPhonesSpanGrp.addElement("span").addAttribute(FROM, "#" + l.getStartTime().getName()).addAttribute(TO, "#" + l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(realizedPhone);
       }
 
       if (canonicalPhone != null) {
-        if (l.getModifiedPhoneIsStressed()) {
-          if (l.getModifiedPhoneStressType().isPrimary()) {
-            canonicalPhone = this.getCharConverter().getUnicodeByASCII("pri_stress") + canonicalPhone;
-          } else {
-            canonicalPhone = this.getCharConverter().getUnicodeByASCII("sec_stress") + canonicalPhone;
-          }
-        }
         this.setSpanCounter(this.getSpanCounter() + 1);
-        canonicalPhonesSpanGrp.addElement("span").addAttribute(FROM, l.getStartTime().getName()).addAttribute(TO, l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(canonicalPhone);
+        canonicalPhonesSpanGrp.addElement("span").addAttribute(FROM, "#" + l.getStartTime().getName()).addAttribute(TO, "#" + l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(canonicalPhone);
       }
     }
   }
@@ -319,6 +324,29 @@ public class TEIDoc {
       this.setPcCounter(this.getPcCounter() + 1);
       utterance.addElement("pc").addAttribute(XML_ID, "pc" + this.getPcCounter()).addText(p.getPunctuation());
     }
+  }
+
+  /**
+   * Gets a word and replaces special chars (e.g. umlauts)
+   * @param w word with simplified special chars
+   * @return  word with "real" special chars
+   */
+  private String replaceSpecialCharsInWord (String w) {
+    String rval = null;
+
+    if (w != null) {
+      // umlauts and sz
+      rval = w.replaceAll("\"a", "ä").replaceAll("\"A", "Ä").replaceAll("\"o", "ö").replaceAll("\"O", "Ö").replaceAll("\"u", "ü").replaceAll("\"U", "Ü").replaceAll("\"s", "ß");
+
+      // hesitational lengthening
+      rval = rval.replaceAll("<Z>", " - ");
+
+      // < and > are used for hesistations, e.g. <"ahm>
+      // * is used to mark neologisms
+      rval = rval.replaceAll("[<>*]", "");
+    }
+
+    return rval;
   }
 
   // write XML doc to String and return String
