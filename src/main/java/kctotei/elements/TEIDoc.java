@@ -24,6 +24,7 @@ public class TEIDoc {
   private Document doc;
 
   private static final String AUTHORITY = "Institut für Skandinavistik, Frisistik und Allgemeine Sprachwissenschaft - Abteilung für Allgemeine Sprachwissenschaft";
+  private static final String DISTRIBUTOR = AUTHORITY;
   private static final String STREET = "Ohlshausenstraße 40";
   private static final String POSTCODE = "24098";
   private static final String PLACENAME = "Kiel";
@@ -185,6 +186,7 @@ public class TEIDoc {
     // built common header information
     this.getDoc().addElement(new QName("TEI", XMLNS)).addElement("teiHeader").addElement("fileDesc").addElement("titleStmt").addElement("title").addText("TODO");
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").addElement("publicationStmt").addElement("authority").addText(AUTHORITY);
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").addElement("publicationStmt").addElement("distributor").addText(DISTRIBUTOR);
     //addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt").addElement("availability").addElement("p").addText("TODO");
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt").addElement("address").addElement("street").addText(STREET);
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("postCode").addText(POSTCODE);
