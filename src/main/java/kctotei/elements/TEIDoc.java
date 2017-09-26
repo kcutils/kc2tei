@@ -23,9 +23,15 @@ public class TEIDoc {
 
   private Document doc;
 
-  private static final Namespace XMLNS = Namespace.get("http://www.tei-c.org/ns/1.0");
+  private static final String AUTHORITY = "Institut für Skandinavistik, Frisistik und Allgemeine Sprachwissenschaft - Abteilung für Allgemeine Sprachwissenschaft";
+  private static final String STREET = "Ohlshausenstraße 40";
+  private static final String POSTCODE = "24098";
+  private static final String PLACENAME = "Kiel";
+  private static final String COUNTRY = "Germany";
 
   private static final String XML_ID = "xml:id";
+  private static final Namespace XMLNS = Namespace.get("http://www.tei-c.org/ns/1.0");
+
   private static final String FROM = "from";
   private static final String TO = "to";
   private static final String START = "start";
@@ -178,12 +184,12 @@ public class TEIDoc {
   private void createXMLHeader () throws JaxenException {
     // built common header information
     this.getDoc().addElement(new QName("TEI", XMLNS)).addElement("teiHeader").addElement("fileDesc").addElement("titleStmt").addElement("title").addText("TODO");
-    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").addElement("publicationStmt").addElement("authority").addText("ISFAS");
-    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt").addElement("availability").addElement("p").addText("TODO");
-    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt").addElement("address").addElement("street").addText("TODO");
-    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("postCode").addText("24-TODO");
-    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("placeName").addText("Kiel");
-    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("country").addText("Germany");
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").addElement("publicationStmt").addElement("authority").addText(AUTHORITY);
+    //addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt").addElement("availability").addElement("p").addText("TODO");
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt").addElement("address").addElement("street").addText(STREET);
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("postCode").addText(POSTCODE);
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("placeName").addText(PLACENAME);
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("country").addText(COUNTRY);
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").addElement("sourceDesc").addElement("recordingStmt").addElement("recording").addAttribute("type", "audio");
   }
 

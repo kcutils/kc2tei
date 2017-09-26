@@ -8,7 +8,7 @@
   <description>A program convert Kiel Corpus annotation files into TEI files based on ISO 24624:2016(E)</description>
   <inceptionYear>2017</inceptionYear>
   <organization>
-    <name>AG Kommunikationssysteme, Institut fuer Informatik, CAU Kiel</name>
+    <name>AG Kommunikationssysteme, Institut für Informatik, Christian-Albrechts-Universität zu Kiel</name>
     <url>http://comsys.informatik.uni-kiel.de</url>
   </organization>
 
@@ -19,9 +19,9 @@
   <developers>
     <developer>
       <id>sfis</id>
-      <name>Soenke Fischer</name>
+      <name>Sönke Fischer</name>
       <email>sfis@informatik.uni-kiel.de</email>
-      <organization>Institut fuer Informatik, CAU Kiel</organization>
+      <organization>Institut für Informatik, Christian-Albrechts-Universität zu Kiel</organization>
       <organizationUrl>http://www.inf.uni-kiel.de</organizationUrl>
       <roles>
         <role>architect</role>
@@ -35,9 +35,9 @@
 
   <contributors>
     <contributor>
-      <name>Dr. Jesper Zedlitz</name>
+      <name>Dr.-Ing. Jesper Zedlitz</name>
       <email>j.zedlitz@email.uni-kiel.de</email>
-      <organization>AG Kommunikationssysteme, Institut fuer Informatik, CAU Kiel</organization>
+      <organization>AG Kommunikationssysteme, Institut für Informatik, Christian-Albrechts-Universität zu Kiel</organization>
       <organizationUrl>http://comsys.informatik.uni-kiel.de</organizationUrl>
       <roles>
         <role>architect</role>
@@ -46,6 +46,49 @@
         <role>supervisor</role>
       </roles>
       <timezone>Europe/Berlin</timezone>
+    </contributor>
+    <contributor>
+      <name>Dr. phil. Benno Peters</name>
+      <email>peters@ipds.uni-kiel.de</email>
+      <organization>Abteilung für Allgemeine Sprachwissenschaft, Institut für Skandinavistik, Frisistik und Allgemeine Sprachwissenschaft, Christian-Albrechts-Universität zu Kiel</organization>
+      <organizationUrl>http://www.isfas.uni-kiel.de/de/linguistik</organizationUrl>
+      <roles>
+        <role>tester</role>
+        <role>supervisor</role>
+      </roles>
+      <timezone>Europe/Berlin</timezone>
+    </contributor>
+    <contributor>
+      <name>Dr. ir. Michel Scheffers</name>
+      <email>m.scheffers@isfas.uni-kiel.de</email>
+      <organization>Abteilung für Allgemeine Sprachwissenschaft, Institut für Skandinavistik, Frisistik und Allgemeine Sprachwissenschaft, Christian-Albrechts-Universität zu Kiel</organization>
+      <organizationUrl>http://www.isfas.uni-kiel.de/de/linguistik</organizationUrl>
+      <roles>
+        <role>tester</role>
+        <role>supervisor</role>
+      </roles>
+      <timezone>Europe/Berlin</timezone>
+    </contributor>
+    <contributor>
+      <name>Dr. Thomas Schmidt</name>
+      <email>thomas.schmidt@ids-mannheim.de</email>
+      <organization>Institut für Deutsche Sprache, Mannheim</organization>
+      <organizationUrl>http://www.ids-mannheim.de/</organizationUrl>
+      <roles>
+        <role>supervisor</role>
+      </roles>
+      <timezone>Europe/Berlin</timezone>
+    </contributor>
+    <contributor>
+      <name>Laurent Romary</name>
+      <email>laurent.romary@inria.fr</email>
+      <organization>Inventeurs du monde numérique (Inria)</organization>
+      <organizationUrl>http://www.inria.fr/</organizationUrl>
+      <roles>
+        <role>developer</role>
+        <role>supervisor</role>
+      </roles>
+      <timezone>Europe/Paris</timezone>
     </contributor>
   </contributors>
 
