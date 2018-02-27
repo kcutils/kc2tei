@@ -151,16 +151,6 @@
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>3.1.0</version>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <archive>
-            <manifest>
-              <mainClass>kctotei.Main</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
         <executions>
           <execution>
             <id>make-assembly</id> <!-- this is used for inheritance merges -->
@@ -168,6 +158,30 @@
             <goals>
               <goal>single</goal>
             </goals>
+            <configuration>
+              <finalName>kc2tei</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <archive>
+                <manifest>
+                  <mainClass>kctotei.Main</mainClass>
+                </manifest>
+              </archive>
+            </configuration>
+          </execution>
+          <execution>
+            <id>dist</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
+              </descriptors>
+            </configuration>
           </execution>
         </executions>
       </plugin>
