@@ -1,5 +1,5 @@
 @ECHO OFF
-SET JAR=target\kc2tei-0.1-jar-with-dependencies.jar
+SET JAR=lib/kc2tei.jar
 SET JAVA=C:\ProgramData\Oracle\Java\javapath\java.exe
 
 IF NOT EXIST %JAVA% (
