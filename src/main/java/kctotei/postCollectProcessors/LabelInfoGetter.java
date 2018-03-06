@@ -55,6 +55,19 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
 
     if (this.getRefineMode()) {
 
+      if (node.getClass() == labels.node.AProsodicLabel.class) {
+        label.setIsProsodicLabel(true);
+        label.setProsodicLabel(stripWhiteSpaces(node.toString()));
+      }
+
+      if (label.getIsProsodicLabel()) {
+        if (node.getClass() == labels.node.ANotSpecifiedPhrase.class ||
+                node.getClass() == labels.node.AVerbalBreakPhrase.class ||
+                node.getClass() == labels.node.APhraseTechnicalBreak.class) {
+          label.setIsPhraseEnd(true);
+        }
+      }
+
       if (node.getClass() == labels.node.ABoundaryConsonantLabel.class || node.getClass().toString().contains("WordBoundary")) {
         label.setIsWordBegin(true);
       }

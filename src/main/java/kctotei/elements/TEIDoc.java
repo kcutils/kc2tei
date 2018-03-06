@@ -41,6 +41,8 @@ public class TEIDoc {
   private static final String REALIZED_PHONE_TYPE = "pho-realized";
   private static final String CANONICAL_PHONE_TYPE = "pho-canonical";
 
+  private static final String PROSODY_TYPE = "prolab";
+
   private Map namespaceMap;
   private XPath xpath;
 
@@ -53,6 +55,8 @@ public class TEIDoc {
   private Integer spanCounter;
   private Integer pcCounter;
 
+  private String audioFileName;
+
   private TEIDoc () {
     this.setDoc(null);
     this.setNamespaceMap(new HashMap());
@@ -63,6 +67,7 @@ public class TEIDoc {
     this.setWordCounter(0);
     this.setSpanCounter(0);
     this.setPcCounter(0);
+    this.setAudioFileName(null);
 
   }
 
@@ -76,6 +81,14 @@ public class TEIDoc {
     this();
     this.annotationElements = annotationElements;
     this.charConverter = charConverter;
+    init();
+  }
+
+  public TEIDoc (AnnotationElementCollection annotationElements, KCSampaToIPAConverter charConverter, String audioFileName) throws JaxenException {
+    this();
+    this.annotationElements = annotationElements;
+    this.charConverter = charConverter;
+    this.setAudioFileName(audioFileName);
     init();
   }
 
@@ -151,6 +164,14 @@ public class TEIDoc {
     this.pcCounter = pcCounter;
   }
 
+  public String getAudioFileName() {
+    return audioFileName;
+  }
+
+  public void setAudioFileName(String audioFileName) {
+    this.audioFileName = audioFileName;
+  }
+
   private void init () throws JaxenException {
 
     createXMLdoc();
@@ -192,7 +213,12 @@ public class TEIDoc {
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("postCode").addText(POSTCODE);
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("placeName").addText(PLACENAME);
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:address").addElement("country").addText(COUNTRY);
-    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").addElement("sourceDesc").addElement("recordingStmt").addElement("recording").addAttribute("type", "audio");
+    addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").
+            addElement("sourceDesc").addElement("recordingStmt").
+            addElement("recording").addAttribute("type", "audio").
+            addElement("media").addAttribute("mimeType", "audio/wav").
+            addAttribute("url", getAudioFileName());
+
   }
 
 
@@ -210,62 +236,113 @@ public class TEIDoc {
 
   private void addContent () throws JaxenException {
     // we expect a sorted list of timed annotation elements
+    Label phraseStart = null;
+    Label phraseEnd = null;
+
+    // build a block for each phrase start and end pair
     for (TimedAnnotationElement t : this.getAnnotationElements().getAnnotationElements()) {
-      if (t.getClass() == Word.class) {
-        addWordWithPhonesAndPunctuations((Word) t);
+
+      if (t.getClass() == Label.class && ((Label) t).getIsPhraseBegin()) {
+        phraseStart = (Label) t;
       }
-      if (t.getClass() == Label.class && ((Label) t).getIsVocalNoise() && !((Label) t).getVocalNoiseIsDeleted()) {
-        addVocalNoise((Label) t);
+
+      if (t.getClass() == Label.class && ((Label) t).getIsPhraseEnd() && phraseStart != null) {
+        phraseEnd = (Label) t;
+
+        addPhraseWithSubordinatedElements(phraseStart, phraseEnd);
+
+        phraseStart = null;
+        phraseEnd = null;
       }
+
     }
   }
 
-  private void addVocalNoise (Label v) throws JaxenException {
-    if (v != null && !v.getIsPause()) {
-      Element vocal = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("vocal").addAttribute(START, "#" + v.getStartTime().getName()).addAttribute(END, "#" + v.getEndTime().getName());
-      vocal.addElement("desc").addText(v.getVocalNoiseType());
-    } else {
-      addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("pause").addAttribute(START, "#" + v.getStartTime().getName()).addAttribute(END, "#" + v.getEndTime().getName());
-    }
-  }
+  private void addPhraseWithSubordinatedElements (Label phraseStart, Label phraseEnd) throws JaxenException {
+    if (phraseStart != null && phraseEnd != null && phraseStart.getStartTime() != null && phraseEnd.getEndTime() != null) {
+      TimeMark startTime = phraseStart.getStartTime();
+      TimeMark endTime = phraseEnd.getEndTime();
 
-  private void addWordWithPhonesAndPunctuations (Word w) throws JaxenException {
-    if (w != null && w.getStartTime() != null && w.getContent() != null && w.getEndTime() != null) {
-
-      if (this.getCharConverter() == null) {
-        this.setCharConverter(new KCSampaToIPAConverter());
-      }
-
-      // create TEI document elements for current word and related elements
+      // create TEI document elements for current phrase and related elements
       Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
-                                                                                                                      addAttribute(START, "#" + w.getStartTime().getName()).addAttribute(END, "#" + w.getEndTime().getName());
+              addAttribute(START, "#" + startTime.getName()).addAttribute(END, "#" + endTime.getName());
 
-      this.setUtteranceCounter(this.getUtteranceCounter() + 1);
-      Element utterance = annotationBlock.addElement("u").addAttribute(XML_ID, "u" + this.getUtteranceCounter());
+      List<TimedAnnotationElement> elements = annotationElements.getListOfTimedAnnotationElementsWithinPhraseStartingWithAndNotEndingBefore(startTime, endTime);
 
-      this.setWordCounter(this.getWordCounter() + 1);
-      utterance.addElement("w").addAttribute(XML_ID, "w" + this.getWordCounter()).addText(replaceSpecialCharsInWord(w.getContent().toString()));
+      if (elements != null) {
 
-      // add punctuations
-      List<Label> punctuationLabels = this.getAnnotationElements().getListOfPunctuationsStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
-      if (punctuationLabels != null) {
-        for (Label p : punctuationLabels) {
-          addPunctuation(p, utterance);
-        }
-      }
+        // an utterance contains words, puncuations and noises
+        this.setUtteranceCounter(this.getUtteranceCounter() + 1);
+        Element utterance = annotationBlock.addElement("u").addAttribute(XML_ID, "u" + this.getUtteranceCounter());
 
-      // add phones
-      List<Label> phoneLabels = this.getAnnotationElements().getListOfPhonesStartingWithAndNotEndingBefore(w.getStartTime(), w.getEndTime());
-      if (phoneLabels != null) {
-        // add realized and canonical phones to word
         Element realizedPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", REALIZED_PHONE_TYPE);
         Element canonicalPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", CANONICAL_PHONE_TYPE);
+        Element prosodySpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", PROSODY_TYPE);
 
-        for (Label l : phoneLabels) {
-          addPhone(l, canonicalPhonesSpanGrp, realizedPhonesSpanGrp);
+        for (TimedAnnotationElement e : elements) {
+
+          // add word
+          if (e.getClass() == Word.class) {
+            this.setWordCounter(this.getWordCounter() + 1);
+
+            // to provide the information where a word starts and ends
+            // we use the synch-attribute in the word tag for the starting point
+            // and a following anchor element with a synch-attribute for the ending point
+            utterance.addElement("w").addAttribute(XML_ID, "w" + this.getWordCounter()).
+                    addAttribute("synch", "#" + e.getStartTime().getName()).
+                    addText(replaceSpecialCharsInWord(e.getContent().toString()));
+            utterance.addElement("anchor").addAttribute("synch", "#" + e.getEndTime().getName());
+          }
+
+          if (e.getClass() == Label.class) {
+
+            // add punctuation
+            if (((Label) e).getIsPunctuation() && !((Label) e).getIgnorePunctuation()) {
+              addPunctuation((Label) e, utterance);
+            }
+
+            // add noise
+            if (((Label) e).getIsVocalNoise() && !((Label) e).getVocalNoiseIsDeleted()) {
+              addVocalNoise((Label) e, utterance);
+            }
+
+            // add phone
+            if (((Label) e).getIsPhon() && !((Label) e).getIgnorePhon()) {
+              addPhone((Label) e, canonicalPhonesSpanGrp, realizedPhonesSpanGrp);
+            }
+
+            // add prosody
+            if (((Label) e).getIsProsodicLabel()) {
+                prosodySpanGrp.addElement("span").
+                        addAttribute("from", "#" + e.getStartTime().getName()).
+                        addAttribute("to", "#" + e.getEndTime().getName()).
+                        addText(((Label) e).getProsodicLabel());
+            }
+          }
         }
       }
+    }
+  }
 
+  private void addPunctuation (Label p, Element utterance) throws JaxenException {
+
+    // TODO: How to deal with uncertain punctuations?
+
+    if (p != null) {
+      this.setPcCounter(this.getPcCounter() + 1);
+      utterance.addElement("pc").addAttribute(XML_ID, "pc" + this.getPcCounter()).addText(p.getPunctuation());
+    }
+  }
+
+  private void addVocalNoise (Label v, Element utterance) throws JaxenException {
+    if (v != null && !v.getIsPause()) {
+      utterance.addElement("vocal").addAttribute(START, "#" + v.getStartTime().getName()).
+              addAttribute(END, "#" + v.getEndTime().getName()).
+              addElement("desc").addText(v.getVocalNoiseType());
+    } else {
+      utterance.addElement("pause").
+              addAttribute(START, "#" + v.getStartTime().getName()).
+              addAttribute(END, "#" + v.getEndTime().getName());
     }
   }
 
@@ -321,16 +398,6 @@ public class TEIDoc {
         this.setSpanCounter(this.getSpanCounter() + 1);
         canonicalPhonesSpanGrp.addElement("span").addAttribute(FROM, "#" + l.getStartTime().getName()).addAttribute(TO, "#" + l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(canonicalPhone);
       }
-    }
-  }
-
-  private void addPunctuation (Label p, Element utterance) throws JaxenException {
-
-    // TODO: How to deal with uncertain punctuations?
-
-    if (p != null) {
-      this.setPcCounter(this.getPcCounter() + 1);
-      utterance.addElement("pc").addAttribute(XML_ID, "pc" + this.getPcCounter()).addText(p.getPunctuation());
     }
   }
 

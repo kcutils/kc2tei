@@ -47,6 +47,14 @@ public class Label extends TimedAnnotationElement<PTlabel> {
   private String punctuation;
   private Boolean punctIsUncertain;
 
+  // prosody
+  private Boolean isProsodicLabel;
+  private String prosodicLabel;
+  private Boolean isPhraseBegin;
+  private Boolean isPhraseEnd;
+
+
+
   public Label (PTlabel pTlabel) {
     super(pTlabel);
     init();
@@ -83,6 +91,10 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.setIgnorePunctuation(false);
     this.setPunctuation(null);
     this.setPunctIsUncertain(false);
+    this.setIsProsodicLabel(false);
+    this.setProsodicLabel(null);
+    this.setIsPhraseBegin(false);
+    this.setIsPhraseEnd(false);
   }
 
   public Boolean getIsPhon () {
@@ -285,6 +297,38 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.punctIsUncertain = punctIsUncertain;
   }
 
+  public Boolean getIsProsodicLabel() {
+    return isProsodicLabel;
+  }
+
+  public void setIsProsodicLabel(Boolean isProsodicLabel) {
+    this.isProsodicLabel = isProsodicLabel;
+  }
+
+  public String getProsodicLabel() {
+    return prosodicLabel;
+  }
+
+  public void setProsodicLabel(String prosodicLabel) {
+    this.prosodicLabel = prosodicLabel;
+  }
+
+  public Boolean getIsPhraseBegin() {
+    return isPhraseBegin;
+  }
+
+  public void setIsPhraseBegin(Boolean phraseBegin) {
+    isPhraseBegin = phraseBegin;
+  }
+
+  public Boolean getIsPhraseEnd() {
+    return isPhraseEnd;
+  }
+
+  public void setIsPhraseEnd(Boolean phraseEnd) {
+    isPhraseEnd = phraseEnd;
+  }
+
   public String toString () {
     String rval = super.toString();
 
@@ -316,6 +360,12 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     rval = addTrueBooleansAndDescrToString(this.getIgnorePunctuation(), "ignorePunctuation", rval);
     rval = addStringAndDescrToString(this.getPunctuation(), "punctuation", rval);
     rval = addTrueBooleansAndDescrToString(this.getPunctIsUncertain(), "punctIsUncertain", rval);
+
+    // prosody specifics
+    rval = addTrueBooleansAndDescrToString(this.getIsProsodicLabel(), "isProsodicLabel", rval);
+    rval = addStringAndDescrToString(this.getProsodicLabel(), "prosodicLabel", rval);
+    rval = addTrueBooleansAndDescrToString(this.getIsPhraseBegin(), "isPhraseBegin", rval);
+    rval = addTrueBooleansAndDescrToString(this.getIsPhraseEnd(), "isPhraseEnd", rval);
 
     return rval;
   }

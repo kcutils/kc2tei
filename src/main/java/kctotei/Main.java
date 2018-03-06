@@ -18,7 +18,7 @@ class Main {
   private static final String HEADER = "Convert old Kiel Corpus files to standardized TEI file format.\n\n";
   private static final String FOOTER = "\nPlease report issues at TODO:ABCDEF";
   private static final String PROG_NAME = "kc2tei";
-  private static final String VERSION = "TODO";
+  private static final String VERSION = "0.2";
   private static String inputFileName;
   private static String outputFileName;
 
@@ -74,8 +74,10 @@ class Main {
     }
 
     KCSampaToIPAConverter charConverter = new KCSampaToIPAConverter(debugMode);
+    String audioFileBaseName = inputFileName.substring(inputFileName.lastIndexOf("/") + 1, inputFileName.length());
 
-    TEIDoc teiDoc = new TEIDoc(ANNOTATION_ELEMENT_COLLECTION, charConverter);
+    TEIDoc teiDoc = new TEIDoc(ANNOTATION_ELEMENT_COLLECTION, charConverter,
+            audioFileBaseName.substring(0, audioFileBaseName.lastIndexOf(".")) + ".wav");
 
     File rngSchemaFile = getResourceAsFile(RNG_SCHEMA_FILE_NAME);
     if (rngSchemaFile == null || !rngSchemaFile.exists()) {

@@ -144,6 +144,8 @@ public class PostCollectProcessor {
       Boolean wordBeginFound = false;
       Label beginOfAcousticWordLabel = null;
 
+      Boolean phraseEndFound = true;
+
       for (Label l : this.getAnnotationElementCollection().getListOfLabels()) {
         labels.node.Node node = l.getContent();
         LabelInfoGetter lInfo = new LabelInfoGetter(l, true);
@@ -192,6 +194,14 @@ public class PostCollectProcessor {
 
         if (l.getIsPhon() && !l.getIgnorePhon()) {
           lastPhone = l;
+        }
+
+        if (l.getIsProsodicLabel() && phraseEndFound) {
+          l.setIsPhraseBegin(true);
+          phraseEndFound = false;
+        }
+        if (l.getIsProsodicLabel() && l.getIsPhraseEnd()) {
+          phraseEndFound = true;
         }
       }
       this.setLabelsRefined(true);

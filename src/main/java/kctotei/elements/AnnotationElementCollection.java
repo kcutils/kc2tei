@@ -77,56 +77,30 @@ public class AnnotationElementCollection {
     return buf.toString();
   }
 
-  private List<Label> getListOfLabelsWithinWordStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
-    Boolean firstWordBeginFound = false;
-    List<Label> rval = null;
+  public List<TimedAnnotationElement> getListOfTimedAnnotationElementsWithinPhraseStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
+    List<TimedAnnotationElement> rval = null;
+    Boolean phraseBeginFound = false;
 
     if (t1 != null && t2 != null) {
       rval = new ArrayList<>();
       for (TimedAnnotationElement e : this.getAnnotationElements()) {
         if (e.getStartTime() != null && e.getEndTime() != null) {
           if (e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
-            if (e.getClass() == Label.class) {
-              if (((Label) e).getIsWordBegin()) {
-                if (! firstWordBeginFound) {
-                  firstWordBeginFound = true;
-                } else {
-                  // second word begin found which marks end of word in question
-                  break;
-                }
+            if (e.getClass() == Label.class && ((Label) e).getIsProsodicLabel()) {
+              if (((Label) e).getIsPhraseBegin()) {
+                phraseBeginFound = true;
               }
-              if (firstWordBeginFound) {
-                rval.add((Label) e);
+            }
+            if (phraseBeginFound) {
+              rval.add(e);
+            }
+
+            if (e.getClass() == Label.class && ((Label) e).getIsProsodicLabel()) {
+              if (((Label ) e).getIsPhraseEnd() && phraseBeginFound) {
+                break;
               }
             }
           }
-        }
-      }
-    }
-    return rval;
-  }
-
-  public List<Label> getListOfPhonesStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
-    List<Label> rval = null;
-    if (t1 != null && t2 != null) {
-      rval = new ArrayList<>();
-      for (Label p : getListOfLabelsWithinWordStartingWithAndNotEndingBefore(t1, t2)) {
-        if (p.getIsPhon() && ! p.getIgnorePhon()) {
-          rval.add(p);
-        }
-      }
-    }
-    return rval;
-  }
-
-
-  public List<Label> getListOfPunctuationsStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
-    List<Label> rval = null;
-    if (t1 != null && t2 != null) {
-      rval = new ArrayList<>();
-      for (Label p : getListOfLabelsWithinWordStartingWithAndNotEndingBefore(t1, t2)) {
-        if (p.getIsPunctuation() && ! p.getIgnorePunctuation()) {
-          rval.add(p);
         }
       }
     }
