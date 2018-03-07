@@ -107,6 +107,22 @@ public class AnnotationElementCollection {
     return rval;
   }
 
+  public List<TimedAnnotationElement> getListOfTimedAnnotationElementsStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
+    List<TimedAnnotationElement> rval = null;
+
+    if (t1 != null && t2 != null) {
+      rval = new ArrayList<>();
+      for (TimedAnnotationElement e : this.getAnnotationElements()) {
+        if (e.getStartTime() != null && e.getEndTime() != null) {
+          if (e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
+            rval.add(e);
+          }
+        }
+      }
+    }
+    return rval;
+  }
+
   public List<TimedAnnotationElement> getListOfTimedAnnotationElementsWithinWordStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
     List<TimedAnnotationElement> rval = null;
     Boolean wordBeginFound = false;

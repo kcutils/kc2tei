@@ -263,6 +263,10 @@ public class TEIDoc {
 
         if (t.getClass() == Label.class && ((Label) t).getIsPhraseBegin()) {
           start = t.getStartTime();
+          if (end != null) {
+            addStuffBetweenTwoBiggestElements(end, start);
+            end = null;
+          }
         }
 
         if (t.getClass() == Label.class && ((Label) t).getIsPhraseEnd() && start != null) {
@@ -271,7 +275,6 @@ public class TEIDoc {
           addBiggestElementWithSubordinatedElements(amountOfProsodicLabels, start, end);
 
           start = null;
-          end = null;
         }
 
       } else {
@@ -282,13 +285,33 @@ public class TEIDoc {
 
         if (t.getClass() == Word.class) {
           start = t.getStartTime();
+          if (end != null) {
+            addStuffBetweenTwoBiggestElements(end, start);
+          }
           end = t.getEndTime();
 
           addBiggestElementWithSubordinatedElements(amountOfProsodicLabels, start, end);
 
           start = null;
-          end = null;
         }
+      }
+    }
+  }
+
+  private void addStuffBetweenTwoBiggestElements (TimeMark endOfCurrentElement, TimeMark startOfNextElement) throws JaxenException {
+
+    Element rootElement = addElementFoundByXpath("/tei:TEI/tei:text/tei:body");
+
+    List<TimedAnnotationElement> elements;
+
+    elements = annotationElements.getListOfTimedAnnotationElementsStartingWithAndNotEndingBefore(endOfCurrentElement, startOfNextElement);
+
+    for (TimedAnnotationElement e : elements) {
+      // in between two superordinated elements we can only have noises at the moment
+
+      // add noise
+      if (e.getClass() == Label.class && ((Label) e).getIsVocalNoise() && !((Label) e).getVocalNoiseIsDeleted()) {
+        addVocalNoise((Label) e, rootElement);
       }
     }
   }
