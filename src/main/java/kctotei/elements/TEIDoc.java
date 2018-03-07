@@ -235,43 +235,82 @@ public class TEIDoc {
   }
 
   private void addContent () throws JaxenException {
-    // we expect a sorted list of timed annotation elements
-    Label phraseStart = null;
-    Label phraseEnd = null;
 
-    // build a block for each phrase start and end pair
+    // There are two types of annotation files in Kiel Corpus
+    //   - the first contains no prosodic information
+    //   - the second contains prosodic information
+    //
+    // If there is no prosodic information, we take the word as
+    // the biggest unit in hierarchy, else we take the phrase
+    // as the biggest unit.
+    //
+
+    // we expect a sorted list of timed annotation elements
+
+    TimeMark start = null;
+    TimeMark end = null;
+
+    // amountOfProsodicLabels < 2: first type of annotation file
+    // amountOfProsodicLabels >=2: second type of annotation file
+
+    int amountOfProsodicLabels = this.annotationElements.getAmountOfProsodicLabels();
+
     for (TimedAnnotationElement t : this.getAnnotationElements().getAnnotationElements()) {
 
-      if (t.getClass() == Label.class && ((Label) t).getIsPhraseBegin()) {
-        phraseStart = (Label) t;
+      if (amountOfProsodicLabels >= 2) {
+
+        // build a block for each phrase start and end pair
+
+        if (t.getClass() == Label.class && ((Label) t).getIsPhraseBegin()) {
+          start = t.getStartTime();
+        }
+
+        if (t.getClass() == Label.class && ((Label) t).getIsPhraseEnd() && start != null) {
+          end = t.getEndTime();
+
+          addBiggestElementWithSubordinatedElements(amountOfProsodicLabels, start, end);
+
+          start = null;
+          end = null;
+        }
+
+      } else {
+        // amountOfProsodicLabels < 2
+
+        // we don't have enough prosodic labels to build phrase blocks
+        // so build word blocks
+
+        if (t.getClass() == Word.class) {
+          start = t.getStartTime();
+          end = t.getEndTime();
+
+          addBiggestElementWithSubordinatedElements(amountOfProsodicLabels, start, end);
+
+          start = null;
+          end = null;
+        }
       }
-
-      if (t.getClass() == Label.class && ((Label) t).getIsPhraseEnd() && phraseStart != null) {
-        phraseEnd = (Label) t;
-
-        addPhraseWithSubordinatedElements(phraseStart, phraseEnd);
-
-        phraseStart = null;
-        phraseEnd = null;
-      }
-
     }
   }
 
-  private void addPhraseWithSubordinatedElements (Label phraseStart, Label phraseEnd) throws JaxenException {
-    if (phraseStart != null && phraseEnd != null && phraseStart.getStartTime() != null && phraseEnd.getEndTime() != null) {
-      TimeMark startTime = phraseStart.getStartTime();
-      TimeMark endTime = phraseEnd.getEndTime();
+  private void addBiggestElementWithSubordinatedElements (int amountOfProsodicLabels, TimeMark start, TimeMark end) throws JaxenException {
+    if (amountOfProsodicLabels >= 0 && start != null && end != null) {
 
       // create TEI document elements for current phrase and related elements
       Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
-              addAttribute(START, "#" + startTime.getName()).addAttribute(END, "#" + endTime.getName());
+              addAttribute(START, "#" + start.getName()).addAttribute(END, "#" + end.getName());
 
-      List<TimedAnnotationElement> elements = annotationElements.getListOfTimedAnnotationElementsWithinPhraseStartingWithAndNotEndingBefore(startTime, endTime);
+      List<TimedAnnotationElement> elements;
+
+      if (amountOfProsodicLabels >= 2) {
+        elements = annotationElements.getListOfTimedAnnotationElementsWithinPhraseStartingWithAndNotEndingBefore(start, end);
+      } else {
+        elements = annotationElements.getListOfTimedAnnotationElementsWithinWordStartingWithAndNotEndingBefore(start, end);
+      }
 
       if (elements != null) {
 
-        // an utterance contains words, puncuations and noises
+        // an utterance contains words, punctuations and noises
         this.setUtteranceCounter(this.getUtteranceCounter() + 1);
         Element utterance = annotationBlock.addElement("u").addAttribute(XML_ID, "u" + this.getUtteranceCounter());
 

@@ -107,6 +107,35 @@ public class AnnotationElementCollection {
     return rval;
   }
 
+  public List<TimedAnnotationElement> getListOfTimedAnnotationElementsWithinWordStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
+    List<TimedAnnotationElement> rval = null;
+    Boolean wordBeginFound = false;
+
+    if (t1 != null && t2 != null) {
+      rval = new ArrayList<>();
+      for (TimedAnnotationElement e : this.getAnnotationElements()) {
+        if (e.getStartTime() != null && e.getEndTime() != null) {
+          if (e.getStartTime().isGreaterOrEqual(t1) && e.getEndTime().isSmallerOrEqual(t2)) {
+            if (e.getClass() == Label.class) {
+              if (((Label) e).getIsWordBegin()) {
+                if (! wordBeginFound) {
+                  wordBeginFound = true;
+                } else {
+                  // second word begin found which marks end of word in question
+                  break;
+                }
+              }
+            }
+            if (wordBeginFound || e.getClass() == Word.class) {
+              rval.add(e);
+            }
+          }
+        }
+      }
+    }
+    return rval;
+  }
+
   public List<TimeMark> getTimeMarkerList () {
     return this.getTimeMarkers().getList();
   }
@@ -128,6 +157,24 @@ public class AnnotationElementCollection {
         rval.add((Label) e);
       }
     }
+    return rval;
+  }
+
+  private List<Label> getListOfProsodicLabels () {
+    List<Label> rval = new ArrayList<>();
+    for (TimedAnnotationElement e : this.getAnnotationElements()) {
+      if (e.getClass() == Label.class && ((Label) e).getIsProsodicLabel()) {
+        rval.add((Label) e);
+      }
+    }
+    return rval;
+  }
+
+  public int getAmountOfProsodicLabels () {
+    int rval;
+
+    rval = this.getListOfProsodicLabels().size();
+
     return rval;
   }
 }
