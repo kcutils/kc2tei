@@ -54,6 +54,8 @@ public class TEIDoc {
   private Integer wordCounter;
   private Integer spanCounter;
   private Integer pcCounter;
+  private Integer vocalCounter;
+  private Integer pauseCounter;
 
   private String audioFileName;
 
@@ -67,6 +69,8 @@ public class TEIDoc {
     this.setWordCounter(0);
     this.setSpanCounter(0);
     this.setPcCounter(0);
+    this.setVocalCounter(0);
+    this.setPauseCounter(0);
     this.setAudioFileName(null);
 
   }
@@ -162,6 +166,22 @@ public class TEIDoc {
 
   public void setPcCounter (Integer pcCounter) {
     this.pcCounter = pcCounter;
+  }
+
+  public Integer getVocalCounter() {
+    return vocalCounter;
+  }
+
+  public void setVocalCounter(Integer vocalCounter) {
+    this.vocalCounter = vocalCounter;
+  }
+
+  public Integer getPauseCounter() {
+    return pauseCounter;
+  }
+
+  public void setPauseCounter(Integer pauseCounter) {
+    this.pauseCounter = pauseCounter;
   }
 
   public String getAudioFileName() {
@@ -375,10 +395,7 @@ public class TEIDoc {
 
             // add prosody
             if (((Label) e).getIsProsodicLabel()) {
-                prosodySpanGrp.addElement("span").
-                        addAttribute("from", "#" + e.getStartTime().getName()).
-                        addAttribute("to", "#" + e.getEndTime().getName()).
-                        addText(((Label) e).getProsodicLabel());
+              addProsody((Label) e, prosodySpanGrp);
             }
           }
         }
@@ -392,19 +409,39 @@ public class TEIDoc {
 
     if (p != null) {
       this.setPcCounter(this.getPcCounter() + 1);
-      utterance.addElement("pc").addAttribute(XML_ID, "pc" + this.getPcCounter()).addText(p.getPunctuation());
+      utterance.addElement("pc").
+              addAttribute(XML_ID, "pc" + this.getPcCounter()).
+              addText(p.getPunctuation());
+    }
+  }
+
+  private void addProsody (Label p, Element spanGrp) throws JaxenException {
+    if (p != null) {
+      this.setSpanCounter(this.getSpanCounter() + 1);
+      spanGrp.addElement("span").
+              addAttribute(FROM, "#" + p.getStartTime().getName()).
+              addAttribute(TO, "#" + p.getEndTime().getName()).
+              addAttribute(XML_ID, "s" + this.getSpanCounter()).
+              addText(p.getProsodicLabel());
     }
   }
 
   private void addVocalNoise (Label v, Element utterance) throws JaxenException {
-    if (v != null && !v.getIsPause()) {
-      utterance.addElement("vocal").addAttribute(START, "#" + v.getStartTime().getName()).
-              addAttribute(END, "#" + v.getEndTime().getName()).
-              addElement("desc").addText(v.getVocalNoiseType());
-    } else {
-      utterance.addElement("pause").
-              addAttribute(START, "#" + v.getStartTime().getName()).
-              addAttribute(END, "#" + v.getEndTime().getName());
+    if (v != null) {
+      if (!v.getIsPause()) {
+        this.setVocalCounter(this.getVocalCounter() + 1);
+        utterance.addElement("vocal").
+                addAttribute(XML_ID, "v" + this.getVocalCounter()).
+                addAttribute(START, "#" + v.getStartTime().getName()).
+                addAttribute(END, "#" + v.getEndTime().getName()).
+                addElement("desc").addText(v.getVocalNoiseType());
+      } else {
+        this.setPauseCounter(this.getPauseCounter() + 1);
+        utterance.addElement("pause").
+                addAttribute(XML_ID, "p" + this.getPauseCounter()).
+                addAttribute(START, "#" + v.getStartTime().getName()).
+                addAttribute(END, "#" + v.getEndTime().getName());
+      }
     }
   }
 
@@ -453,12 +490,20 @@ public class TEIDoc {
         }
 
         this.setSpanCounter(this.getSpanCounter() + 1);
-        realizedPhonesSpanGrp.addElement("span").addAttribute(FROM, "#" + l.getStartTime().getName()).addAttribute(TO, "#" + l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(realizedPhone);
+        realizedPhonesSpanGrp.addElement("span").
+                addAttribute(FROM, "#" + l.getStartTime().getName()).
+                addAttribute(TO, "#" + l.getEndTime().getName()).
+                addAttribute(XML_ID, "s" + this.getSpanCounter()).
+                addText(realizedPhone);
       }
 
       if (canonicalPhone != null) {
         this.setSpanCounter(this.getSpanCounter() + 1);
-        canonicalPhonesSpanGrp.addElement("span").addAttribute(FROM, "#" + l.getStartTime().getName()).addAttribute(TO, "#" + l.getEndTime().getName()).addAttribute(XML_ID, "s" + this.getSpanCounter()).addText(canonicalPhone);
+        canonicalPhonesSpanGrp.addElement("span").
+                addAttribute(FROM, "#" + l.getStartTime().getName()).
+                addAttribute(TO, "#" + l.getEndTime().getName()).
+                addAttribute(XML_ID, "s" + this.getSpanCounter()).
+                addText(canonicalPhone);
       }
     }
   }
@@ -476,7 +521,7 @@ public class TEIDoc {
       rval = w.replaceAll("\"a", "ä").replaceAll("\"A", "Ä").replaceAll("\"o", "ö").replaceAll("\"O", "Ö").replaceAll("\"u", "ü").replaceAll("\"U", "Ü").replaceAll("\"s", "ß");
 
       // hesitational lengthening
-      rval = rval.replaceAll("<Z>", " - ");
+      rval = rval.replaceAll("<Z>", " <Zögern> ");
 
       // < and > are used for hesistations, e.g. <"ahm>
       // * is used to mark neologisms

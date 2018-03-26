@@ -118,31 +118,31 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
         }
 
         if (node.getClass().toString().contains("Breathing")) {
-          label.setVocalNoiseType("breathing");
+          label.setVocalNoiseType("Atmen");
         }
 
         if (node.getClass().toString().contains("Laughter")) {
-          label.setVocalNoiseType("laughing");
+          label.setVocalNoiseType("Lachen");
         }
 
         if (node.getClass().toString().contains("Cough")) {
-          label.setVocalNoiseType("cough");
+          label.setVocalNoiseType("Husten");
         }
 
         if (node.getClass().toString().contains("Harrumph")) {
-          label.setVocalNoiseType("harrumph");
+          label.setVocalNoiseType("Räuspern");
         }
 
         if (node.getClass().toString().contains("Smack")) {
-          label.setVocalNoiseType("smack");
+          label.setVocalNoiseType("Schmatzen");
         }
 
         if (node.getClass().toString().contains("Swallow")) {
-          label.setVocalNoiseType("swallow");
+          label.setVocalNoiseType("Schlucken");
         }
 
         if (node.getClass().toString().contains("Unspecific")) {
-          label.setVocalNoiseType("unspecific");
+          label.setVocalNoiseType("unspezifisch");
         }
 
         if (node.getClass().toString().contains("Silence")) {
