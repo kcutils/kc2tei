@@ -521,11 +521,14 @@ public class TEIDoc {
       rval = w.replaceAll("\"a", "ä").replaceAll("\"A", "Ä").replaceAll("\"o", "ö").replaceAll("\"O", "Ö").replaceAll("\"u", "ü").replaceAll("\"U", "Ü").replaceAll("\"s", "ß");
 
       // hesitational lengthening
-      rval = rval.replaceAll("<Z>", " <Zögern> ");
+      rval = rval.replaceAll("<Z>", " |Z| ");
 
       // < and > are used for hesistations, e.g. <"ahm>
       // * is used to mark neologisms
       rval = rval.replaceAll("[<>*]", "");
+
+      // hesitational lengthening
+      rval = rval.replaceAll("\\|Z\\|", "<Zögern>");
     }
 
     return rval;
