@@ -7,7 +7,10 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-JAR="lib/kc2tei.jar"
+SCRIPT=$( readlink -f "$0" )
+SCRIPT_PATH=$( dirname "$SCRIPT" )
+
+JAR="${SCRIPT_PATH}/lib/kc2tei.jar"
 
 if [ ! -f "$JAR" ]; then
   echo "kc2tei JAR file not found! Exiting ..."
