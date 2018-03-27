@@ -422,7 +422,7 @@ public class TEIDoc {
               addAttribute(FROM, "#" + p.getStartTime().getName()).
               addAttribute(TO, "#" + p.getEndTime().getName()).
               addAttribute(XML_ID, "s" + this.getSpanCounter()).
-              addText(p.getProsodicLabel());
+              addText(p.getProsodicLabel().replaceAll("#", ""));
     }
   }
 
