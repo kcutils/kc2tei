@@ -175,21 +175,20 @@ public class AnnotationElementCollection {
     }
     return rval;
   }
-
-  private List<Label> getListOfProsodicLabels () {
+  private List<Label> getListOfPhraseEndLabels () {
     List<Label> rval = new ArrayList<>();
     for (TimedAnnotationElement e : this.getAnnotationElements()) {
-      if (e.getClass() == Label.class && ((Label) e).getIsProsodicLabel()) {
+      if (e.getClass() == Label.class && ((Label) e).getIsPhraseEnd()) {
         rval.add((Label) e);
       }
     }
     return rval;
   }
 
-  public int getAmountOfProsodicLabels () {
+  public int getAmountOfPhraseEndLabels () {
     int rval;
 
-    rval = this.getListOfProsodicLabels().size();
+    rval = this.getListOfPhraseEndLabels().size();
 
     return rval;
   }
