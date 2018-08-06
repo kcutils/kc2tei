@@ -43,6 +43,8 @@ public class TEIDoc {
 
   private static final String PROSODY_TYPE = "prolab";
 
+  private static final String MISC_TYPE = "misc";
+
   private Map namespaceMap;
   private XPath xpath;
 
@@ -360,6 +362,7 @@ public class TEIDoc {
         Element realizedPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", REALIZED_PHONE_TYPE);
         Element canonicalPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", CANONICAL_PHONE_TYPE);
         Element prosodySpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", PROSODY_TYPE);
+        Element miscSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", MISC_TYPE);
 
         for (TimedAnnotationElement e : elements) {
 
@@ -396,6 +399,11 @@ public class TEIDoc {
             // add prosody
             if (((Label) e).getIsProsodicLabel()) {
               addProsody((Label) e, prosodySpanGrp);
+            }
+
+            // add misc
+            if (((Label) e).getIsPhon() && ((Label) e).getIsMAModifier()) {
+              addMisc((Label) e, miscSpanGrp);
             }
           }
         }
@@ -505,6 +513,17 @@ public class TEIDoc {
                 addAttribute(XML_ID, "s" + this.getSpanCounter()).
                 addText(canonicalPhone);
       }
+    }
+  }
+
+  private void addMisc (Label l, Element miscSpanGrp) {
+    if (l != null && l.getIsPhon() && l.getIsMAModifier() && miscSpanGrp != null) {
+      this.setSpanCounter(this.getSpanCounter() + 1);
+      miscSpanGrp.addElement("span").
+           addAttribute(FROM, "#" + l.getStartTime().getName()).
+           addAttribute(TO, "#" + l.getEndTime().getName()).
+           addAttribute(XML_ID, "s" + this.getSpanCounter()).
+           addText("MA");
     }
   }
 

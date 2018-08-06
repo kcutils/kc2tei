@@ -26,6 +26,8 @@ public class Label extends TimedAnnotationElement<PTlabel> {
   private Boolean isNasalized;
   private Boolean isNasal;
 
+  private Boolean isMAModifier;
+
   private Boolean realizedPhoneIsStressed;
   private Boolean modifiedPhoneIsStressed;
 
@@ -77,6 +79,7 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.setIsNasalizationModifier(false);
     this.setIsNasalized(false);
     this.setIsNasal(false);
+    this.setIsMAModifier(false);
     this.setRealizedPhoneIsStressed(false);
     this.setModifiedPhoneIsStressed(false);
     this.setRealizedPhoneStressType(null);
@@ -199,6 +202,14 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
   public void setIsNasal (Boolean isNasal) {
     this.isNasal = isNasal;
+  }
+
+    public Boolean getIsMAModifier () {
+    return isMAModifier;
+  }
+
+  public void setIsMAModifier (Boolean isMAModifier) {
+    this.isMAModifier = isMAModifier;
   }
 
   public Boolean getRealizedPhoneIsStressed () {

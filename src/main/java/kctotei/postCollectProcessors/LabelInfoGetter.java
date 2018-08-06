@@ -187,6 +187,10 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
           label.setIgnorePhon(true);
         }
 
+        if (node.getClass().toString().contains("MaConsonantLabel")) {
+          label.setIsMAModifier(true);
+        }
+
         if (node.getClass().toString().contains("Modified") && !node.getClass().toString().contains("Lengthening")) {
           if (!label.getPhonIsDeleted()) {
             label.setPhonIsReplaced(true);
