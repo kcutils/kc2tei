@@ -179,6 +179,10 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
           label.setIgnorePhon(true);
         }
 
+        if (node.getClass().toString().contains("Insertion") || node.getClass().toString().contains("Aspiration")) {
+          label.setPhonIsInserted(true);
+        }
+
         if (node.getClass().toString().contains("Insertion") || node.getClass().toString().contains("Unmodified")) {
           label.setPhonIsReplaced(false);
         }

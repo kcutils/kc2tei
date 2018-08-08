@@ -484,7 +484,9 @@ public class TEIDoc {
           }
         }
       } else {
-        canonicalPhone = realizedPhone;
+        if (! l.getPhonIsInserted()) {
+          canonicalPhone = realizedPhone;
+        }
       }
 
       if (realizedPhone != null) {

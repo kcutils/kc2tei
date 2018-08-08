@@ -16,6 +16,7 @@ public class Label extends TimedAnnotationElement<PTlabel> {
   private Boolean isPhon;
   private Boolean phonIsDeleted;
   private Boolean phonIsReplaced;
+  private Boolean phonIsInserted;
 
   private Boolean ignorePhon;
 
@@ -73,6 +74,7 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.setIsPhon(false);
     this.setPhonIsDeleted(false);
     this.setPhonIsReplaced(false);
+    this.setPhonIsInserted(false);
     this.setIgnorePhon(false);
     this.setIsCreakModifier(false);
     this.setIsCreaked(false);
@@ -154,6 +156,14 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
   public void setPhonIsReplaced (Boolean phonIsReplaced) {
     this.phonIsReplaced = phonIsReplaced;
+  }
+
+  public Boolean getPhonIsInserted () {
+    return phonIsInserted;
+  }
+
+  public void setPhonIsInserted (Boolean phonIsInserted) {
+    this.phonIsInserted = phonIsInserted;
   }
 
   public Boolean getIsCreakModifier () {
@@ -352,6 +362,7 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     rval = addTrueBooleansAndDescrToString(this.getIgnorePhon(), "ignorePhon", rval);
     rval = addTrueBooleansAndDescrToString(this.getPhonIsDeleted(), "phonIsDeleted", rval);
     rval = addTrueBooleansAndDescrToString(this.getPhonIsReplaced(), "phonIsReplaced", rval);
+    rval = addTrueBooleansAndDescrToString(this.getPhonIsInserted(), "phonIsInserted", rval);
     rval = addTrueBooleansAndDescrToString(this.getIsCreakModifier(), "isCreakModifier", rval);
     rval = addTrueBooleansAndDescrToString(this.getIsCreaked(), "isCreaked", rval);
     rval = addTrueBooleansAndDescrToString(this.getIsNasalizationModifier(), "isNasalizationModifier", rval);
