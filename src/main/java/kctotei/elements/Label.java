@@ -374,6 +374,7 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
     // vocal noise specifics
     rval = addTrueBooleansAndDescrToString(this.getIsVocalNoise(), "isVocalNoise", rval);
+    rval = addTrueBooleansAndDescrToString(this.getIsPause(), "isPause", rval);
     rval = addTrueBooleansAndDescrToString(this.getVocalNoiseIsDeleted(), "vocalNoiseIsDeleted", rval);
     rval = addStringAndDescrToString(this.getVocalNoiseType(), "vocalNoiseType", rval);
 
