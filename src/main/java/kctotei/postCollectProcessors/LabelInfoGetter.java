@@ -107,7 +107,7 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
       }
 
       // detect vocal non verbal noise labels
-      if (node.getClass() == labels.node.AVocalNoiseNonverbalLabel.class) {
+      if (node.getClass() == labels.node.AVocalNoiseNonverbalLabel.class || node.getClass() == labels.node.AHesitationNonverbalLabel.class) {
         label.setIsVocalNoise(true);
       }
 
@@ -143,6 +143,10 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
 
         if (node.getClass().toString().contains("Unspecific")) {
           label.setVocalNoiseType("unspezifisch");
+        }
+
+        if (node.getClass().toString().contains("Hesitation")) {
+          label.setVocalNoiseType("Zögern");
         }
 
         if (node.getClass().toString().contains("Silence")) {
