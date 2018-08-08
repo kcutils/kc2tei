@@ -333,7 +333,10 @@ public class TEIDoc {
 
       // add noise
       if (e.getClass() == Label.class && ((Label) e).getIsVocalNoise() && !((Label) e).getVocalNoiseIsDeleted()) {
-        addVocalNoise((Label) e, rootElement);
+        // we don't want vocal noises without duration at this moment
+        if (((Label) e).getStartTime() != ((Label) e).getEndTime()) {
+          addVocalNoise((Label) e, rootElement);
+        }
       }
     }
   }
@@ -388,7 +391,10 @@ public class TEIDoc {
 
             // add noise
             if (((Label) e).getIsVocalNoise() && !((Label) e).getVocalNoiseIsDeleted()) {
-              addVocalNoise((Label) e, utterance);
+              // we don't want noises without duration at the moment
+              if (((Label) e).getStartTime() != ((Label) e).getEndTime()) {
+                addVocalNoise((Label) e, utterance);
+              }
             }
 
             // add phone
