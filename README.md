@@ -1,28 +1,14 @@
 Kiel Corpus to TEI converter (kc2tei)
 =====================================
 
-A program to convert Kiel Corpus annotation files into TEI files based on ISO 24624:2016(E)
+A program to convert Kiel Corpus annotation files into TEI files based
+on ISO 24624:2016(E)
 
+Examples
 
-Some commands used while testing/developing
--------------------------------------------
-
-Cleaning all built files
+Convert Kiel Corpus file g111a00l.s2 to ISOTEI-XML, produce output on
+stdout:
 ```
-$ mvn clean
-```
-
-Run tests defined in `./src/test/`
-```
-$ mvn test
+$ ./kc2tei.sh -i ../data/g111a00l.s2
 ```
 
-Build executable JAR-file
-```
-$ mvn package
-```
-
-Run built program
-```
-$ java -jar target/kc2tei-0.1.jar -i src/test/resources/sample_kc_file.s1h
-```
