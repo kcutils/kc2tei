@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 #
 # This script creates a archive file containing all relevant kc2tei
 # program files and some data for testing, etc.
