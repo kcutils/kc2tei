@@ -96,6 +96,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+
+    <timestamp>${build.time}</timestamp>
   </properties>
 
   <build>
@@ -194,7 +196,37 @@
         </configuration>
       </plugin>
 
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>1.10</version>
+          <executions>
+            <execution>
+              <id>timestamp-property</id>
+              <goals>
+                <goal>timestamp-property</goal>
+              </goals>
+              <configuration>
+                <name>build.time</name>
+                <pattern>dd.MM.yyyy HH:mm</pattern>
+                <locale>de_DE</locale>
+                <timeZone>CET</timeZone>
+              </configuration>
+            </execution>
+          </executions>
+     </plugin>
+
     </plugins>
+
+    <resources>
+      <resource>
+        <directory>${project.basedir}/src/main/resources/</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/version.txt</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 
   <dependencies>

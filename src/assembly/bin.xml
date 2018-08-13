@@ -16,6 +16,13 @@
       </includes>
     </fileSet>
     <fileSet>
+      <directory>${project.basedir}/target/classes/</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>version.txt</include>
+      </includes>
+    </fileSet>
+    <fileSet>
       <directory>${project.basedir}/src/scripts/</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
