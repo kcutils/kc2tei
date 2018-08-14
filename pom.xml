@@ -216,17 +216,44 @@
           </executions>
      </plugin>
 
-    </plugins>
+     <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-resources-plugin</artifactId>
+       <version>2.5</version>
+       <executions>
+         <execution>
+           <id>custom-resources</id>
+           <phase>process-resources</phase>
+           <goals>
+             <goal>copy-resources</goal>
+           </goals>
+           <configuration>
+             <outputDirectory>${project.build.directory}</outputDirectory>
+             <resources>                                        
+               <resource>
+                 <targetPath>${project.basedir}/target/classes/</targetPath>
+                 <directory>${project.basedir}/src/main/resources/</directory>
+                 <filtering>true</filtering>
+                 <includes>
+                   <include>**/version.txt</include>
+                 </includes>
+               </resource>             
+               <resource>
+                 <targetPath>${project.basedir}/target/classes/kctotei/</targetPath>
+                 <directory>${project.basedir}/src/main/resources/kctotei/</directory>
+                 <filtering>false</filtering>
+                 <includes>
+                   <include>**/TEIschema.rng</include>
+                 </includes>
+               </resource>
+             </resources>
+             <encoding>UTF-8</encoding>
+           </configuration>            
+         </execution>
+       </executions>
+     </plugin>
 
-    <resources>
-      <resource>
-        <directory>${project.basedir}/src/main/resources/</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>**/version.txt</include>
-        </includes>
-      </resource>
-    </resources>
+    </plugins>
   </build>
 
   <dependencies>
