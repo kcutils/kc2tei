@@ -146,7 +146,7 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
         }
 
         if (node.getClass().toString().contains("Hesitation")) {
-          label.setVocalNoiseType("Zögern");
+          label.setVocalNoiseType("Häsitation");
         }
 
         if (node.getClass().toString().contains("Silence")) {
