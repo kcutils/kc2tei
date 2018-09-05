@@ -270,7 +270,7 @@ public class TEIDoc {
     // we expect a sorted list of timed annotation elements
 
     TimeMark start = null;
-    TimeMark end = null;
+    TimeMark end = this.getAnnotationElements().getTimeMarkerList().get(0);
 
     // amountOfPhraseEndLabels < 1: first type of annotation file
     // amountOfPhraseEndLabels >=1: second type of annotation file
