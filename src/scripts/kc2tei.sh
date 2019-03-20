@@ -12,10 +12,17 @@ SCRIPT_PATH=$( dirname "$SCRIPT" )
 
 JAR="${SCRIPT_PATH}/lib/kc2tei.jar"
 
+if echo "$OSTYPE" | grep "cygwin" 2>&1 > /dev/null; then
+  OUT=$( cygpath -w $JAR )
+  if [ $? -eq 0 ]; then
+    JAR=$OUT
+  fi
+fi
+
 if [ ! -f "$JAR" ]; then
   echo "kc2tei JAR file not found! Exiting ..."
   exit 1
 fi
 
-$JAVA -jar "$JAR" $@
+"$JAVA" -Dfile.encoding=UTF-8 -jar "$JAR" $@
 
