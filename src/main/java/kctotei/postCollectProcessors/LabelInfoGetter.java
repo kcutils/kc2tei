@@ -55,6 +55,14 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
 
     if (this.getRefineMode()) {
 
+      if (node.getClass() == labels.node.AFalseStartVerbalBreakLabel.class) {
+        label.setIsFalseStart(true);
+      }
+
+      if (node.getClass() == labels.node.ATruncationVerbalBreakLabel.class) {
+        label.setIsTruncation(true);
+      }
+
       if (node.getClass() == labels.node.AProsodicLabel.class) {
         label.setIsProsodicLabel(true);
         label.setProsodicLabel(stripWhiteSpaces(node.toString()));

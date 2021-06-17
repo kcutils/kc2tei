@@ -45,6 +45,11 @@ public class TEIDoc {
 
   private static final String MISC_TYPE = "misc";
 
+  private static final String ERROR_TYPE = "error";
+
+  private static final String FALSE_START_ERROR_DESC = "Fehlstart";
+  private static final String TRUNCATION_ERROR_DESC = "Abbruch";
+
   private Map namespaceMap;
   private XPath xpath;
 
@@ -74,7 +79,6 @@ public class TEIDoc {
     this.setVocalCounter(0);
     this.setPauseCounter(0);
     this.setAudioFileName(null);
-
   }
 
   public TEIDoc (AnnotationElementCollection annotationElements) throws JaxenException {
@@ -259,8 +263,8 @@ public class TEIDoc {
   private void addContent () throws JaxenException {
 
     // There are two types of annotation files in Kiel Corpus
-    //   - the first contains no phrase information
-    //   - the second contains phrase information
+    //   - the first contains no phrase information (*.s1)
+    //   - the second contains phrase information (*.s2)
     //
     // If there is no phrase information, we take the word as
     // the biggest unit in hierarchy, else we take the phrase
@@ -320,6 +324,13 @@ public class TEIDoc {
     }
   }
 
+
+  // biggest element can either be a word (s1-type file) or a phrase (s2-type file)
+  //
+  // for example: if a word is our biggest element (in s1-type-files)
+  // then we want all elements that do not belong to that word to appear
+  // from the end of the current word and the beginning of the next word
+  //
   private void addStuffBetweenTwoBiggestElements (TimeMark endOfCurrentElement, TimeMark startOfNextElement) throws JaxenException {
 
     Element rootElement = addElementFoundByXpath("/tei:TEI/tei:text/tei:body");
@@ -341,18 +352,25 @@ public class TEIDoc {
     }
   }
 
+  //
+  // biggest element can either be a word (s1-type file) or a phrase (s2-type file)
+  //
   private void addBiggestElementWithSubordinatedElements (int amountOfPhraseEndLabels, TimeMark start, TimeMark end) throws JaxenException {
     if (amountOfPhraseEndLabels >= 0 && start != null && end != null) {
 
-      // create TEI document elements for current phrase and related elements
+      // create TEI document elements for current biggest element and related elements
+
+      // an annotationBlock holds it all
       Element annotationBlock = addElementFoundByXpath("/tei:TEI/tei:text/tei:body").addElement("annotationBlock").
               addAttribute(START, "#" + start.getName()).addAttribute(END, "#" + end.getName());
 
       List<TimedAnnotationElement> elements;
 
       if (amountOfPhraseEndLabels >= 1) {
+        // biggest element is a phrase (s2-type file)
         elements = annotationElements.getListOfTimedAnnotationElementsWithinPhraseStartingWithAndNotEndingBefore(start, end);
       } else {
+        // biggest element is a word (s1-type file)
         elements = annotationElements.getListOfTimedAnnotationElementsWithinWordStartingWithAndNotEndingBefore(start, end);
       }
 
@@ -365,6 +383,7 @@ public class TEIDoc {
         Element realizedPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", REALIZED_PHONE_TYPE);
         Element canonicalPhonesSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", CANONICAL_PHONE_TYPE);
         Element prosodySpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", PROSODY_TYPE);
+        Element errorSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", ERROR_TYPE);
         Element miscSpanGrp = annotationBlock.addElement("spanGrp").addAttribute("type", MISC_TYPE);
 
         for (TimedAnnotationElement e : elements) {
@@ -408,9 +427,16 @@ public class TEIDoc {
             }
 
             // add misc
+            // add MA mark
             if (((Label) e).getIsPhon() && ((Label) e).getIsMAModifier()) {
               addMisc((Label) e, miscSpanGrp);
             }
+
+            // add speak errors
+            if (((Label) e).getIsFalseStart() || ((Label) e).getIsTruncation()) {
+              addError((Label) e, errorSpanGrp);
+            }
+
           }
         }
       }
@@ -428,6 +454,7 @@ public class TEIDoc {
               addText(p.getPunctuation());
     }
   }
+
 
   private void addProsody (Label p, Element spanGrp) throws JaxenException {
     if (p != null) {
@@ -524,16 +551,39 @@ public class TEIDoc {
     }
   }
 
+  private void addError (Label l, Element errorSpanGrp) {
+    if (l != null && (l.getIsTruncation() || l.getIsFalseStart())) {
+      this.setSpanCounter(this.getSpanCounter() + 1);
+
+      // determine type of incident
+      String type = "unbekannt";
+
+      if (l.getIsTruncation()) {
+        type = TRUNCATION_ERROR_DESC;
+      }
+      if (l.getIsFalseStart()) {
+        type = FALSE_START_ERROR_DESC;
+      }
+
+      errorSpanGrp.addElement("span").
+              addAttribute(FROM, "#" + l.getStartTime().getName()).
+              addAttribute(TO, "#" + l.getEndTime().getName()).
+              addAttribute(XML_ID, "s" + this.getSpanCounter()).
+              addText(type);
+    }
+  }
+
   private void addMisc (Label l, Element miscSpanGrp) {
     if (l != null && l.getIsPhon() && l.getIsMAModifier() && miscSpanGrp != null) {
       this.setSpanCounter(this.getSpanCounter() + 1);
       miscSpanGrp.addElement("span").
-           addAttribute(FROM, "#" + l.getStartTime().getName()).
-           addAttribute(TO, "#" + l.getEndTime().getName()).
-           addAttribute(XML_ID, "s" + this.getSpanCounter()).
-           addText("MA");
+              addAttribute(FROM, "#" + l.getStartTime().getName()).
+              addAttribute(TO, "#" + l.getEndTime().getName()).
+              addAttribute(XML_ID, "s" + this.getSpanCounter()).
+              addText("MA");
     }
   }
+
 
   /**
    * Gets a word and replaces special chars (e.g. umlauts)

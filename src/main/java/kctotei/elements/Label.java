@@ -56,6 +56,9 @@ public class Label extends TimedAnnotationElement<PTlabel> {
   private Boolean isPhraseBegin;
   private Boolean isPhraseEnd;
 
+  // false start and truncation
+  private Boolean isFalseStart;
+  private Boolean isTruncation;
 
 
   public Label (PTlabel pTlabel) {
@@ -100,6 +103,8 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.setProsodicLabel(null);
     this.setIsPhraseBegin(false);
     this.setIsPhraseEnd(false);
+    this.setIsFalseStart(false);
+    this.setIsTruncation(false);
   }
 
   public Boolean getIsPhon () {
@@ -350,6 +355,22 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     isPhraseEnd = phraseEnd;
   }
 
+  public Boolean getIsFalseStart() {
+    return isFalseStart;
+  }
+
+  public void setIsFalseStart(Boolean falseStart) {
+    isFalseStart = falseStart;
+  }
+
+  public Boolean getIsTruncation() {
+    return isTruncation;
+  }
+
+  public void setIsTruncation(Boolean truncation) {
+    isTruncation = truncation;
+  }
+
   public String toString () {
     String rval = super.toString();
 
@@ -389,6 +410,10 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     rval = addStringAndDescrToString(this.getProsodicLabel(), "prosodicLabel", rval);
     rval = addTrueBooleansAndDescrToString(this.getIsPhraseBegin(), "isPhraseBegin", rval);
     rval = addTrueBooleansAndDescrToString(this.getIsPhraseEnd(), "isPhraseEnd", rval);
+
+    // false start and truncation
+    rval = addTrueBooleansAndDescrToString(this.getIsFalseStart(), "isFalseStart", rval);
+    rval = addTrueBooleansAndDescrToString(this.getIsTruncation(), "isTruncation", rval);
 
     return rval;
   }
