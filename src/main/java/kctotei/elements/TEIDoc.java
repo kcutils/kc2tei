@@ -428,7 +428,9 @@ public class TEIDoc {
 
             // add misc
             // add MA mark
-            if (((Label) e).getIsPhon() && ((Label) e).getIsMAModifier()) {
+            // add FWM (function word mark)
+            if ((((Label) e).getIsPhon() && ((Label) e).getIsMAModifier()) ||
+                    (((Label) e).getIsFwm())) {
               addMisc((Label) e, miscSpanGrp);
             }
 
@@ -581,6 +583,17 @@ public class TEIDoc {
               addAttribute(TO, "#" + l.getEndTime().getName()).
               addAttribute(XML_ID, "s" + this.getSpanCounter()).
               addText("MA");
+    }
+
+    // FWM - function word marker is at end of function words - this means: the last label
+    // it has no duration
+    if (l != null && l.getIsFwm() && miscSpanGrp != null) {
+      this.setSpanCounter(this.getSpanCounter() + 1);
+      miscSpanGrp.addElement("span").
+              addAttribute(FROM, "#" + l.getEndTime().getName()).
+              addAttribute(TO, "#" + l.getEndTime().getName()).
+              addAttribute(XML_ID, "s" + this.getSpanCounter()).
+              addText("FWM");
     }
   }
 

@@ -63,6 +63,10 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
         label.setIsTruncation(true);
       }
 
+      if (node.getClass() == labels.node.AFwm.class) {
+        label.setIsFwm(true);
+      }
+
       if (node.getClass() == labels.node.AProsodicLabel.class) {
         label.setIsProsodicLabel(true);
         label.setProsodicLabel(stripWhiteSpaces(node.toString()));

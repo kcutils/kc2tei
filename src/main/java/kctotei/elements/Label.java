@@ -60,6 +60,9 @@ public class Label extends TimedAnnotationElement<PTlabel> {
   private Boolean isFalseStart;
   private Boolean isTruncation;
 
+  // function word marker
+  private Boolean isFwm;
+
 
   public Label (PTlabel pTlabel) {
     super(pTlabel);
@@ -105,6 +108,7 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.setIsPhraseEnd(false);
     this.setIsFalseStart(false);
     this.setIsTruncation(false);
+    this.setIsFwm(false);
   }
 
   public Boolean getIsPhon () {
@@ -371,6 +375,14 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     isTruncation = truncation;
   }
 
+  public Boolean getIsFwm() {
+    return isFwm;
+  }
+
+  public void setIsFwm(Boolean fwm) {
+    isFwm = fwm;
+  }
+
   public String toString () {
     String rval = super.toString();
 
@@ -414,6 +426,9 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     // false start and truncation
     rval = addTrueBooleansAndDescrToString(this.getIsFalseStart(), "isFalseStart", rval);
     rval = addTrueBooleansAndDescrToString(this.getIsTruncation(), "isTruncation", rval);
+
+    // function word marker
+    rval = addTrueBooleansAndDescrToString(this.getIsFwm(), "isFwm", rval);
 
     return rval;
   }
