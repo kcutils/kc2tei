@@ -3,6 +3,8 @@ package kctotei.postCollectProcessors;
 import kctotei.elements.Label;
 import kctotei.elements.StressType;
 
+import java.lang.reflect.Method;
+
 /**
  * A label info getter analyzes a label and its children to get
  * a more precise view of the type of the label.
@@ -54,6 +56,19 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
     setDetails(getDetails() + "\n---  " + node.getClass().toString());
 
     if (this.getRefineMode()) {
+
+      // mark uncertainty, if node has getUncertainty-method and the underlying _uncertainty_-variable is not null we
+      // have an uncertain node
+      try {
+        Method m = node.getClass().getMethod("getUncertainty");
+        // uncertain punctuation is handled later
+        if (node.getClass() != labels.node.APunctuationLabel.class && !label.getIsPunctuation()) {
+          if (m.invoke(node) != null) {
+            label.setIsUncertain(true);
+          }
+        }
+      } catch (Exception ignored) {
+      }
 
       if (node.getClass() == labels.node.AFalseStartVerbalBreakLabel.class) {
         label.setIsFalseStart(true);

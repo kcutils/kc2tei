@@ -63,6 +63,9 @@ public class Label extends TimedAnnotationElement<PTlabel> {
   // function word marker
   private Boolean isFwm;
 
+  // uncertainty
+  private Boolean isUncertain;
+
 
   public Label (PTlabel pTlabel) {
     super(pTlabel);
@@ -109,6 +112,7 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.setIsFalseStart(false);
     this.setIsTruncation(false);
     this.setIsFwm(false);
+    this.setIsUncertain(false);
   }
 
   public Boolean getIsPhon () {
@@ -383,6 +387,14 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     isFwm = fwm;
   }
 
+  public Boolean getIsUncertain() {
+    return isUncertain;
+  }
+
+  public void setIsUncertain(Boolean uncertain) {
+    isUncertain = uncertain;
+  }
+
   public String toString () {
     String rval = super.toString();
 
@@ -429,6 +441,9 @@ public class Label extends TimedAnnotationElement<PTlabel> {
 
     // function word marker
     rval = addTrueBooleansAndDescrToString(this.getIsFwm(), "isFwm", rval);
+
+    // uncertainty
+    rval = addTrueBooleansAndDescrToString(this.getIsUncertain(), "isUncertain", rval);
 
     return rval;
   }
