@@ -58,7 +58,6 @@ class Main {
 
     processCmdLineArgs(args);
 
-
     new ElementCollector(ANNOTATION_ELEMENT_COLLECTION, inputFileName, debugMode);
 
     if (debugMode) {
@@ -76,8 +75,11 @@ class Main {
     KCSampaToIPAConverter charConverter = new KCSampaToIPAConverter(debugMode);
     String audioFileBaseName = inputFileName.substring(inputFileName.lastIndexOf("/") + 1, inputFileName.length());
 
-    TEIDoc teiDoc = new TEIDoc(ANNOTATION_ELEMENT_COLLECTION, charConverter,
-            audioFileBaseName.substring(0, audioFileBaseName.lastIndexOf(".")) + ".wav");
+    TEIDoc teiDoc = new TEIDoc(ANNOTATION_ELEMENT_COLLECTION,
+            charConverter,
+            audioFileBaseName.substring(0, audioFileBaseName.lastIndexOf(".")) + ".wav",
+            PROG_NAME,
+            VERSION);
 
     File rngSchemaFile = getResourceAsFile(RNG_SCHEMA_FILE_NAME);
     if (rngSchemaFile == null || !rngSchemaFile.exists()) {

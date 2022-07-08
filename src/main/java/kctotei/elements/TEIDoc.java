@@ -11,6 +11,7 @@ import org.jaxen.dom4j.Dom4jXPath;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +67,9 @@ public class TEIDoc {
 
   private String audioFileName;
 
+  private String converterName;
+  private String converterVersion;
+
   private TEIDoc () {
     this.setDoc(null);
     this.setNamespaceMap(new HashMap());
@@ -99,6 +103,16 @@ public class TEIDoc {
     this.annotationElements = annotationElements;
     this.charConverter = charConverter;
     this.setAudioFileName(audioFileName);
+    init();
+  }
+
+  public TEIDoc (AnnotationElementCollection annotationElements, KCSampaToIPAConverter charConverter, String audioFileName, String converterName, String converterVersion) throws JaxenException {
+    this();
+    this.annotationElements = annotationElements;
+    this.charConverter = charConverter;
+    this.setAudioFileName(audioFileName);
+    this.setConverterName(converterName);
+    this.setConverterVersion(converterVersion);
     init();
   }
 
@@ -198,6 +212,22 @@ public class TEIDoc {
     this.audioFileName = audioFileName;
   }
 
+  public String getConverterName() {
+    return converterName;
+  }
+
+  public void setConverterName(String converterName) {
+    this.converterName = converterName;
+  }
+
+  public String getConverterVersion() {
+    return converterVersion;
+  }
+
+  public void setConverterVersion(String converterVersion) {
+    this.converterVersion = converterVersion;
+  }
+
   private void init () throws JaxenException {
 
     createXMLdoc();
@@ -207,7 +237,6 @@ public class TEIDoc {
     addElementFoundByXpath("/tei:TEI").addElement("text");
 
     // add timeline
-    addElementFoundByXpath("/tei:TEI/tei:text").addElement("front");
     addTimeLineEntries();
 
     // add body
@@ -231,6 +260,11 @@ public class TEIDoc {
 
   private void createXMLHeader () throws JaxenException {
     // built common header information
+    this.getDoc().
+            addComment(" ******************************************************************************************************** ").
+            addComment(" result of transformation from legacy Kiel Corpus File Format to Kiel Corpus ISO/TEI (KCTEI)-Format using ").
+            addComment(" " + String.format("%1$-104s", this.getConverterName() + " version " + this.getConverterVersion() + " on " + ZonedDateTime.now()) + " ").
+            addComment(" ******************************************************************************************************** ");
     this.getDoc().addElement(new QName("TEI", XMLNS)).addElement("teiHeader").addElement("fileDesc").addElement("titleStmt").addElement("title").addText("TODO");
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc").addElement("publicationStmt").addElement("authority").addText(AUTHORITY);
     addElementFoundByXpath("/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt").addElement("distributor").addText(DISTRIBUTOR);
@@ -251,10 +285,10 @@ public class TEIDoc {
   private void addTimeLineEntries () throws JaxenException {
 
     // set reference point
-    addElementFoundByXpath("/tei:TEI/tei:text/tei:front").addElement("timeline").addAttribute("unit", "s").addElement("when").addAttribute(XML_ID, "T0");
+    addElementFoundByXpath("/tei:TEI/tei:text").addElement("timeline").addAttribute("unit", "s").addElement("when").addAttribute(XML_ID, "T0");
 
     for (int i = 0; i < annotationElements.getTimeMarkerList().size(); i++) {
-      addElementFoundByXpath("/tei:TEI/tei:text/tei:front/tei:timeline").addElement("when").addAttribute(XML_ID, annotationElements.getTimeMarkerList().get(i).getName()).
+      addElementFoundByXpath("/tei:TEI/tei:text/tei:timeline").addElement("when").addAttribute(XML_ID, annotationElements.getTimeMarkerList().get(i).getName()).
                                                                                                                                                                      addAttribute("interval", Float.toString(annotationElements.getTimeMarkerList().get(i).getTime())).
                                                                                                                                                                                                                                                                           addAttribute("since", "#T0");
     }
