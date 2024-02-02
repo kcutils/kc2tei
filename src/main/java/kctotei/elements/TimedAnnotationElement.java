@@ -3,7 +3,7 @@ package kctotei.elements;
 /**
  * A TimedAnnotationElement consists of
  * a TimeMark that marks the beginning,
- * some content and
+ * some content of type T and
  * a TimeMark that marks the end.
  *
  * @param <T> type of content

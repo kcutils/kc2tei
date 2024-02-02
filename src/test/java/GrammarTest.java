@@ -34,13 +34,13 @@ public class GrammarTest {
     Scanner scanner = null;
     int i = 0;
     String fileName = null;
-    Integer expectedNoises = null;
-    Integer expectedVocalNoises = null;
-    Integer expectedSentenceStarts = null;
-    Integer expectedSentencePunctuations = null;
-    Integer expectedPunctuations = null;
-    Integer expectedWords = null;
-    Integer expectedWordBoundaries = null;
+    int expectedNoises;
+    int expectedVocalNoises;
+    int expectedSentenceStarts;
+    int expectedSentencePunctuations;
+    int expectedPunctuations;
+    int expectedWords;
+    int expectedWordBoundaries;
 
     while ((line = reader.readLine()) != null) {
       scanner = new Scanner(line);
@@ -48,13 +48,13 @@ public class GrammarTest {
 
       i = 0;
       fileName = null;
-      expectedNoises = null;
-      expectedVocalNoises = null;
-      expectedSentenceStarts = null;
-      expectedSentencePunctuations = null;
-      expectedPunctuations = null;
-      expectedWords = null;
-      expectedWordBoundaries = null;
+      expectedNoises = 0;
+      expectedVocalNoises = 0;
+      expectedSentenceStarts = 0;
+      expectedSentencePunctuations = 0;
+      expectedPunctuations = 0;
+      expectedWords = 0;
+      expectedWordBoundaries = 0;
 
       while (scanner.hasNext()) {
         String field = scanner.next();
@@ -66,19 +66,19 @@ public class GrammarTest {
         switch (i) {
           case 0: fileName = field;
                   break;
-          case 1: expectedNoises = Integer.valueOf(field);
+          case 1: expectedNoises = Integer.parseInt(field);
                   break;
-          case 2: expectedVocalNoises = Integer.valueOf(field);
+          case 2: expectedVocalNoises = Integer.parseInt(field);
                   break;
-          case 3: expectedSentenceStarts = Integer.valueOf(field);
+          case 3: expectedSentenceStarts = Integer.parseInt(field);
                   break;
-          case 4: expectedSentencePunctuations = Integer.valueOf(field);
+          case 4: expectedSentencePunctuations = Integer.parseInt(field);
                   break;
-          case 5: expectedPunctuations = Integer.valueOf(field);
+          case 5: expectedPunctuations = Integer.parseInt(field);
                   break;
-          case 6: expectedWords = Integer.valueOf(field);
+          case 6: expectedWords = Integer.parseInt(field);
                   break;
-          case 7: expectedWordBoundaries = Integer.valueOf(field);
+          case 7: expectedWordBoundaries = Integer.parseInt(field);
                   break;
           default:
                   // ignore additional fields/values
@@ -90,7 +90,7 @@ public class GrammarTest {
       if (scanner != null) {
         scanner.close();
       }
-      if (fileName != null && expectedNoises != null && expectedVocalNoises != null && expectedSentenceStarts != null && expectedSentencePunctuations != null && expectedPunctuations != null && expectedWords != null && expectedWordBoundaries != null) {
+      if (fileName != null) {
         testLexParse(fileName, expectedNoises, expectedVocalNoises, expectedSentenceStarts, expectedSentencePunctuations, expectedPunctuations, expectedWords, expectedWordBoundaries);
       }
     }
@@ -134,14 +134,14 @@ public class GrammarTest {
     System.out.println(wordCounter + "/" + expectedWords + " words (transliteration)");
     System.out.println(wordBoundaryCounter + "/" + expectedWordBoundaries + " word boundaries (labels)");
 
-    Assert.assertTrue(filenameCounter == 1);
-    Assert.assertTrue(noiseCounter == expectedNoises);
-    Assert.assertTrue(vocalNoiseCounter == expectedVocalNoises);
-    Assert.assertTrue(sentenceStartCounter == expectedSentenceStarts);
-    Assert.assertTrue(sentencePunctuationCounter == expectedSentencePunctuations);
-    Assert.assertTrue(punctuationCounter == expectedPunctuations);
-    Assert.assertTrue(wordCounter == expectedWords);
-    Assert.assertTrue(wordBoundaryCounter == expectedWordBoundaries);
+    Assert.assertEquals(1, filenameCounter);
+    Assert.assertEquals(noiseCounter, (int) expectedNoises);
+    Assert.assertEquals(vocalNoiseCounter, (int) expectedVocalNoises);
+    Assert.assertEquals(sentenceStartCounter, (int) expectedSentenceStarts);
+    Assert.assertEquals(sentencePunctuationCounter, (int) expectedSentencePunctuations);
+    Assert.assertEquals(punctuationCounter, (int) expectedPunctuations);
+    Assert.assertEquals(wordCounter, (int) expectedWords);
+    Assert.assertEquals(wordBoundaryCounter, (int) expectedWordBoundaries);
 
 
     System.out.println("\nEnd of processing of " + fileName + " .");

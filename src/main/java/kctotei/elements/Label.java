@@ -9,28 +9,28 @@ import labels.node.PTlabel;
 public class Label extends TimedAnnotationElement<PTlabel> {
 
   // general variables
-  private Boolean isWordBegin;
-  private Boolean isBeginOfAccousticWord;
+  private boolean isWordBegin;
+  private boolean isBeginOfAccousticWord;
 
   // phone specific variables
-  private Boolean isPhon;
-  private Boolean phonIsDeleted;
-  private Boolean phonIsReplaced;
-  private Boolean phonIsInserted;
+  private boolean isPhon;
+  private boolean phonIsDeleted;
+  private boolean phonIsReplaced;
+  private boolean phonIsInserted;
 
-  private Boolean ignorePhon;
+  private boolean ignorePhon;
 
-  private Boolean isCreakModifier;
-  private Boolean isCreaked;
+  private boolean isCreakModifier;
+  private boolean isCreaked;
 
-  private Boolean isNasalizationModifier;
-  private Boolean isNasalized;
-  private Boolean isNasal;
+  private boolean isNasalizationModifier;
+  private boolean isNasalized;
+  private boolean isNasal;
 
-  private Boolean isMAModifier;
+  private boolean isMAModifier;
 
-  private Boolean realizedPhoneIsStressed;
-  private Boolean modifiedPhoneIsStressed;
+  private boolean realizedPhoneIsStressed;
+  private boolean modifiedPhoneIsStressed;
 
   private StressType realizedPhoneStressType;
   private StressType modifiedPhoneStressType;
@@ -39,29 +39,29 @@ public class Label extends TimedAnnotationElement<PTlabel> {
   private String modifiedPhon;
 
   // vocal noise specific variables
-  private Boolean isVocalNoise;
-  private Boolean isPause;
-  private Boolean vocalNoiseIsDeleted;
+  private boolean isVocalNoise;
+  private boolean isPause;
+  private boolean vocalNoiseIsDeleted;
   private String vocalNoiseType;
 
   // punctuation
-  private Boolean isPunctuation;
-  private Boolean ignorePunctuation;
+  private boolean isPunctuation;
+  private boolean ignorePunctuation;
   private String punctuation;
-  private Boolean punctIsUncertain;
+  private boolean punctIsUncertain;
 
   // prosody
-  private Boolean isProsodicLabel;
+  private boolean isProsodicLabel;
   private String prosodicLabel;
-  private Boolean isPhraseBegin;
-  private Boolean isPhraseEnd;
+  private boolean isPhraseBegin;
+  private boolean isPhraseEnd;
 
   // false start and truncation
-  private Boolean isFalseStart;
-  private Boolean isTruncation;
+  private boolean isFalseStart;
+  private boolean isTruncation;
 
   // function word marker
-  private Boolean isFwm;
+  private boolean isFwm;
 
 
   public Label (PTlabel pTlabel) {
@@ -111,35 +111,35 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.setIsFwm(false);
   }
 
-  public Boolean getIsPhon () {
+  public boolean getIsPhon () {
     return isPhon;
   }
 
-  public void setIsPhon (Boolean phon) {
+  public void setIsPhon (boolean phon) {
     isPhon = phon;
   }
 
-  public Boolean getPhonIsDeleted () {
+  public boolean getPhonIsDeleted () {
     return phonIsDeleted;
   }
 
-  public void setPhonIsDeleted (Boolean phonIsDeleted) {
+  public void setPhonIsDeleted (boolean phonIsDeleted) {
     this.phonIsDeleted = phonIsDeleted;
   }
 
-  public Boolean getIsWordBegin () {
+  public boolean getIsWordBegin () {
     return isWordBegin;
   }
 
-  public void setIsWordBegin (Boolean wordBegin) {
+  public void setIsWordBegin (boolean wordBegin) {
     isWordBegin = wordBegin;
   }
 
-  public Boolean getIsBeginOfAccousticWord () {
+  public boolean getIsBeginOfAccousticWord () {
     return isBeginOfAccousticWord;
   }
 
-  public void setIsBeginOfAccousticWord (Boolean isBeginOfAccousticWord) {
+  public void setIsBeginOfAccousticWord (boolean isBeginOfAccousticWord) {
     this.isBeginOfAccousticWord = isBeginOfAccousticWord;
   }
 
@@ -159,91 +159,91 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.modifiedPhon = modifiedPhon;
   }
 
-  public Boolean getPhonIsReplaced () {
+  public boolean getPhonIsReplaced () {
     return phonIsReplaced;
   }
 
-  public void setPhonIsReplaced (Boolean phonIsReplaced) {
+  public void setPhonIsReplaced (boolean phonIsReplaced) {
     this.phonIsReplaced = phonIsReplaced;
   }
 
-  public Boolean getPhonIsInserted () {
+  public boolean getPhonIsInserted () {
     return phonIsInserted;
   }
 
-  public void setPhonIsInserted (Boolean phonIsInserted) {
+  public void setPhonIsInserted (boolean phonIsInserted) {
     this.phonIsInserted = phonIsInserted;
   }
 
-  public Boolean getIsCreakModifier () {
+  public boolean getIsCreakModifier () {
     return isCreakModifier;
   }
 
-  public void setIsCreakModifier (Boolean isCreakModifier) {
+  public void setIsCreakModifier (boolean isCreakModifier) {
     this.isCreakModifier = isCreakModifier;
   }
 
-  public Boolean getIsCreaked () {
+  public boolean getIsCreaked () {
     return this.isCreaked;
   }
 
-  public void setIsCreaked (Boolean isCreaked) {
+  public void setIsCreaked (boolean isCreaked) {
     this.isCreaked = isCreaked;
   }
 
-  public Boolean getIgnorePhon () {
+  public boolean getIgnorePhon () {
     return this.ignorePhon;
   }
 
-  public void setIgnorePhon (Boolean ignorePhon) {
+  public void setIgnorePhon (boolean ignorePhon) {
     this.ignorePhon = ignorePhon;
   }
 
-  public Boolean getIsNasalizationModifier () {
+  public boolean getIsNasalizationModifier () {
     return isNasalizationModifier;
   }
 
-  public void setIsNasalizationModifier (Boolean isNasalizationModifier) {
+  public void setIsNasalizationModifier (boolean isNasalizationModifier) {
     this.isNasalizationModifier = isNasalizationModifier;
   }
 
-  public Boolean getIsNasalized () {
+  public boolean getIsNasalized () {
     return isNasalized;
   }
 
-  public void setIsNasalized (Boolean isNasalized) {
+  public void setIsNasalized (boolean isNasalized) {
     this.isNasalized = isNasalized;
   }
 
-  public Boolean getIsNasal () {
+  public boolean getIsNasal () {
     return isNasal;
   }
 
-  public void setIsNasal (Boolean isNasal) {
+  public void setIsNasal (boolean isNasal) {
     this.isNasal = isNasal;
   }
 
-    public Boolean getIsMAModifier () {
+    public boolean getIsMAModifier () {
     return isMAModifier;
   }
 
-  public void setIsMAModifier (Boolean isMAModifier) {
+  public void setIsMAModifier (boolean isMAModifier) {
     this.isMAModifier = isMAModifier;
   }
 
-  public Boolean getRealizedPhoneIsStressed () {
+  public boolean getRealizedPhoneIsStressed () {
     return realizedPhoneIsStressed;
   }
 
-  public void setRealizedPhoneIsStressed (Boolean realizedPhoneIsStressed) {
+  public void setRealizedPhoneIsStressed (boolean realizedPhoneIsStressed) {
     this.realizedPhoneIsStressed = realizedPhoneIsStressed;
   }
 
-  public Boolean getModifiedPhoneIsStressed () {
+  public boolean getModifiedPhoneIsStressed () {
     return modifiedPhoneIsStressed;
   }
 
-  public void setModifiedPhoneIsStressed (Boolean modifiedPhoneIsStressed) {
+  public void setModifiedPhoneIsStressed (boolean modifiedPhoneIsStressed) {
     this.modifiedPhoneIsStressed = modifiedPhoneIsStressed;
   }
 
@@ -263,27 +263,27 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.modifiedPhoneStressType = modifiedPhoneStressType;
   }
 
-  public Boolean getIsVocalNoise () {
+  public boolean getIsVocalNoise () {
     return isVocalNoise;
   }
 
-  public void setIsVocalNoise (Boolean isVocalNoise) {
+  public void setIsVocalNoise (boolean isVocalNoise) {
     this.isVocalNoise = isVocalNoise;
   }
 
-  public Boolean getIsPause () {
+  public boolean getIsPause () {
     return isPause;
   }
 
-  public void setIsPause (Boolean isPause) {
+  public void setIsPause (boolean isPause) {
     this.isPause = isPause;
   }
 
-  public Boolean getVocalNoiseIsDeleted () {
+  public boolean getVocalNoiseIsDeleted () {
     return vocalNoiseIsDeleted;
   }
 
-  public void setVocalNoiseIsDeleted (Boolean vocalNoiseIsDeleted) {
+  public void setVocalNoiseIsDeleted (boolean vocalNoiseIsDeleted) {
     this.vocalNoiseIsDeleted = vocalNoiseIsDeleted;
   }
 
@@ -295,19 +295,19 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.vocalNoiseType = vocalNoiseType;
   }
 
-  public Boolean getIsPunctuation () {
+  public boolean getIsPunctuation () {
     return isPunctuation;
   }
 
-  public void setIsPunctuation (Boolean isPunctuation) {
+  public void setIsPunctuation (boolean isPunctuation) {
     this.isPunctuation = isPunctuation;
   }
 
-  public Boolean getIgnorePunctuation () {
+  public boolean getIgnorePunctuation () {
     return ignorePunctuation;
   }
 
-  public void setIgnorePunctuation (Boolean ignorePunctuation) {
+  public void setIgnorePunctuation (boolean ignorePunctuation) {
     this.ignorePunctuation = ignorePunctuation;
   }
 
@@ -319,19 +319,19 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.punctuation = punctuation;
   }
 
-  public Boolean getPunctIsUncertain () {
+  public boolean getPunctIsUncertain () {
     return punctIsUncertain;
   }
 
-  public void setPunctIsUncertain (Boolean punctIsUncertain) {
+  public void setPunctIsUncertain (boolean punctIsUncertain) {
     this.punctIsUncertain = punctIsUncertain;
   }
 
-  public Boolean getIsProsodicLabel() {
+  public boolean getIsProsodicLabel() {
     return isProsodicLabel;
   }
 
-  public void setIsProsodicLabel(Boolean isProsodicLabel) {
+  public void setIsProsodicLabel(boolean isProsodicLabel) {
     this.isProsodicLabel = isProsodicLabel;
   }
 
@@ -343,43 +343,43 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     this.prosodicLabel = prosodicLabel;
   }
 
-  public Boolean getIsPhraseBegin() {
+  public boolean getIsPhraseBegin() {
     return isPhraseBegin;
   }
 
-  public void setIsPhraseBegin(Boolean phraseBegin) {
+  public void setIsPhraseBegin(boolean phraseBegin) {
     isPhraseBegin = phraseBegin;
   }
 
-  public Boolean getIsPhraseEnd() {
+  public boolean getIsPhraseEnd() {
     return isPhraseEnd;
   }
 
-  public void setIsPhraseEnd(Boolean phraseEnd) {
+  public void setIsPhraseEnd(boolean phraseEnd) {
     isPhraseEnd = phraseEnd;
   }
 
-  public Boolean getIsFalseStart() {
+  public boolean getIsFalseStart() {
     return isFalseStart;
   }
 
-  public void setIsFalseStart(Boolean falseStart) {
+  public void setIsFalseStart(boolean falseStart) {
     isFalseStart = falseStart;
   }
 
-  public Boolean getIsTruncation() {
+  public boolean getIsTruncation() {
     return isTruncation;
   }
 
-  public void setIsTruncation(Boolean truncation) {
+  public void setIsTruncation(boolean truncation) {
     isTruncation = truncation;
   }
 
-  public Boolean getIsFwm() {
+  public boolean getIsFwm() {
     return isFwm;
   }
 
-  public void setIsFwm(Boolean fwm) {
+  public void setIsFwm(boolean fwm) {
     isFwm = fwm;
   }
 
@@ -438,8 +438,8 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     if (r != null) {
       rval = r;
     }
-    if (str != null && !str.replaceAll("\\s", "").equals("")) {
-      if (descr != null && ! descr.replaceAll("\\s", "").equals("")) {
+    if (str != null && !str.replaceAll("\\s", "").isEmpty()) {
+      if (descr != null && !descr.replaceAll("\\s", "").isEmpty()) {
         if (rval == null) {
           rval = "";
         }
@@ -449,14 +449,14 @@ public class Label extends TimedAnnotationElement<PTlabel> {
     return rval;
   }
 
-  public String addTrueBooleansAndDescrToString (Boolean b, String descr, String r) {
+  public String addTrueBooleansAndDescrToString (boolean b, String descr, String r) {
     String rval = null;
     if (r != null) {
       rval = r;
     }
     // only add "true" booleans
-    if (b != null && b) {
-      if (descr != null && !descr.replaceAll("\\s", "").equals("")) {
+    if (b) {
+      if (descr != null && !descr.replaceAll("\\s", "").isEmpty()) {
         if (rval == null) {
           rval = "";
         }

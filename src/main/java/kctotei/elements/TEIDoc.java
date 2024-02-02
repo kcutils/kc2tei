@@ -51,19 +51,19 @@ public class TEIDoc {
   private static final String FALSE_START_ERROR_DESC = "Fehlstart";
   private static final String TRUNCATION_ERROR_DESC = "Abbruch";
 
-  private Map namespaceMap;
+  private Map<String, String> namespaceMap;
   private XPath xpath;
 
   private AnnotationElementCollection annotationElements;
 
   private KCSampaToIPAConverter charConverter;
 
-  private Integer utteranceCounter;
-  private Integer wordCounter;
-  private Integer spanCounter;
-  private Integer pcCounter;
-  private Integer vocalCounter;
-  private Integer pauseCounter;
+  private int utteranceCounter;
+  private int wordCounter;
+  private int spanCounter;
+  private int pcCounter;
+  private int vocalCounter;
+  private int pauseCounter;
 
   private String audioFileName;
 
@@ -72,7 +72,7 @@ public class TEIDoc {
 
   private TEIDoc () {
     this.setDoc(null);
-    this.setNamespaceMap(new HashMap());
+    this.setNamespaceMap(new HashMap<String,String>());
     this.setXpath(null);
     this.setAnnotationElements(null);
     this.setCharConverter(null);
@@ -124,11 +124,11 @@ public class TEIDoc {
     this.doc = doc;
   }
 
-  public Map getNamespaceMap () {
+  public Map<String, String> getNamespaceMap () {
     return namespaceMap;
   }
 
-  public void setNamespaceMap (Map namespaceMap) {
+  public void setNamespaceMap (Map<String, String> namespaceMap) {
     this.namespaceMap = namespaceMap;
   }
 
@@ -156,51 +156,51 @@ public class TEIDoc {
     this.charConverter = charConverter;
   }
 
-  public Integer getUtteranceCounter () {
+  public int getUtteranceCounter () {
     return utteranceCounter;
   }
 
-  public void setUtteranceCounter (Integer utteranceCounter) {
+  public void setUtteranceCounter (int utteranceCounter) {
     this.utteranceCounter = utteranceCounter;
   }
 
-  public Integer getWordCounter () {
+  public int getWordCounter () {
     return wordCounter;
   }
 
-  public void setWordCounter (Integer wordCounter) {
+  public void setWordCounter (int wordCounter) {
     this.wordCounter = wordCounter;
   }
 
-  public Integer getSpanCounter () {
+  public int getSpanCounter () {
     return spanCounter;
   }
 
-  public void setSpanCounter (Integer spanCounter) {
+  public void setSpanCounter (int spanCounter) {
     this.spanCounter = spanCounter;
   }
 
-  public Integer getPcCounter () {
+  public int getPcCounter () {
     return pcCounter;
   }
 
-  public void setPcCounter (Integer pcCounter) {
+  public void setPcCounter (int pcCounter) {
     this.pcCounter = pcCounter;
   }
 
-  public Integer getVocalCounter() {
+  public int getVocalCounter() {
     return vocalCounter;
   }
 
-  public void setVocalCounter(Integer vocalCounter) {
+  public void setVocalCounter(int vocalCounter) {
     this.vocalCounter = vocalCounter;
   }
 
-  public Integer getPauseCounter() {
+  public int getPauseCounter() {
     return pauseCounter;
   }
 
-  public void setPauseCounter(Integer pauseCounter) {
+  public void setPauseCounter(int pauseCounter) {
     this.pauseCounter = pauseCounter;
   }
 
@@ -249,6 +249,7 @@ public class TEIDoc {
 
   private void createXMLdoc () {
     this.setDoc(DocumentHelper.createDocument());
+
     this.getNamespaceMap().put("tei", "http://www.tei-c.org/ns/1.0");
   }
 
@@ -674,7 +675,7 @@ public class TEIDoc {
   public String toString () {
     try {
       return toStringEx();
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
     return "";
   }

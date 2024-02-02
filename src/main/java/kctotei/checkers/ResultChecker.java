@@ -95,7 +95,7 @@ public class ResultChecker {
    * @throws IOException  on file read/write problems
    * @throws SAXException on XML problems
    */
-  public Boolean noErrorsFound () throws IOException, SAXException {
+  public boolean noErrorsFound () throws IOException, SAXException {
     return this.getKcFileChecker().noErrorsFound() && this.getXmlValidator().validate();
   }
 

@@ -24,8 +24,8 @@ class Main {
 
   private static final String RNG_SCHEMA_FILE_NAME = "TEIschema.rng";
 
-  private static Boolean debugMode = false;
-  private static Boolean forceMode = false;
+  private static boolean debugMode = false;
+  private static boolean forceMode = false;
 
   private static final AnnotationElementCollection ANNOTATION_ELEMENT_COLLECTION = new AnnotationElementCollection();
 
@@ -73,7 +73,7 @@ class Main {
     }
 
     KCSampaToIPAConverter charConverter = new KCSampaToIPAConverter(debugMode);
-    String audioFileBaseName = inputFileName.substring(inputFileName.lastIndexOf("/") + 1, inputFileName.length());
+    String audioFileBaseName = inputFileName.substring(inputFileName.lastIndexOf("/") + 1);
 
     TEIDoc teiDoc = new TEIDoc(ANNOTATION_ELEMENT_COLLECTION,
             charConverter,
@@ -95,7 +95,7 @@ class Main {
       }
     }
 
-    if (outputFileName != null && ! outputFileName.equals("")) {
+    if (outputFileName != null && !outputFileName.isEmpty()) {
       writeTEIDocToFile(teiDoc, outputFileName);
     } else {
       System.out.print(teiDoc.toStringEx());
@@ -145,7 +145,7 @@ class Main {
       cmd = parser.parse(options1, args);
 
       printUsage(formatter, cmd, options);
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
 
     // reset cmd
@@ -198,7 +198,7 @@ class Main {
 
   /**
    * There was the problem that resource files withing jar archive could not be
-   * read directly from that archive. Therefore this method takes the resource
+   * read directly from that archive. Therefore, this method takes the resource
    * file from the jar archive and copies it to a real temporary file lying on
    * disk.
    *
@@ -241,7 +241,7 @@ class Main {
    * @throws IOException  on any IO errors
    */
   private static void writeTEIDocToFile (TEIDoc teiDoc, String fileName) throws IOException {
-    if (fileName != null && ! fileName.equals("")) {
+    if (fileName != null && !fileName.isEmpty()) {
       File file = new File(fileName);
       if (file.exists()) {
         System.err.println("File " + fileName + " already exists! Doing nothing ...");

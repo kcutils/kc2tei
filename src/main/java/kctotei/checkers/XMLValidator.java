@@ -43,7 +43,7 @@ public class XMLValidator {
     this.rngSchemaFile = rngSchemaFile;
   }
 
-  Boolean validate () throws IOException, SAXException {
+  boolean validate () throws IOException, SAXException {
     ValidationDriver vd = new ValidationDriver();
 
     // load the schema from a schema file

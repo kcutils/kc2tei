@@ -11,7 +11,7 @@ import java.io.PushbackReader;
  * with the help of these components.
  *
  * On the trees resulting from lexing and parsing separate classes collect
- * relevant informations.
+ * relevant information.
  */
 
 public class ElementCollector {
@@ -19,7 +19,7 @@ public class ElementCollector {
   private AnnotationElementCollection annotationElementCollection;
   private String inputFileName;
 
-  private Boolean debugMode;
+  private boolean debugMode;
 
   private ElementCollector () {
     this.setAnnotationElementCollection(null);
@@ -27,7 +27,7 @@ public class ElementCollector {
     this.setDebugMode(false);
   }
 
-  public ElementCollector (AnnotationElementCollection annotationElementCollection, String inputFileName, Boolean debugMode) throws transliteration.lexer.LexerException, labels.lexer.LexerException, transliteration.parser.ParserException, IOException, labels.parser.ParserException {
+  public ElementCollector (AnnotationElementCollection annotationElementCollection, String inputFileName, boolean debugMode) throws transliteration.lexer.LexerException, labels.lexer.LexerException, transliteration.parser.ParserException, IOException, labels.parser.ParserException {
     this();
     this.setInputFileName(inputFileName);
     this.setAnnotationElementCollection(annotationElementCollection);
@@ -47,7 +47,7 @@ public class ElementCollector {
     this.inputFileName = inputFileName;
   }
 
-  private void setDebugMode (Boolean debugMode) {
+  private void setDebugMode (boolean debugMode) {
     this.debugMode = debugMode;
   }
 

@@ -6,21 +6,21 @@ package kctotei.elements;
  * It's a primary stress by default.
  */
 public class StressType {
-  private Boolean isPrimaryStress;
+  private boolean isPrimaryStress;
 
   public StressType () {
     this.setPrimaryStress(true);
   }
 
-  private Boolean getPrimaryStress () {
+  private boolean getPrimaryStress () {
     return isPrimaryStress;
   }
 
-  public void setPrimaryStress (Boolean primaryStress) {
+  public void setPrimaryStress (boolean primaryStress) {
     isPrimaryStress = primaryStress;
   }
 
-  public StressType setPrimaryStressAndReturnStressType (Boolean primaryStress) {
+  public StressType setPrimaryStressAndReturnStressType (boolean primaryStress) {
     isPrimaryStress = primaryStress;
     return this;
   }
@@ -33,11 +33,11 @@ public class StressType {
     this.setPrimaryStress(false);
   }
 
-  public Boolean isPrimary () {
+  public boolean isPrimary () {
     return this.getPrimaryStress();
   }
 
-  public Boolean isSecondary () {
+  public boolean isSecondary () {
     return !this.getPrimaryStress();
   }
 }

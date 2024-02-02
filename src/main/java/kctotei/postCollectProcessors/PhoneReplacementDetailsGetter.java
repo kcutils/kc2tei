@@ -58,8 +58,8 @@ class PhoneReplacementDetailsGetter extends DepthFirstAdapter {
     }
 
     if (node.getClass() == labels.node.AStressedByStressedVowelReplacement2.class) {
-      Boolean modifiedPhoneHasPrimaryStress = ((AStressedByStressedVowelReplacement2) node).getL1().toString().contains("'");
-      Boolean realizedPhoneHasPrimaryStress = ((AStressedByStressedVowelReplacement2) node).getL2().toString().contains("'");
+      boolean modifiedPhoneHasPrimaryStress = ((AStressedByStressedVowelReplacement2) node).getL1().toString().contains("'");
+      boolean realizedPhoneHasPrimaryStress = ((AStressedByStressedVowelReplacement2) node).getL2().toString().contains("'");
       label.setModifiedPhon(stripWhiteSpaces(((AStressedByStressedVowelReplacement2) node).getS1().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((AStressedByStressedVowelReplacement2) node).getS2().toString()));
       label.setModifiedPhoneIsStressed(true);
@@ -69,14 +69,14 @@ class PhoneReplacementDetailsGetter extends DepthFirstAdapter {
     }
 
     if (node.getClass() == labels.node.AStressedByUnstressedVowelReplacement2.class) {
-      Boolean isPrimaryStress = ((AStressedByUnstressedVowelReplacement2) node).getLexicalStress().toString().contains("'");
+      boolean isPrimaryStress = ((AStressedByUnstressedVowelReplacement2) node).getLexicalStress().toString().contains("'");
       label.setModifiedPhon(stripWhiteSpaces(((AStressedByUnstressedVowelReplacement2) node).getStressableVowel().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((AStressedByUnstressedVowelReplacement2) node).getVowelSymbol().toString()));
       label.setModifiedPhoneIsStressed(true);
       label.setModifiedPhoneStressType(new StressType().setPrimaryStressAndReturnStressType(isPrimaryStress));
     }
     if (node.getClass() == labels.node.AUnstressedByStressedVowelReplacement2.class) {
-      Boolean isPrimaryStress = ((AUnstressedByStressedVowelReplacement2) node).getLexicalStress().toString().contains("'");
+      boolean isPrimaryStress = ((AUnstressedByStressedVowelReplacement2) node).getLexicalStress().toString().contains("'");
       label.setModifiedPhon(stripWhiteSpaces(((AUnstressedByStressedVowelReplacement2) node).getVowelSymbol().toString()));
       label.setRealizedPhon(stripWhiteSpaces(((AUnstressedByStressedVowelReplacement2) node).getStressableVowel().toString()));
       label.setRealizedPhoneIsStressed(true);

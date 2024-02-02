@@ -79,7 +79,7 @@ public class AnnotationElementCollection {
 
   public List<TimedAnnotationElement> getListOfTimedAnnotationElementsWithinPhraseStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
     List<TimedAnnotationElement> rval = null;
-    Boolean phraseBeginFound = false;
+    boolean phraseBeginFound = false;
 
     if (t1 != null && t2 != null) {
       rval = new ArrayList<>();
@@ -125,7 +125,7 @@ public class AnnotationElementCollection {
 
   public List<TimedAnnotationElement> getListOfTimedAnnotationElementsWithinWordStartingWithAndNotEndingBefore (TimeMark t1, TimeMark t2) {
     List<TimedAnnotationElement> rval = null;
-    Boolean wordBeginFound = false;
+    boolean wordBeginFound = false;
 
     if (t1 != null && t2 != null) {
       rval = new ArrayList<>();

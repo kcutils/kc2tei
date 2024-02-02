@@ -14,14 +14,14 @@ import java.util.List;
  */
 public class PostCollectProcessor {
 
-  private Boolean timeMarkersRefined;
-  private Boolean labelsRefined;
-  private Boolean wordsRefined;
-  private Boolean countersSet;
+  private boolean timeMarkersRefined;
+  private boolean labelsRefined;
+  private boolean wordsRefined;
+  private boolean countersSet;
 
-  private Integer amountOfTimeMarkers;
-  private Integer amountOfWords;
-  private Integer amountOfWordBoundaries;
+  private int amountOfTimeMarkers;
+  private int amountOfWords;
+  private int amountOfWordBoundaries;
   private AnnotationElementCollection annotationElementCollection;
 
   private PostCollectProcessor () {
@@ -41,59 +41,59 @@ public class PostCollectProcessor {
     refineAnnotationElementCollection();
   }
 
-  private Boolean getTimeMarkersRefined () {
+  private boolean getTimeMarkersRefined () {
     return timeMarkersRefined;
   }
 
-  private void setTimeMarkersRefined (Boolean timeMarkersRefined) {
+  private void setTimeMarkersRefined (boolean timeMarkersRefined) {
     this.timeMarkersRefined = timeMarkersRefined;
   }
 
-  private Boolean getLabelsRefined () {
+  private boolean getLabelsRefined () {
     return labelsRefined;
   }
 
-  private void setLabelsRefined (Boolean labelsRefined) {
+  private void setLabelsRefined (boolean labelsRefined) {
     this.labelsRefined = labelsRefined;
   }
 
-  private Boolean getWordsRefined () {
+  private boolean getWordsRefined () {
     return wordsRefined;
   }
 
-  private void setWordsRefined (Boolean wordsRefined) {
+  private void setWordsRefined (boolean wordsRefined) {
     this.wordsRefined = wordsRefined;
   }
 
-  private Boolean getCountersSet () {
+  private boolean getCountersSet () {
     return countersSet;
   }
 
-  private void setCountersSet (Boolean countersSet) {
+  private void setCountersSet (boolean countersSet) {
     this.countersSet = countersSet;
   }
 
-  public Integer getAmountOfTimeMarkers () {
+  public int getAmountOfTimeMarkers () {
     return amountOfTimeMarkers;
   }
 
-  private void setAmountOfTimeMarkers (Integer amountOfTimeMarkers) {
+  private void setAmountOfTimeMarkers (int amountOfTimeMarkers) {
     this.amountOfTimeMarkers = amountOfTimeMarkers;
   }
 
-  public Integer getAmountOfWords () {
+  public int getAmountOfWords () {
     return amountOfWords;
   }
 
-  private void setAmountOfWords (Integer amountOfWords) {
+  private void setAmountOfWords (int amountOfWords) {
     this.amountOfWords = amountOfWords;
   }
 
-  public Integer getAmountOfWordBoundaries () {
+  public int getAmountOfWordBoundaries () {
     return amountOfWordBoundaries;
   }
 
-  private void setAmountOfWordBoundaries (Integer amountOfWordBoundaries) {
+  private void setAmountOfWordBoundaries (int amountOfWordBoundaries) {
     this.amountOfWordBoundaries = amountOfWordBoundaries;
   }
 
@@ -113,7 +113,8 @@ public class PostCollectProcessor {
     refineTimedLabels();
     refineWords();
     setCounters();
-    Collections.sort(this.getAnnotationElementCollection().getAnnotationElements());
+    List<TimedAnnotationElement> annotationElements = this.getAnnotationElementCollection().getAnnotationElements();
+    Collections.sort(annotationElements);
   }
 
   /**
@@ -121,7 +122,7 @@ public class PostCollectProcessor {
    */
   private void refineTimeMarkers () {
     if (!this.getTimeMarkersRefined()) {
-      Integer nameSuffix;
+      int nameSuffix;
       for (int i = 0; i < this.getAnnotationElementCollection().getTimeMarkerList().size(); i++) {
         nameSuffix = i + 1;
         this.getAnnotationElementCollection().getTimeMarkerList().get(i).setName("T" + nameSuffix);
@@ -138,13 +139,13 @@ public class PostCollectProcessor {
 
       Label lastPhone = null;
 
-      Boolean creakModifierFound = false;
-      Boolean nasalizationModifierFound = false;
+      boolean creakModifierFound = false;
+      boolean nasalizationModifierFound = false;
 
-      Boolean wordBeginFound = false;
+      boolean wordBeginFound = false;
       Label beginOfAcousticWordLabel = null;
 
-      Boolean phraseEndFound = true;
+      boolean phraseEndFound = true;
 
       for (Label l : this.getAnnotationElementCollection().getListOfLabels()) {
         labels.node.Node node = l.getContent();
@@ -166,7 +167,7 @@ public class PostCollectProcessor {
         // and they modify next labels if the occur after deleted nasal
         if (l.getIsPhon() && nasalizationModifierFound) {
 
-          if (l.getIsNasal() && l.getPhonIsDeleted()) {
+          if (lastPhone != null && l.getIsNasal() && l.getPhonIsDeleted()) {
             // modify previous phone
             lastPhone.setIsNasalized(true);
           }
@@ -214,7 +215,7 @@ public class PostCollectProcessor {
   private void refineWords () {
     if (!this.getWordsRefined()) {
       List<Word> words = this.getAnnotationElementCollection().getListOfWords();
-      Integer i = 0;
+      int i = 0;
       for (Label l : this.getAnnotationElementCollection().getListOfLabels()) {
 
         // set start of current word to
@@ -228,7 +229,7 @@ public class PostCollectProcessor {
         }
 
         // set end of current word to end of current label
-        // if label is unignored phone
+        // if label is not ignored phone
         if (i > 0 && i <= words.size() && l.getIsPhon() && !l.getIgnorePhon()) {
           words.get(i - 1).setEndTime(l.getEndTime());
         }
@@ -236,7 +237,7 @@ public class PostCollectProcessor {
       }
 
       // set end of last word to last time mark if not already set
-      if (words.size() > 0 && words.get(words.size() - 1).getEndTime() == null) {
+      if (!words.isEmpty() && words.get(words.size() - 1).getEndTime() == null) {
         words.get(words.size() - 1).setEndTime(this.getAnnotationElementCollection().getTimeMarkerList().get(this.getAnnotationElementCollection().getTimeMarkerList().size() - 1));
       }
 

@@ -5,7 +5,7 @@ import kctotei.postCollectProcessors.PostCollectProcessor;
 
 /**
  * A Kiel Corpus file checker, checks for inconsistencies in a provided Kiel Corpus file.
- * Therefore it does not analyze a file directly, but relies on information collected by
+ * Therefore, it does not analyze a file directly, but relies on information collected by
  * other parts of this program (collector, postCollectProcessor, ...).
  *
  * As for now the only inconsistency that could lead to bad conversion of a file is
@@ -102,8 +102,8 @@ public class KCFileChecker {
    *              SAMPA and IPA/Unicode,
    *         false otherwise
    */
-  public Boolean noErrorsFound () {
-    Boolean rval = wordCounter == wordBoundaryCounter;
+  public boolean noErrorsFound () {
+    boolean rval = wordCounter == wordBoundaryCounter;
 
     rval = rval && ! (entriesNotInUnicodeTable > 0);
 

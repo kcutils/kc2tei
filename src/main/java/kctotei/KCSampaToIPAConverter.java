@@ -15,8 +15,8 @@ public class KCSampaToIPAConverter {
   private final Map<String, String> convertTable;
 
   // for checks/debug
-  private Integer noHits;
-  private Boolean debugMode;
+  private int noHits;
+  private boolean debugMode;
 
 
   public KCSampaToIPAConverter () {
@@ -117,24 +117,24 @@ public class KCSampaToIPAConverter {
 
   }
 
-  public KCSampaToIPAConverter (Boolean debugMode) {
+  public KCSampaToIPAConverter (boolean debugMode) {
     this();
     this.setDebugMode(debugMode);
   }
 
-  public Integer getNoHits () {
+  public int getNoHits () {
     return noHits;
   }
 
-  public void setNoHits (Integer noHits) {
+  public void setNoHits (int noHits) {
     this.noHits = noHits;
   }
 
-  public Boolean getDebugMode () {
+  public boolean getDebugMode () {
     return this.debugMode;
   }
 
-  public void setDebugMode (Boolean b) {
+  public void setDebugMode (boolean b) {
     this.debugMode = b;
   }
 

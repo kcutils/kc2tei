@@ -15,7 +15,7 @@ import kctotei.elements.StressType;
 public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
 
   private String details;
-  private Boolean refineMode;
+  private boolean refineMode;
   private Label label;
 
   public LabelInfoGetter () {
@@ -24,7 +24,7 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
     setRefineMode(false);
   }
 
-  public LabelInfoGetter (Label label, Boolean refineMode) {
+  public LabelInfoGetter (Label label, boolean refineMode) {
     this();
     setLabel(label);
     setRefineMode(refineMode);
@@ -42,11 +42,11 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
     this.label = label;
   }
 
-  private Boolean getRefineMode () {
+  private boolean getRefineMode () {
     return refineMode;
   }
 
-  private void setRefineMode (Boolean refineMode) {
+  private void setRefineMode (boolean refineMode) {
     this.refineMode = refineMode;
   }
 
@@ -220,7 +220,7 @@ public class LabelInfoGetter extends labels.analysis.DepthFirstAdapter {
         }
 
         if (node.getClass() == labels.node.AStressedVowel.class || node.getClass() == labels.node.AStressedVowelDeletion.class) {
-          Boolean isPrimaryStress = true;
+          boolean isPrimaryStress = true;
           if (node.getClass() == labels.node.AStressedVowel.class) {
             isPrimaryStress = ((labels.node.AStressedVowel) node).getLexicalStress().toString().contains("'");
           } else {
