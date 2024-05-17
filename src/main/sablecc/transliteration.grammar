@@ -19,6 +19,7 @@ Helpers
 
   punctuation_chars = [ '.' + [',' + [ '!' + [ '?' + [ ':' + ';' ]]]]];
   special_chars = [ '<' + [ '>' +  [ ':' + [ '%' + [ '#' + [ '-' + [ '+' + [ '/' + '=' ]]]]]]]];
+  word_interruption_symbol = '_';
   word = [[string_chars - punctuation_chars ] - special_chars ]+;
   file_extension = '.s1h' | '.s1' | '.s2';
   hesitating_lengthening = '<Z>';
@@ -64,7 +65,7 @@ Tokens
   {transliteration} false_start_end_marker = '/+';
   {transliteration} punctuation = punctuation_chars;
   {transliteration} speaker = word ': ';
-  {transliteration} word = word | word '-' word;
+  {transliteration} word = word_interruption_symbol? word ('-' word)* word_interruption_symbol?;
   {transliteration} hesit_word =  hesitating_lengthening word | (word hesitating_lengthening)+ word?;
 
   {rest} string = string;
