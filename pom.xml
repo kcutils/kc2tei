@@ -103,6 +103,15 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <compilerArgs>
+            <arg>-Xlint:all</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+      <plugin>
         <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/sablecc-maven-plugin -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>sablecc-maven-plugin</artifactId>
@@ -292,12 +301,12 @@
       <version>2.0.0</version>
     </dependency>
 
-   <!-- needed for verification of XML output -->
+    <!-- needed for verification of XML output -->
     <!-- https://mvnrepository.com/artifact/org.relaxng/jing -->
     <dependency>
-        <groupId>org.relaxng</groupId>
-        <artifactId>jing</artifactId>
-        <version>20220510</version>
+      <groupId>org.relaxng</groupId>
+      <artifactId>jing</artifactId>
+      <version>20220510</version>
     </dependency>
 
   </dependencies>
